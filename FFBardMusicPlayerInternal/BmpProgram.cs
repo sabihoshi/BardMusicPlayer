@@ -24,8 +24,10 @@ namespace FFBardMusicPlayer {
 		static extern IntPtr GetConsoleWindow();
 
 		[STAThread]
-		public static void StartUp()
+		public static void StartUp(int memoryVersion = 55)
         {
+			Sharlayan.Reader.memoryVersion = memoryVersion;
+
 			Application.EnableVisualStyles();
 
 			CultureInfo nonInvariantCulture = new CultureInfo("en-US");
@@ -35,8 +37,6 @@ namespace FFBardMusicPlayer {
 			if(GetConsoleWindow() != IntPtr.Zero) {
 				Console.OutputEncoding = System.Text.Encoding.UTF8;
 			}
-
-			Sharlayan.Reader.JsonPath = appBase;
 
 			BmpMain app = new BmpMain();
 			Application.Run(app);

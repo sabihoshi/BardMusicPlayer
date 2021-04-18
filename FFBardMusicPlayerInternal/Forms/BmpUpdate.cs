@@ -91,7 +91,7 @@ namespace FFBardMusicPlayer {
             }
 
 
-            // If not ignoring updates
+           /* // If not ignoring updates
             if (!Properties.Settings.Default.SigIgnore)
             {
                 // If new version is above current sig version
@@ -129,7 +129,7 @@ namespace FFBardMusicPlayer {
                         Properties.Settings.Default.ForcedOpen = false;
                     }
                 }
-            }
+            } */
         }
 
         private void ButtonSkip_Click(object sender, EventArgs e) {
