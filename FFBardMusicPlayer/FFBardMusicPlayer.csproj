@@ -7,7 +7,7 @@
     <ProjectGuid>{76962D1C-0C9F-4AEB-8979-15ADEAB94F2C}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>FFBardMusicPlayerInit</RootNamespace>
-    <AssemblyName>FFBardMusicPlayerInit</AssemblyName>
+    <AssemblyName>FFBardMusicPlayer</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -123,6 +123,7 @@
     <ProjectReference Include="..\FFBardMusicPlayerInternal\FFBardMusicPlayerInternal.csproj">
       <Project>{d6f7d0d6-c1e9-4229-8aaa-f5ccd49db126}</Project>
       <Name>FFBardMusicPlayerInternal</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
