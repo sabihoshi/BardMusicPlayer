@@ -24,7 +24,7 @@ namespace FFBardMusicPlayer {
 		static extern IntPtr GetConsoleWindow();
 
 		[STAThread]
-		public static void StartUp(int memoryVersion = 55)
+		public void StartUp(int memoryVersion = 55)
         {
 			Sharlayan.Reader.memoryVersion = memoryVersion;
 
