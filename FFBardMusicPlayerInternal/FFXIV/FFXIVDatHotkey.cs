@@ -215,7 +215,7 @@ namespace FFBardMusicPlayer {
 		}
 
 		public void LoadKeybindDat(string charId) {
-            String fileToLoad = Program.programOptions.DatPrefix + "KEYBIND.DAT";
+            String fileToLoad = "KEYBIND.DAT";
 			LoadDatId(charId, fileToLoad);
 		}
 

@@ -321,11 +321,7 @@ namespace FFBardMusicPlayer.Controls {
 
 				// memory setprocess
 				memory.SetProcess(proc);
-				if(Program.programOptions.DisableMemory) {
-					memory.Refresh();
-				} else {
-					memory.StartThread();
-				}
+				memory.StartThread();
 			}
 		}
 

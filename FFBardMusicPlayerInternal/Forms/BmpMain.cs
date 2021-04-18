@@ -53,21 +53,22 @@ namespace FFBardMusicPlayer.Forms {
 			this.UpdatePerformance();
 
 			BmpUpdate update = new BmpUpdate();
-			if(!Program.programOptions.DisableUpdate) {
-				updateResult = update.ShowDialog();
-				if(updateResult == DialogResult.Yes) {
-					updateTitle = update.version.updateTitle;
-					updateText = update.version.updateText;
-					updateResult = DialogResult.Yes;
-				}
-				if(updateResult == DialogResult.Ignore) {
-					string log = " This is a preview of a future version of BMP! Please be kind and report any bugs or unexpected behaviors to discord channel.";
-					ChatLogAll.AppendRtf(BmpChatParser.FormatRtf(log, Color.LightYellow, true));
-				}
-				if(!string.IsNullOrEmpty(update.version.updateLog)) {
-					string log = string.Format("= BMP Update =\n {0} \n", update.version.updateLog);
-					ChatLogAll.AppendRtf(BmpChatParser.FormatRtf(log, Color.LightGreen, true));
-				}
+			updateResult = update.ShowDialog();
+			if (updateResult == DialogResult.Yes)
+			{
+				updateTitle = update.version.updateTitle;
+				updateText = update.version.updateText;
+				updateResult = DialogResult.Yes;
+			}
+			if (updateResult == DialogResult.Ignore)
+			{
+				string log = " This is a preview of a future version of BMP! Please be kind and report any bugs or unexpected behaviors to discord channel.";
+				ChatLogAll.AppendRtf(BmpChatParser.FormatRtf(log, Color.LightYellow, true));
+			}
+			if (!string.IsNullOrEmpty(update.version.updateLog))
+			{
+				string log = string.Format("= BMP Update =\n {0} \n", update.version.updateLog);
+				ChatLogAll.AppendRtf(BmpChatParser.FormatRtf(log, Color.LightGreen, true));
 			}
 			this.Text = update.version.ToString();
 
@@ -150,17 +151,18 @@ namespace FFBardMusicPlayer.Forms {
 					this.Log(string.Format("Character [{0}] logged in at [{1}].", res.CurrentPlayer.Name, world));
 				}
 
-				if(!Program.programOptions.DisableUpdate) {
-					BmpDonationChecker don = new BmpDonationChecker(res.CurrentPlayer.Name, world);
-					don.OnDonatorResponse += delegate (Object obj, BmpDonationChecker.DonatorResponse donres) {
-						if(donres.donator) {
-							if(!string.IsNullOrEmpty(donres.donationMessage)) {
-								this.Log(donres.donationMessage);
-							}
+				BmpDonationChecker don = new BmpDonationChecker(res.CurrentPlayer.Name, world);
+				don.OnDonatorResponse += delegate (Object obj, BmpDonationChecker.DonatorResponse donres)
+				{
+					if (donres.donator)
+					{
+						if (!string.IsNullOrEmpty(donres.donationMessage))
+						{
+							this.Log(donres.donationMessage);
 						}
-						this.Invoke(t => t.DonationStatus = donres.donator);
-					};
-				}
+					}
+					this.Invoke(t => t.DonationStatus = donres.donator);
+				};
 
 				this.Invoke(t => t.UpdatePerformance());
 			};
@@ -368,11 +370,6 @@ namespace FFBardMusicPlayer.Forms {
 					Playlist.PlaySelectedMidi();
 				}
 			}
-			if(!string.IsNullOrEmpty(Program.programOptions.LoadMidiFile)) {
-				Explorer.SelectFile(Program.programOptions.LoadMidiFile);
-				Explorer.EnterFile();
-				Playlist.Deselect();
-			}
 
 			if(this.updateResult == DialogResult.Yes) {
 				this.Invoke(new Action(() => {
@@ -468,7 +465,7 @@ namespace FFBardMusicPlayer.Forms {
 				Player.Interactable = true;
 				Player.Keyboard.OverrideText = "Conducting in progress.";
 				Player.Keyboard.Enabled = false;
-			} else if(!Program.programOptions.DisableMemory) {
+			} else {
 				Player.Interactable = FFXIV.IsPerformanceReady();
 				Player.Keyboard.OverrideText = FFXIV.IsPerformanceReady() ? string.Empty : "Open Bard Performance mode to play.";
 				Player.Keyboard.Enabled = true;

@@ -108,7 +108,7 @@ namespace FFBardMusicPlayer {
 		HotbarData hotbarData = new HotbarData();
 
 		public void LoadHotbarDat(string charId) {
-            String fileToLoad = Program.programOptions.DatPrefix + "HOTBAR.DAT";
+            String fileToLoad = "HOTBAR.DAT";
 			LoadDatId(charId, fileToLoad);
 		}
 

@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("FFBardMusicPlayer")]
+[assembly: AssemblyTitle("FFBardMusicPlayerInternal")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("76962d1c-0c9f-4aeb-8979-15adeab94f2c")]
+[assembly: Guid("d6f7d0d6-c1e9-4229-8aaa-f5ccd49db126")]
 
 // Version information for an assembly consists of the following four values:
 //

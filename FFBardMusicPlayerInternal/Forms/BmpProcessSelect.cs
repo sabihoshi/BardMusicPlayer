@@ -149,23 +149,6 @@ namespace FFBardMusicPlayer {
 			// Get a list of all ffxiv_dx11 processes
 			List<Process> processes = new List<Process>(Process.GetProcessesByName("ffxiv_dx11"));
 
-			// If specified window title, select first one
-			if(!string.IsNullOrEmpty(Program.programOptions.HookWindowTitle)) {
-				foreach(Process proc in Process.GetProcesses()) {
-					if(proc.MainWindowTitle == Program.programOptions.HookWindowTitle) {
-						processes = new List<Process>() { proc };
-						break;
-					}
-				}
-			}
-			else if(Program.programOptions.HookPid != 0) {
-				Console.WriteLine(string.Format("{0}", Program.programOptions.HookPid));
-				Process proc = Process.GetProcessById(Program.programOptions.HookPid);
-				if(proc != null) {
-					processes = new List<Process>() { proc };
-				}
-			}
-
 			// Mutex that shit
 			foreach(Process process in processes.ToList()) {
 				Mutex mutex = new Mutex(true, string.Format("bard-music-player-{0}", process.Id));

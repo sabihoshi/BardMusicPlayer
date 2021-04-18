@@ -68,9 +68,6 @@ namespace FFBardMusicPlayer.Controls {
 			RefreshMidiInput();
 
 			string midiInput = Properties.Settings.Default.MidiInputDev;
-			if(!string.IsNullOrEmpty(Program.programOptions.MidiInput)) {
-				midiInput = Program.programOptions.MidiInput;
-			}
 			SetMidiInput(midiInput);
 			SettingMidiInput.SelectedValueChanged += SettingMidiInput_SelectedValueChanged;
 

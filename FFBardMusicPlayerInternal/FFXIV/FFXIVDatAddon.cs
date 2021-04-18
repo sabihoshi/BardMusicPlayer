@@ -66,7 +66,7 @@ namespace FFBardMusicPlayer {
 		}
 
 		public void LoadAddonDat(string charId) {
-			String fileToLoad = Program.programOptions.DatPrefix + "ADDON.DAT";
+			String fileToLoad = "ADDON.DAT";
 			LoadDatId(charId, fileToLoad);
 		}
 		// 24 CB 8D CA 7E E6 3B 42 56 55 55 41 00 00 80 3F
