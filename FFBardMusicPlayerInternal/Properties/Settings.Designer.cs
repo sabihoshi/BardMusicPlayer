@@ -181,9 +181,9 @@ namespace FFBardMusicPlayer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::FFBardMusicCommon.BmpMidiList MidiList {
+        public global::FFBardMusicPlayer.BmpMidiList MidiList {
             get {
-                return ((global::FFBardMusicCommon.BmpMidiList)(this["MidiList"]));
+                return ((global::FFBardMusicPlayer.BmpMidiList)(this["MidiList"]));
             }
             set {
                 this["MidiList"] = value;

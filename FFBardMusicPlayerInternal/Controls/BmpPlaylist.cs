@@ -10,7 +10,6 @@ using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Collections.Specialized;
-using FFBardMusicCommon;
 
 using Timer = System.Timers.Timer;
 using System.Timers;

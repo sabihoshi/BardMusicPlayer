@@ -347,13 +347,11 @@
     <Content Include="Resources\Play.png" />
     <Content Include="Resources\Refresh.png" />
     <Content Include="Resources\Shuffle.png" />
-    <Content Include="Tools\ILMerge.exe" />
-    <Content Include="Tools\System.Compiler.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Properties\DataSources\AppMain.datasource" />
-    <None Include="Properties\DataSources\FFBardMusicCommon.BmpMidiEntry.datasource" />
+    <None Include="Properties\DataSources\FFBardMusicPlayer.BmpMidiEntry.datasource" />
     <None Include="Properties\DataSources\FFBardMusicPlayer.Controls.PlaylistControl.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

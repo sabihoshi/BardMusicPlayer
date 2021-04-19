@@ -1,5 +1,4 @@
-﻿using FFBardMusicCommon;
-using FFBardMusicPlayer.Controls;
+﻿using FFBardMusicPlayer.Controls;
 using NLog;
 using NLog.Targets;
 using Sharlayan.Core;

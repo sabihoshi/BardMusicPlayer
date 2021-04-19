@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Configuration;
 using System.ComponentModel;
 
-namespace FFBardMusicCommon {
+namespace FFBardMusicPlayer {
 
 
 	[Serializable]

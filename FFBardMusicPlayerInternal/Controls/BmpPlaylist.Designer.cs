@@ -136,7 +136,7 @@
 			// 
 			// MidiEntrySource
 			// 
-			this.MidiEntrySource.DataSource = typeof(FFBardMusicCommon.BmpMidiEntry);
+			this.MidiEntrySource.DataSource = typeof(BmpMidiEntry);
 			// 
 			// Playlist_ClearAll
 			// 
