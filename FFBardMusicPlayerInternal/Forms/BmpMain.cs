@@ -47,12 +47,12 @@ namespace FFBardMusicPlayer.Forms {
 		}
 
 
-		public BmpMain() {
+		public BmpMain(string title, string messageText) {
 			InitializeComponent();
 
 			this.UpdatePerformance();
 
-			BmpUpdate update = new BmpUpdate();
+			/*BmpUpdate update = new BmpUpdate();
 			updateResult = update.ShowDialog();
 			if (updateResult == DialogResult.Yes)
 			{
@@ -62,15 +62,16 @@ namespace FFBardMusicPlayer.Forms {
 			}
 			if (updateResult == DialogResult.Ignore)
 			{
-				string log = " This is a preview of a future version of BMP! Please be kind and report any bugs or unexpected behaviors to discord channel.";
-				ChatLogAll.AppendRtf(BmpChatParser.FormatRtf(log, Color.LightYellow, true));
+				//string log = " This is a preview of a future version of BMP! Please be kind and report any bugs or unexpected behaviors to discord channel.";
+				//ChatLogAll.AppendRtf(BmpChatParser.FormatRtf(log, Color.LightYellow, true));
 			}
 			if (!string.IsNullOrEmpty(update.version.updateLog))
 			{
-				string log = string.Format("= BMP Update =\n {0} \n", update.version.updateLog);
-				ChatLogAll.AppendRtf(BmpChatParser.FormatRtf(log, Color.LightGreen, true));
-			}
-			this.Text = update.version.ToString();
+				//string log = string.Format("= BMP Update =\n {0} \n", update.version.updateLog);
+				//ChatLogAll.AppendRtf(BmpChatParser.FormatRtf(log, Color.LightGreen, true));
+			}*/
+			ChatLogAll.AppendRtf(BmpChatParser.FormatRtf(messageText, Color.LightGreen, true));
+			this.Text = title;
 
 			// Clear local orchestra
 			InfoTabs.TabPages.Remove(localOrchestraTab);

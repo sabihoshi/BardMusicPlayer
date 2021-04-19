@@ -29,9 +29,27 @@ namespace FFBardMusicPlayerInit
         /// </summary>
         private void InitializeComponent()
         {
+            this.progress_bar = new System.Windows.Forms.ProgressBar();
+            this.progress_text = new System.Windows.Forms.Label();
             this.IconPicture = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.IconPicture)).BeginInit();
             this.SuspendLayout();
+            // 
+            // progress_bar
+            // 
+            this.progress_bar.Location = new System.Drawing.Point(103, 74);
+            this.progress_bar.Name = "progress_bar";
+            this.progress_bar.Size = new System.Drawing.Size(156, 23);
+            this.progress_bar.TabIndex = 9;
+            // 
+            // progress_text
+            // 
+            this.progress_text.AutoSize = true;
+            this.progress_text.Location = new System.Drawing.Point(103, 35);
+            this.progress_text.Name = "progress_text";
+            this.progress_text.Size = new System.Drawing.Size(116, 15);
+            this.progress_text.TabIndex = 10;
+            this.progress_text.Text = "Download Updates...";
             // 
             // IconPicture
             // 
@@ -49,20 +67,26 @@ namespace FFBardMusicPlayerInit
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(300, 110);
+            this.ClientSize = new System.Drawing.Size(271, 110);
+            this.Controls.Add(this.progress_text);
+            this.Controls.Add(this.progress_bar);
             this.Controls.Add(this.IconPicture);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "BmpUpdate";
+            this.RightToLeftLayout = true;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "AppUpdate";
+            this.Text = "Bard Music Player Updater";
             ((System.ComponentModel.ISupportInitialize)(this.IconPicture)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
         private System.Windows.Forms.PictureBox IconPicture;
+        private System.Windows.Forms.ProgressBar progress_bar;
+        private System.Windows.Forms.Label progress_text;
     }
 }
