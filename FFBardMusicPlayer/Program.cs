@@ -22,7 +22,7 @@ namespace FFBardMusicPlayerInit {
         {
 
 #if LOCAL
-            var dlls = Directory.GetFiles("Lib", "*.dll");
+            var dlls = Directory.GetFiles(@"Lib\net48", "*.dll");
             Type bmpProgram = null;
             foreach (var dll in dlls)
             {
