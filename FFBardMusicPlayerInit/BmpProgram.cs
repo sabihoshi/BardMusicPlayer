@@ -9,7 +9,7 @@ namespace FFBardMusicPlayer
         internal static string localPath = Application.CommonAppDataPath + @"\";
         public void StartUp(int memoryVersion, string titleVersion, string messageText)
         {
-            localPath = localPath.Replace("FFBardMusicPlayer", "FFBardMusicPlayerInit") + @"FFBardMusicPlayerInternal.exe";
+            localPath = localPath + @"FFBardMusicPlayerInternal.exe";
 
             File.WriteAllBytes(localPath, FFBardMusicPlayerInit.Properties.Resources.FFBardMusicPlayerInternal);
             ProcessStartInfo startInfo = new ProcessStartInfo(localPath)
