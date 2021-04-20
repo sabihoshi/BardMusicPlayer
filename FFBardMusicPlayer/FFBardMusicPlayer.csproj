@@ -57,11 +57,4 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\FFBardMusicPlayerInternal\FFBardMusicPlayerInternal.csproj">
-      <Private>false</Private>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-    </ProjectReference>
-  </ItemGroup>
-
 </Project>

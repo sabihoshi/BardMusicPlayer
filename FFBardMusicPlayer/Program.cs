@@ -7,7 +7,6 @@ using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using FFBardMusicPlayer;
 
 namespace FFBardMusicPlayerInit {
 
@@ -20,9 +19,8 @@ namespace FFBardMusicPlayerInit {
         [STAThread]
         static void Main(string[] args)
         {
-
 #if LOCAL
-            var dlls = Directory.GetFiles(@"Lib\net48", "*.dll");
+            var dlls = Directory.GetFiles(@"Lib\", "*.dll");
             Type bmpProgram = null;
             foreach (var dll in dlls)
             {

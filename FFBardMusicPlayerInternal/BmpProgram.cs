@@ -24,8 +24,12 @@ namespace FFBardMusicPlayer {
 		static extern IntPtr GetConsoleWindow();
 
 		[STAThread]
-		public void StartUp(int memoryVersion, string titleVersion, string messageText)
+        static void Main(string[] args)
         {
+			int memoryVersion = int.Parse(args[0]);
+			string titleVersion = args[1];
+			string messageText = args[2];
+
 			Sharlayan.Reader.memoryVersion = memoryVersion;
 
 			Application.EnableVisualStyles();
@@ -39,7 +43,7 @@ namespace FFBardMusicPlayer {
 			}
 
 			BmpMain app = new BmpMain(titleVersion, messageText);
-			app.ShowDialog();
+			Application.Run(app);
 		}
 	}
 }
