@@ -13,6 +13,7 @@ using System.Collections.Specialized;
 
 using Timer = System.Timers.Timer;
 using System.Timers;
+using FFBardMusicCommon;
 
 namespace FFBardMusicPlayer.Controls {
 	public partial class BmpPlaylist : UserControl {

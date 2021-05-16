@@ -1,4 +1,6 @@
-﻿namespace FFBardMusicPlayer.Controls {
+﻿using FFBardMusicCommon;
+
+namespace FFBardMusicPlayer.Controls {
 	partial class BmpPlaylist {
 		/// <summary> 
 		/// Required designer variable.

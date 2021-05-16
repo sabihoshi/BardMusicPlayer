@@ -8,6 +8,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using FFBardMusicCommon;
+
 namespace FFBardMusicPlayer.Properties {
     
     
@@ -181,9 +183,9 @@ namespace FFBardMusicPlayer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::FFBardMusicPlayer.BmpMidiList MidiList {
+        public BmpMidiList MidiList {
             get {
-                return ((global::FFBardMusicPlayer.BmpMidiList)(this["MidiList"]));
+                return ((BmpMidiList)(this["MidiList"]));
             }
             set {
                 this["MidiList"] = value;

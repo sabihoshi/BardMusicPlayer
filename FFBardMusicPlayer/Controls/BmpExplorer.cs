@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using FFBardMusicPlayer.Components;
 using System.Diagnostics;
 using System.IO;
+using FFBardMusicCommon;
 
 namespace FFBardMusicPlayer.Controls {
 	public partial class BmpExplorer : UserControl {

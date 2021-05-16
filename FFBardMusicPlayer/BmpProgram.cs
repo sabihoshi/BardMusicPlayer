@@ -26,11 +26,16 @@ namespace FFBardMusicPlayer {
 		[STAThread]
         static void Main(string[] args)
         {
-			int memoryVersion = int.Parse(args[0]);
+
+#if DEBUG
+            string titleVersion = "BardMusicPlayer 1.4 - BETA";
+            string messageText = "      This is an unsupported beta of BardMusicPlayer 1.4";
+#else
 			string titleVersion = args[1];
 			string messageText = args[2];
+#endif
 
-			Sharlayan.Reader.memoryVersion = memoryVersion;
+			Sharlayan.Reader.memoryVersion = 55;
 
 			Application.EnableVisualStyles();
 

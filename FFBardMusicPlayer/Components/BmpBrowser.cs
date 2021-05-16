@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FFBardMusicCommon;
 
 namespace FFBardMusicPlayer.Components {
 	public partial class BmpBrowser : ListBox {

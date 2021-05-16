@@ -20,6 +20,7 @@ using Timer = System.Timers.Timer;
 
 using static FFBardMusicPlayer.Controls.BmpPlayer;
 using System.Security.Principal;
+using FFBardMusicCommon;
 
 namespace FFBardMusicPlayer.Forms {
 	public partial class BmpMain : Form {
