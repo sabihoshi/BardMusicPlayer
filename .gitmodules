@@ -1,0 +1,3 @@
+[submodule "BardMusicPlayer"]
+	path = BardMusicPlayer
+	url = https://github.com/BardMusicPlayer/BardMusicPlayer.git
