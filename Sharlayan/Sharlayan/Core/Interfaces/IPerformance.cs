@@ -8,7 +8,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-using MogLib.Common.Structs;
+using BardMusicPlayer.Quotidian.Structs;
 
 namespace Sharlayan.Core.Interfaces {
 	using System.Collections.Generic;

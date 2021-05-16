@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
+using FFBardMusicPlayer.FFXIV.KnownFolder;
 
 // Key/Keybind - the actual key to simulate
 // PerfKey/pk - PERFORMANCE_MODE_ key to get the keybind
@@ -35,7 +37,7 @@ namespace FFBardMusicPlayer {
 
 		public static List<string> GetIdList() {
 			List<string> ids = new List<string>();
-			string doc = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string doc = new KnownFolder(KnownFolderType.Documents, GetProcess().WindowsIdentity()).Path;
 			string dirPath = Path.Combine(new string[] { doc, "My Games" });
 			foreach(string dir in Directory.GetDirectories(dirPath, "FINAL FANTASY XIV - *")) {
 				foreach(string dir2 in Directory.GetDirectories(dir, "FFXIV_CHR*", SearchOption.TopDirectoryOnly)) {
@@ -46,8 +48,14 @@ namespace FFBardMusicPlayer {
 			return ids;
 		}
 
+        private static Process GetProcess()
+        {
+            var games = Process.GetProcessesByName("ffxiv_dx11");
+            return games.Length < 1 ? Process.GetCurrentProcess() : games.First();
+        }
+
 		protected string FindFFXIVDatFile(string charId, string file) {
-			string doc = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+			string doc = new KnownFolder(KnownFolderType.Documents, GetProcess().WindowsIdentity()).Path;
 			string dirPath = Path.Combine(new string[] { doc, "My Games" });
 			foreach(string dir in Directory.GetDirectories(dirPath, "FINAL FANTASY XIV - *")) {
 				string path = Path.Combine(new string[] { dir, charId, file });

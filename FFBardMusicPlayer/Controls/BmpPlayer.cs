@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 using static Sharlayan.Core.Enums.Performance;
 using FFBardMusicPlayer.Components;
 using System.IO;
-using MogLib.Common.Structs;
+using BardMusicPlayer.Quotidian.Structs;
 
 namespace FFBardMusicPlayer.Controls {
 	public partial class BmpPlayer : UserControl {

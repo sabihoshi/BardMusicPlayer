@@ -50,9 +50,6 @@
     <OutputPath>bin\Publish\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MogLib.Common, Version=1.5.4.5, Culture=neutral, PublicKeyToken=5e282b33a87df1e8, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\MogLib.Common.1.5.4.5\lib\net45\MogLib.Common.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -204,6 +201,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\BardMusicPlayer\BardMusicPlayer.Quotidian\BardMusicPlayer.Quotidian.csproj">
+      <Project>{de097a2c-ff46-4c31-8196-b2e3d7959c3c}</Project>
+      <Name>BardMusicPlayer.Quotidian</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -11,9 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using MogLib.Common.Structs;
-using MogLib.Notate;
-using MogLib.Notate.Objects;
+using BardMusicPlayer.Quotidian.Structs;
 
 namespace FFBardMusicPlayer
 {
@@ -29,78 +27,51 @@ namespace FFBardMusicPlayer
             {
                 
                 string md5 = CalculateMD5(filePath);
+
                 if (lastMD5.Equals(md5) && lastFile != null)
                 {
                     var oldfile = new MemoryStream();
-                    lastFile.Write(oldfile, MidiFileFormat.MultiTrack,
-                        new WritingSettings { TextEncoding = Encoding.ASCII });
+                    lastFile.Write(oldfile, MidiFileFormat.MultiTrack, new WritingSettings { TextEncoding = Encoding.UTF8 });
                     oldfile.Flush();
                     oldfile.Position = 0;
                     return oldfile;
                 }
 
-                if (Path.GetExtension(filePath).ToLower().Equals(".mmsong"))
+                midiFile = MidiFile.Read(filePath, new ReadingSettings
                 {
-                    midiFile =  MMSong.Open(filePath).GetMidiFile(false, false, true).ReadAsMidiFile();
-                }
-                else
+                    ReaderSettings = new ReaderSettings { BufferingPolicy = BufferingPolicy.BufferAllData },
+                    InvalidChunkSizePolicy = InvalidChunkSizePolicy.Ignore,
+                    InvalidMetaEventParameterValuePolicy = InvalidMetaEventParameterValuePolicy.SnapToLimits,
+                    InvalidChannelEventParameterValuePolicy = InvalidChannelEventParameterValuePolicy.SnapToLimits,
+                    InvalidSystemCommonEventParameterValuePolicy = InvalidSystemCommonEventParameterValuePolicy.SnapToLimits,
+                    MissedEndOfTrackPolicy = MissedEndOfTrackPolicy.Ignore,
+                    NotEnoughBytesPolicy = NotEnoughBytesPolicy.Ignore,
+                    UnexpectedTrackChunksCountPolicy = UnexpectedTrackChunksCountPolicy.Ignore,
+                    UnknownChannelEventPolicy = UnknownChannelEventPolicy.SkipStatusByteAndOneDataByte,
+                    UnknownChunkIdPolicy = UnknownChunkIdPolicy.Skip
+                });
+
+                #region Require
+
+                if (midiFile == null) throw new ArgumentNullException();
+
+                try
                 {
-                    midiFile = MidiFile.Read(filePath, new ReadingSettings
+                    if (midiFile.Chunks.Count < 1) throw new NotSupportedException();
+
+                    MidiFileFormat fileFormat = midiFile.OriginalFormat;
+
+                    if (fileFormat == MidiFileFormat.MultiSequence)
                     {
-                        ReaderSettings = new ReaderSettings
-                        {
-                            ReadFromMemory = true
-                        },
-                        InvalidChunkSizePolicy = InvalidChunkSizePolicy.Ignore,
-                        InvalidMetaEventParameterValuePolicy = InvalidMetaEventParameterValuePolicy.SnapToLimits,
-                        InvalidChannelEventParameterValuePolicy = InvalidChannelEventParameterValuePolicy.SnapToLimits,
-                        InvalidSystemCommonEventParameterValuePolicy = InvalidSystemCommonEventParameterValuePolicy.SnapToLimits,
-                        MissedEndOfTrackPolicy = MissedEndOfTrackPolicy.Ignore,
-                        NotEnoughBytesPolicy = NotEnoughBytesPolicy.Ignore,
-                        UnexpectedTrackChunksCountPolicy = UnexpectedTrackChunksCountPolicy.Ignore,
-                        UnknownChannelEventPolicy = UnknownChannelEventPolicy.SkipStatusByteAndOneDataByte,
-                        UnknownChunkIdPolicy = UnknownChunkIdPolicy.ReadAsUnknownChunk
-                    });
-
-
-                    #region Require
-
-                    if (midiFile == null)
-                    {
-                        throw new ArgumentNullException();
-                    }
-                    else
-                    {
-                        try
-                        {
-                            if (midiFile.Chunks.Count < 1) throw new NotSupportedException();
-
-                            MidiFileFormat fileFormat = midiFile.OriginalFormat;
-
-                            if (fileFormat == MidiFileFormat.MultiSequence)
-                            {
-                                throw new NotSupportedException();
-                            }
-                        }
-                        catch (Exception exception) when (exception is UnknownFileFormatException ||
-                                                          exception is InvalidOperationException)
-                        {
-                            throw exception;
-                        }
-                    }
-
-                    #endregion
-
-                    var trackZeroName = midiFile.GetTrackChunks().First().Events.OfType<SequenceTrackNameEvent>()
-                        .FirstOrDefault()?.Text;
-
-                    if (!string.IsNullOrEmpty(trackZeroName) && (trackZeroName.ToLower().Contains("mogamp") ||
-                                                                 trackZeroName.ToLower().Contains("mognotate")))
-                    {
-                        midiFile = NotateConfig.GenerateConfigFromMidiFile(filePath).Transmogrify()
-                            .GetMidiFile(false, false, true).ReadAsMidiFile();
+                        throw new NotSupportedException();
                     }
                 }
+                catch (Exception exception) when (exception is UnknownFileFormatException || exception is InvalidOperationException)
+                {
+                    throw exception;
+                }
+
+                #endregion
 
                 Console.WriteLine("Scrubbing " + filePath);
                 var loaderWatch = Stopwatch.StartNew();

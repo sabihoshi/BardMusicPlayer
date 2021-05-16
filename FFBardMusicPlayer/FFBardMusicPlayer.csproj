@@ -32,18 +32,15 @@
 
   
   <ItemGroup>
+    <PackageReference Include="Melanchall.DryWetMidi" Version="5.2.1-prerelease5" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
-    <PackageReference Include="MogLib.Common" Version="1.5.4.5" />
-    <PackageReference Include="MogLib.Midi" Version="5.2.0.1" />
-    <PackageReference Include="MogLib.Notate" Version="1.5.4.5" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="NLog" Version="4.7.9" />
-    <PackageReference Include="ServiceStack.Text" Version="5.10.4" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.3" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-    <PackageReference Include="YamlDotNet" Version="11.1.1" />
   </ItemGroup>
   
   <ItemGroup>
@@ -58,6 +55,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\BardMusicPlayer\BardMusicPlayer.Quotidian\BardMusicPlayer.Quotidian.csproj" />
     <ProjectReference Include="..\Sanford.Multimedia.Midi\Source\Sanford.Multimedia.Midi.csproj" />
     <ProjectReference Include="..\Sharlayan\Sharlayan\Sharlayan.csproj" />
   </ItemGroup>

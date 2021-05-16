@@ -9,7 +9,6 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Diagnostics;
-using MogLib.Common.Structs;
 
 namespace Sharlayan {
     using System;
