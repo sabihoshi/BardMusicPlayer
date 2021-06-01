@@ -8,16 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Timers;
-using Timer = System.Timers.Timer;
 using static FFBardMusicPlayer.Controls.BmpPlayer;
 using System.Security.Principal;
 
@@ -73,7 +69,7 @@ namespace FFBardMusicPlayer.Forms
 
                 if (!string.IsNullOrEmpty(update.version.updateLog))
                 {
-                    var log = string.Format("= BMP Update =\n {0} \n", update.version.updateLog);
+                    var log = $"= BMP Update =\n {update.version.updateLog} \n";
                     ChatLogAll.AppendRtf(BmpChatParser.FormatRtf(log, Color.LightGreen, true));
                 }
             }
@@ -109,7 +105,7 @@ namespace FFBardMusicPlayer.Forms
             FFXIV.hook.OnKeyPressed += Hook_OnKeyPressed;
             FFXIV.memory.OnProcessReady += delegate(object o, Process proc)
             {
-                Log(string.Format("[{0}] Process scanned and ready.", proc.Id));
+                Log($"[{proc.Id}] Process scanned and ready.");
                 if (Sharlayan.Reader.CanGetActors())
                 {
                     if (!Sharlayan.Reader.CanGetCharacterId())
@@ -141,15 +137,14 @@ namespace FFBardMusicPlayer.Forms
                         }
                         else
                         {
-                            Console.WriteLine(string.Format("Could not find signature {0}", sig.Key));
+                            Console.WriteLine($"Could not find signature {sig.Key}");
                         }
                     }
 
                     if (sigCount == signatures.Count)
                     {
-                        Log(string.Format(
-                            "[MEMORY] Cannot read memory ({0}/{1}). Functionality will be severely limited.", sigCount,
-                            signatures.Count));
+                        Log(
+                            $"[MEMORY] Cannot read memory ({sigCount}/{signatures.Count}). Functionality will be severely limited.");
                         this.Invoke(t => t.ErrorProcess(BmpHook.ProcessError.ProcessNonAccessible));
                     }
                     else
@@ -185,11 +180,11 @@ namespace FFBardMusicPlayer.Forms
 
                 if (string.IsNullOrEmpty(world))
                 {
-                    Log(string.Format("Character [{0}] logged in.", res.CurrentPlayer.Name));
+                    Log($"Character [{res.CurrentPlayer.Name}] logged in.");
                 }
                 else
                 {
-                    Log(string.Format("Character [{0}] logged in at [{1}].", res.CurrentPlayer.Name, world));
+                    Log($"Character [{res.CurrentPlayer.Name}] logged in at [{world}].");
                 }
 
                 if (!Program.programOptions.DisableUpdate)
@@ -213,7 +208,7 @@ namespace FFBardMusicPlayer.Forms
             };
             FFXIV.memory.OnCurrentPlayerLogout += delegate(object o, CurrentPlayerResult res)
             {
-                var format = string.Format("Character [{0}] logged out.", res.CurrentPlayer.Name);
+                var format = $"Character [{res.CurrentPlayer.Name}] logged out.";
                 Log(format);
             };
             FFXIV.memory.OnPartyChanged += delegate(object o, PartyResult res)
@@ -244,7 +239,7 @@ namespace FFBardMusicPlayer.Forms
                 if (input.id != -1)
                 {
                     Player.Player.OpenInputDevice(input.name);
-                    Log(string.Format("Switched to {0} ({1})", input.name, input.id));
+                    Log($"Switched to {input.name} ({input.id})");
                 }
             };
             Settings.OnKeyboardTest += delegate(object o, EventArgs arg)
@@ -262,8 +257,7 @@ namespace FFBardMusicPlayer.Forms
                 {
                     if (open)
                     {
-                        Log(string.Format(
-                            "Forced playback was enabled. You will not be able to use keybinds, such as spacebar."));
+                        Log("Forced playback was enabled. You will not be able to use keybinds, such as spacebar.");
                         WarningLog("Forced playback enabled.");
                     }
 
@@ -321,14 +315,14 @@ namespace FFBardMusicPlayer.Forms
 
         public void LogMidi(string format)
         {
-            ChatLogAll.AppendRtf(BmpChatParser.FormatRtf("[MIDI] " + format, Color.LightPink));
+            ChatLogAll.AppendRtf(BmpChatParser.FormatRtf($"[MIDI] {format}", Color.LightPink));
         }
 
-        public void Log(string format) { ChatLogAll.AppendRtf(BmpChatParser.FormatRtf("[SYSTEM] " + format)); }
+        public void Log(string format) { ChatLogAll.AppendRtf(BmpChatParser.FormatRtf($"[SYSTEM] {format}")); }
 
-        public void WarningLog(string format) { FFXIV.SetErrorStatus("Warning: " + format); }
+        public void WarningLog(string format) { FFXIV.SetErrorStatus($"Warning: {format}"); }
 
-        public void ErrorLog(string format) { FFXIV.SetErrorStatus("[ERROR] " + format); }
+        public void ErrorLog(string format) { FFXIV.SetErrorStatus($"[ERROR] {format}"); }
 
         public void FindProcess()
         {
@@ -593,7 +587,7 @@ namespace FFBardMusicPlayer.Forms
             }
             catch (Exception e)
             {
-                LogMidi(string.Format("[{0}] cannot be loaded:", entry.FilePath.FilePath));
+                LogMidi($"[{entry.FilePath.FilePath}] cannot be loaded:");
                 LogMidi(e.Message);
                 Console.WriteLine(e.StackTrace);
                 error = true;
@@ -603,7 +597,7 @@ namespace FFBardMusicPlayer.Forms
             {
                 if (diff && Properties.Settings.Default.Verbose)
                 {
-                    LogMidi(string.Format("[{0}] loaded.", entry.FilePath.FilePath));
+                    LogMidi($"[{entry.FilePath.FilePath}] loaded.");
                 }
 
                 Properties.Settings.Default.LastLoaded = entry.FilePath.FilePath;
@@ -778,56 +772,34 @@ namespace FFBardMusicPlayer.Forms
 
             if (FFXIV.IsPerformanceReady() && !FFXIV.memory.ChatInputOpen)
             {
-                if (key == Keys.F10)
+                switch (key)
                 {
-                    foreach (var keybind in FFXIV.hotkeys.GetPerformanceKeybinds())
+                    case Keys.F10:
                     {
-                        FFXIV.hook.SendAsyncKey(keybind.GetKey());
-                        Thread.Sleep(100);
-                    }
-                }
+                        foreach (var keybind in FFXIV.hotkeys.GetPerformanceKeybinds())
+                        {
+                            FFXIV.hook.SendAsyncKey(keybind.GetKey());
+                            Thread.Sleep(100);
+                        }
 
-                if (key == Keys.Space)
-                {
-                    if (Player.Player.IsPlaying)
-                    {
+                        break;
+                    }
+                    case Keys.Space when Player.Player.IsPlaying:
                         Player.Player.Pause();
-                    }
-                    else
-                    {
+                        break;
+                    case Keys.Space:
                         Player.Player.Play();
-                    }
+                        break;
                 }
 
-                if (key == Keys.Right)
+                if (Player.Player.IsPlaying)
                 {
-                    if (Player.Player.IsPlaying)
+                    switch (key)
                     {
-                        Player.Player.Seek(1000);
-                    }
-                }
-
-                if (key == Keys.Left)
-                {
-                    if (Player.Player.IsPlaying)
-                    {
-                        Player.Player.Seek(-1000);
-                    }
-                }
-
-                if (key == Keys.Up)
-                {
-                    if (Player.Player.IsPlaying)
-                    {
-                        Player.Player.Seek(10000);
-                    }
-                }
-
-                if (key == Keys.Down)
-                {
-                    if (Player.Player.IsPlaying)
-                    {
-                        Player.Player.Seek(-10000);
+                        case Keys.Right: Player.Player.Seek( 1000); break;
+                        case Keys.Left:  Player.Player.Seek(-1000); break;
+                        case Keys.Up:    Player.Player.Seek( 10000); break;
+                        case Keys.Down:  Player.Player.Seek(-10000); break;
                     }
                 }
             }
@@ -848,43 +820,28 @@ namespace FFBardMusicPlayer.Forms
                     var ns = FFXIVKeybindDat.RawNoteByteToPianoKey(onNote.note);
                     if (!string.IsNullOrEmpty(ns))
                     {
-                        var str = string.Format("Note {0} is out of range, it will not be played.", ns);
+                        var str = $"Note {ns} is out of range, it will not be played.";
                         LogMidi(str);
                     }
                 }
             }
 
             if (LocalOrchestra.OrchestraEnabled)
-            {
                 return;
-            }
 
             if (Player.Status == PlayerStatus.Conducting)
-            {
                 return;
-            }
 
             if (!FFXIV.IsPerformanceReady())
-            {
                 return;
-            }
+            
+            // If from midi file
+            if (onNote.track != Player.Player.LoadedTrack)
+                return;
 
-            if (onNote.track != null)
-            {
-                // If from midi file
-                if (onNote.track != Player.Player.LoadedTrack)
-                {
-                    return;
-                }
-            }
-
-            if (Sharlayan.Reader.CanGetChatInput())
-            {
-                if (FFXIV.memory.ChatInputOpen)
-                {
-                    return;
-                }
-            }
+            if (Sharlayan.Reader.CanGetChatInput() && FFXIV.memory.ChatInputOpen)
+                return;
+            
 
             if (FFXIV.hotkeys.GetKeybindFromNoteByte(onNote.note) is FFXIVKeybindDat.Keybind keybind)
             {

@@ -1,20 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Data;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using static FFBardMusicPlayer.BmpProcessSelect;
-using static FFBardMusicPlayer.Controls.BmpPlayer;
-using static Sharlayan.Core.Enums.Performance;
-using Sanford.Multimedia.Midi;
 using Timer = System.Timers.Timer;
 using System.Timers;
 using Sharlayan.Models.ReadResults;
-using Sharlayan.Core;
 using System.Diagnostics;
 
 namespace FFBardMusicPlayer.Controls
@@ -92,7 +85,7 @@ namespace FFBardMusicPlayer.Controls
                         if (actors.CurrentPCs.ContainsKey(kvp.Key))
                         {
                             var item = actors.CurrentPCs[kvp.Key];
-                            debugDump.AppendLine(string.Format("{0} MS {1}", item.Name, kvp.Value));
+                            debugDump.AppendLine($"{item.Name} MS {kvp.Value}");
                         }
                     }
                 }
@@ -113,17 +106,16 @@ namespace FFBardMusicPlayer.Controls
             var data = new SyncData();
             var performanceToActor = new Dictionary<uint, uint>();
 
-            if (Sharlayan.MemoryHandler.Instance.IsAttached)
+            if (Sharlayan.MemoryHandler.Instance.IsAttached 
+                && Sharlayan.Reader.CanGetPartyMembers() 
+                && Sharlayan.Reader.CanGetActors())
             {
-                if (Sharlayan.Reader.CanGetPartyMembers() && Sharlayan.Reader.CanGetActors())
+                var actors = Sharlayan.Reader.GetActors();
+                foreach (var actor in actors.CurrentPCs.Values.ToList())
                 {
-                    var actors = Sharlayan.Reader.GetActors();
-                    foreach (var actor in actors.CurrentPCs.Values.ToList())
+                    if (actorIds != null && actorIds.Contains(actor.ID))
                     {
-                        if (actorIds.Contains(actor.ID))
-                        {
-                            performanceToActor[actor.PerformanceID / 2] = actor.ID;
-                        }
+                        performanceToActor[actor.PerformanceID / 2] = actor.ID;
                     }
                 }
             }
@@ -133,24 +125,20 @@ namespace FFBardMusicPlayer.Controls
                 return;
             }
 
-            PerformanceResult performanceCache = null;
             var perfKeys = performanceToActor.Keys.ToList();
-
             var msCounter = Stopwatch.StartNew();
             var now = DateTime.Now;
-
-            while (!worker.CancellationPending)
+            while (worker != null && !worker.CancellationPending)
             {
                 if (e.Cancel)
-                {
                     return;
-                }
+                
 
                 if (Sharlayan.MemoryHandler.Instance.IsAttached)
                 {
                     if (Sharlayan.Reader.CanGetPerformance())
                     {
-                        performanceCache = Sharlayan.Reader.GetPerformance();
+                        var performanceCache = Sharlayan.Reader.GetPerformance();
 
                         foreach (var pid in perfKeys)
                         {
@@ -226,24 +214,24 @@ namespace FFBardMusicPlayer.Controls
                     var pid = -1;
                     var perfs = Sharlayan.Reader.GetPerformance();
                     var ares = Sharlayan.Reader.GetActors();
-                    if (ares != null)
-                    {
-                        foreach (var actor in ares.CurrentPCs.Values.ToList())
-                        {
-                            if (performerNames.Contains(actor.Name))
-                            {
-                                var perfId = actor.PerformanceID / 2;
-                                if (perfId >= 0 && perfId < 99 && perfs.Performances.ContainsKey(perfId))
-                                {
-                                    var item = perfs.Performances[perfId];
+                    if (ares == null)
+                        return;
 
-                                    var perf = FindPerformer(actor.Name, perfId, actor.ID);
-                                    if (perf != null)
-                                    {
-                                        perf.PerformanceUp = item.IsReady();
-                                        perf.performanceId = perfId;
-                                        perf.actorId       = actor.ID;
-                                    }
+                    foreach (var actor in ares.CurrentPCs.Values.ToList())
+                    {
+                        if (performerNames.Contains(actor.Name))
+                        {
+                            var perfId = actor.PerformanceID / 2;
+                            if (perfId < 99 && perfs.Performances.ContainsKey(perfId))
+                            {
+                                var item = perfs.Performances[perfId];
+
+                                var perf = FindPerformer(actor.Name, perfId, actor.ID);
+                                if (perf != null)
+                                {
+                                    perf.PerformanceUp = item.IsReady();
+                                    perf.performanceId = perfId;
+                                    perf.actorId       = actor.ID;
                                 }
                             }
                         }

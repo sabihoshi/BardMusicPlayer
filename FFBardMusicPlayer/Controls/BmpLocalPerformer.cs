@@ -1,21 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using static FFBardMusicPlayer.BmpProcessSelect;
 using static FFBardMusicPlayer.Controls.BmpPlayer;
-using static Sharlayan.Core.Enums.Performance;
 using Sanford.Multimedia.Midi;
 using Timer = System.Timers.Timer;
 using System.Timers;
-using System.Threading;
 using FFBardMusicCommon;
-using Sharlayan.Models.ReadResults;
 
 namespace FFBardMusicPlayer.Controls
 {
@@ -31,7 +24,7 @@ namespace FFBardMusicPlayer.Controls
             set
             {
                 chosenInstrument    = value;
-                InstrumentName.Text = string.Format("[{0}]", value.ToString());
+                InstrumentName.Text = $"[{value.ToString()}]";
             }
         }
 
@@ -43,8 +36,7 @@ namespace FFBardMusicPlayer.Controls
             {
                 if (value != null)
                 {
-                    Console.WriteLine(string.Format("Performer [{0}] MIDI: [{1}]", PerformerName,
-                        value.LoadedFilename));
+                    Console.WriteLine($"Performer [{PerformerName}] MIDI: [{value.LoadedFilename}]");
                     if (!string.IsNullOrEmpty(value.LoadedFilename))
                     {
                         sequencer         =  new BmpSequencer(value.LoadedFilename, TrackNum);
@@ -248,37 +240,28 @@ namespace FFBardMusicPlayer.Controls
         {
             var tn = TrackNum;
 
-            if (!(bmpSeq is BmpSequencer))
-            {
+            var seq = bmpSeq?.Sequence;
+            if (seq == null)
                 return;
-            }
-
-            var seq = bmpSeq.Sequence;
-            if (!(seq is Sequence))
-            {
-                return;
-            }
 
             Keyboard.UpdateFrequency(new List<int>());
             if (tn >= 0 && tn < seq.Count && seq[tn] is Track track)
             {
                 // OctaveNum now holds the track octave and the selected octave together
-                Console.WriteLine(string.Format("Track #{0}/{1} setOctave: {2} prefOctave: {3}", tn, bmpSeq.MaxTrack,
-                    OctaveNum, bmpSeq.GetTrackPreferredOctaveShift(track)));
+                Console.WriteLine(
+                    $"Track #{tn}/{bmpSeq.MaxTrack} setOctave: {OctaveNum} prefOctave: {bmpSeq.GetTrackPreferredOctaveShift(track)}");
                 var notes = new List<int>();
-                foreach (var ev in track.Iterator())
+                foreach (var ev in track.Iterator()
+                    .Where(f => f.MidiMessage.MessageType == MessageType.Channel))
                 {
-                    if (ev.MidiMessage.MessageType == MessageType.Channel)
+                    if (ev.MidiMessage is ChannelMessage msg 
+                        && msg.Command == ChannelCommand.NoteOn)
                     {
-                        var msg = ev.MidiMessage as ChannelMessage;
-                        if (msg.Command == ChannelCommand.NoteOn)
+                        var note = msg.Data1;
+                        var vel = msg.Data2;
+                        if (vel > 0)
                         {
-                            var note = msg.Data1;
-                            var vel = msg.Data2;
-                            if (vel > 0)
-                            {
-                                notes.Add(NoteHelper.ApplyOctaveShift(note, OctaveNum));
-                            }
+                            notes.Add(NoteHelper.ApplyOctaveShift(note, OctaveNum));
                         }
                     }
                 }
@@ -287,14 +270,9 @@ namespace FFBardMusicPlayer.Controls
                 ChosenInstrument = bmpSeq.GetTrackPreferredInstrument(track);
             }
 
-            if (hostProcess)
-            {
-                BackColor = Color.FromArgb(235, 235, 120);
-            }
-            else
-            {
-                BackColor = Color.Transparent;
-            }
+            BackColor = hostProcess 
+                ? Color.FromArgb(235, 235, 120) 
+                : Color.Transparent;
         }
 
         public void OpenInstrument()
@@ -302,40 +280,30 @@ namespace FFBardMusicPlayer.Controls
             // Exert the effort to check memory i guess
             if (hostProcess)
             {
-                if (Sharlayan.MemoryHandler.Instance.IsAttached)
+                if (Sharlayan.MemoryHandler.Instance.IsAttached
+                    && Sharlayan.Reader.CanGetPerformance()
+                    && Sharlayan.Reader.GetPerformance().IsUp())
                 {
-                    if (Sharlayan.Reader.CanGetPerformance())
-                    {
-                        if (Sharlayan.Reader.GetPerformance().IsUp())
-                        {
-                            return;
-                        }
-                    }
+                    return;
                 }
             }
 
             if (performanceUp)
-            {
                 return;
-            }
-
+            
             // don't open instrument if we don't have anything loaded
-            if (sequencer == null || sequencer.Sequence == null)
-            {
+            if (sequencer?.Sequence == null)
                 return;
-            }
-
+            
             // don't open instrument if we're not on a valid track
             if (TrackNum == 0 || TrackNum >= sequencer.Sequence.Count)
-            {
                 return;
-            }
 
             var keyMap = hotbar.GetInstrumentKeyMap(chosenInstrument);
             if (!string.IsNullOrEmpty(keyMap))
             {
                 var keybind = hotkeys[keyMap];
-                if (keybind is FFXIVKeybindDat.Keybind && keybind.GetKey() != Keys.None)
+                if (keybind != null && keybind.GetKey() != Keys.None)
                 {
                     hook.SendTimedSyncKeybind(keybind);
                     openDelay = true;
@@ -362,15 +330,11 @@ namespace FFBardMusicPlayer.Controls
         {
             if (hostProcess)
             {
-                if (Sharlayan.MemoryHandler.Instance.IsAttached)
+                if (Sharlayan.MemoryHandler.Instance.IsAttached
+                    && Sharlayan.Reader.CanGetPerformance()
+                    && !Sharlayan.Reader.GetPerformance().IsUp())
                 {
-                    if (Sharlayan.Reader.CanGetPerformance())
-                    {
-                        if (!Sharlayan.Reader.GetPerformance().IsUp())
-                        {
-                            return;
-                        }
-                    }
+                    return;
                 }
             }
 
@@ -383,7 +347,7 @@ namespace FFBardMusicPlayer.Controls
 
             var keybind = hotkeys["ESC"];
             Console.WriteLine(keybind.ToString());
-            if (keybind is FFXIVKeybindDat.Keybind && keybind.GetKey() != Keys.None)
+            if (keybind.GetKey() != Keys.None)
             {
                 hook.SendSyncKeybind(keybind);
                 performanceUp = false;
@@ -393,9 +357,7 @@ namespace FFBardMusicPlayer.Controls
         public void ToggleMute()
         {
             if (hostProcess)
-            {
                 return;
-            }
 
             if (hook.Process != null)
             {
@@ -420,7 +382,7 @@ namespace FFBardMusicPlayer.Controls
         public void EnsembleAccept()
         {
             var keybind = hotkeys["OK"];
-            if (keybind is FFXIVKeybindDat.Keybind && keybind.GetKey() != Keys.None)
+            if (keybind.GetKey() != Keys.None)
             {
                 hook.SendSyncKeybind(keybind);
                 hook.SendSyncKeybind(keybind);
@@ -455,7 +417,7 @@ namespace FFBardMusicPlayer.Controls
             if (sequencer != null)
             {
                 var seq = sequencer.Sequence;
-                var os = decimal.ToInt32((sender as NumericUpDown).Value);
+                var os = decimal.ToInt32(((NumericUpDown) sender).Value);
                 OctaveShift.Value = os;
 
                 this.Invoke(t => t.Update(sequencer));

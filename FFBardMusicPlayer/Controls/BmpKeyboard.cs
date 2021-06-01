@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Sanford.Multimedia.Midi;
 using System.Drawing.Drawing2D;
 
 namespace FFBardMusicPlayer.Controls
@@ -63,7 +58,7 @@ namespace FFBardMusicPlayer.Controls
             ResizeRedraw   = true;
         }
 
-        public void UpdateFrequency(List<int> notes)
+        public void UpdateFrequency(IEnumerable<int> notes)
         {
             var list = keyboardData.letterList;
             var notesAvailable = 0;
@@ -135,13 +130,10 @@ namespace FFBardMusicPlayer.Controls
             var noteKey = string.Empty;
             if (keyboardData.letterList.ContainsValue(letter))
             {
-                foreach (var k in keyboardData.letterList.Keys)
+                foreach (var k in keyboardData.letterList.Keys
+                    .Where(k => keyboardData.letterList[k].Equals(letter)))
                 {
-                    if (keyboardData.letterList[k].Equals(letter))
-                    {
-                        noteKey = k;
-                        continue;
-                    }
+                    noteKey = k;
                 }
             }
 
@@ -229,38 +221,13 @@ namespace FFBardMusicPlayer.Controls
             // Get max frequency
             foreach (var key in list.Keys)
             {
-                if (list.ContainsKey(key))
+                var letter = keyboardData.letterList[key];
+                if (letter.frequency > maxFreq)
                 {
-                    var letter = keyboardData.letterList[key];
-                    if (letter.frequency > maxFreq)
-                    {
-                        maxFreq = letter.frequency;
-                    }
+                    maxFreq = letter.frequency;
                 }
-            }
 
-            foreach (var key in list.Keys)
-            {
-                if (list.ContainsKey(key))
-                {
-                    var letter = keyboardData.letterList[key];
-                    if (!letter.sup)
-                    {
-                        DrawKey(letter, e);
-                    }
-                }
-            }
-
-            foreach (var key in list.Keys)
-            {
-                if (list.ContainsKey(key))
-                {
-                    var letter = keyboardData.letterList[key];
-                    if (letter.sup)
-                    {
-                        DrawKey(letter, e);
-                    }
-                }
+                DrawKey(letter, e);
             }
 
             //SolidBrush freqBrush = new SolidBrush(Color.FromArgb(120, Color.Red));

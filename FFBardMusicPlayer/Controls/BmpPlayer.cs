@@ -1,17 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Sanford.Multimedia.Midi;
-using System.Text.RegularExpressions;
-using static Sharlayan.Core.Enums.Performance;
-using FFBardMusicPlayer.Components;
-using System.IO;
 using FFBardMusicCommon;
 
 namespace FFBardMusicPlayer.Controls
@@ -148,45 +139,13 @@ namespace FFBardMusicPlayer.Controls
             }
         }
 
-        public Instrument PreferredInstrument
-        {
-            get
-            {
-                if (player.LoadedTrack == null)
-                {
-                    return 0;
-                }
+        public Instrument PreferredInstrument =>
+            player.LoadedTrack == null ? 0 : player.GetTrackPreferredInstrument(player.LoadedTrack);
 
-                return player.GetTrackPreferredInstrument(player.LoadedTrack);
-            }
-        }
+        public int TotalNoteCount => player.notesPlayedCount.Values.Sum();
 
-        public int TotalNoteCount
-        {
-            get
-            {
-                var sum = 0;
-                foreach (var s in player.notesPlayedCount.Values)
-                {
-                    sum += s;
-                }
-
-                return sum;
-            }
-        }
-
-        public int CurrentNoteCount
-        {
-            get
-            {
-                if (player.LoadedTrack == null)
-                {
-                    return 0;
-                }
-
-                return player.notesPlayedCount[player.LoadedTrack];
-            }
-        }
+        public int CurrentNoteCount =>
+            player.LoadedTrack == null ? 0 : player.notesPlayedCount[player.LoadedTrack];
 
         private bool trackHoldPlaying;
         private Dictionary<Track, int> trackNumLut = new Dictionary<Track, int>();
@@ -224,13 +183,14 @@ namespace FFBardMusicPlayer.Controls
                 var shiftKey = (ModifierKeys & Keys.Shift) != 0;
                 if (shiftKey)
                 {
-                    if (Status == PlayerStatus.Conducting)
+                    switch (Status)
                     {
-                        Status = PlayerStatus.Performing;
-                    }
-                    else if (Status == PlayerStatus.Performing)
-                    {
-                        Status = PlayerStatus.Conducting;
+                        case PlayerStatus.Conducting:
+                            Status = PlayerStatus.Performing;
+                            break;
+                        case PlayerStatus.Performing:
+                            Status = PlayerStatus.Conducting;
+                            break;
                     }
                 }
             }
@@ -267,10 +227,7 @@ namespace FFBardMusicPlayer.Controls
         {
             if (track != null)
             {
-                if (trackNumLut.ContainsKey(track))
-                {
-                    return trackNumLut[track];
-                }
+                return trackNumLut.ContainsKey(track) ? trackNumLut[track] : 0;
             }
 
             return 0;
@@ -351,24 +308,21 @@ namespace FFBardMusicPlayer.Controls
         {
             var notes = new List<int>();
 
-            if (!(track is Track))
-            {
+            if (track == null)
                 return;
-            }
+            
 
-            foreach (var ev in track.Iterator())
+            foreach (var ev in track.Iterator()
+                .Where(f => f.MidiMessage.MessageType == MessageType.Channel))
             {
-                if (ev.MidiMessage.MessageType == MessageType.Channel)
+                if (ev.MidiMessage is ChannelMessage msg 
+                    && msg.Command == ChannelCommand.NoteOn)
                 {
-                    var msg = ev.MidiMessage as ChannelMessage;
-                    if (msg.Command == ChannelCommand.NoteOn)
+                    var note = msg.Data1;
+                    var vel = msg.Data2;
+                    if (vel > 0)
                     {
-                        var note = msg.Data1;
-                        var vel = msg.Data2;
-                        if (vel > 0)
-                        {
-                            notes.Add(ApplyOctaveShift(note));
-                        }
+                        notes.Add(ApplyOctaveShift(note));
                     }
                 }
             }
@@ -380,7 +334,7 @@ namespace FFBardMusicPlayer.Controls
 
         private void Disable_Scroll(object sender, EventArgs e)
         {
-            if (!(sender as Control).Enabled)
+            if (!((Control) sender).Enabled)
             {
                 ((HandledMouseEventArgs) e).Handled = true;
             }
@@ -410,11 +364,11 @@ namespace FFBardMusicPlayer.Controls
 
             if (e.Button == MouseButtons.Left && !player.IsPlaying)
             {
-                var v = (float) (e.X - 6) / (float) (TrackProgress.Width - 12);
+                var v = (float) (e.X - 6) / (TrackProgress.Width - 12);
                 if (v >= 0f && v <= 1f)
                 {
-                    v               = v * (TrackProgress.Maximum - TrackProgress.Minimum);
-                    player.Position = (int) v;
+                    v               *= (TrackProgress.Maximum - TrackProgress.Minimum);
+                    player.Position =  (int) v;
                     OnMidiProgressChange?.Invoke(this, (int) v);
                     UpdatePlayer();
                 }
@@ -437,10 +391,8 @@ namespace FFBardMusicPlayer.Controls
 
                 UpdatePlayer();
                 if (player.CurrentTick > player.MaxTick)
-                {
                     return;
-                }
-
+                
                 TrackProgress.Invoke(t => t.Value = (int) player.CurrentTick);
             }
         }
@@ -459,21 +411,21 @@ namespace FFBardMusicPlayer.Controls
 
         private void SelectorSpeed_ValueChanged(object sender, EventArgs e)
         {
-            var speed = (sender as NumericUpDown).Value;
+            var speed = ((NumericUpDown) sender).Value;
             var ss = decimal.ToSingle(speed) / 100f;
             SpeedShift = ss;
         }
 
         private void SelectorOctave_ValueChanged(object sender, EventArgs e)
         {
-            var octave = (sender as NumericUpDown).Value;
+            var octave = ((NumericUpDown) sender).Value;
             var os = decimal.ToInt32(octave);
             OctaveShift = os;
         }
 
         private void TrackLoop_CheckedChanged(object sender, EventArgs e)
         {
-            var l = (sender as CheckBox).Checked;
+            var l = ((CheckBox) sender).Checked;
             Loop = l;
         }
 
@@ -481,13 +433,14 @@ namespace FFBardMusicPlayer.Controls
         {
             if (ModifierKeys == Keys.Shift && e.Button == MouseButtons.Left)
             {
-                if (Status == PlayerStatus.Conducting)
+                switch (Status)
                 {
-                    Status = PlayerStatus.Performing;
-                }
-                else if (Status == PlayerStatus.Performing)
-                {
-                    Status = PlayerStatus.Conducting;
+                    case PlayerStatus.Conducting:
+                        Status = PlayerStatus.Performing;
+                        break;
+                    case PlayerStatus.Performing:
+                        Status = PlayerStatus.Conducting;
+                        break;
                 }
             }
         }

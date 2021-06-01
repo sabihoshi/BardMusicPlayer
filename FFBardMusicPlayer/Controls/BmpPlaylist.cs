@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Text.RegularExpressions;
 using System.IO;
-using System.Collections.Specialized;
 using FFBardMusicCommon;
 using Timer = System.Timers.Timer;
 using System.Timers;
@@ -182,11 +175,7 @@ namespace FFBardMusicPlayer.Controls
                     rowIndex--;
                 }
 
-                var newSelectedRow = PlaylistView.Rows[rowIndex];
-                if (newSelectedRow != null)
-                {
-                    newSelectedRow.Selected = true;
-                }
+                PlaylistView.Rows[rowIndex].Selected = true;
             }
 
             SaveSettings();
@@ -237,7 +226,7 @@ namespace FFBardMusicPlayer.Controls
             }
 
             var row = PlaylistView.Rows[index];
-            if (row != null && row.DataBoundItem is BmpMidiEntry entry)
+            if (row.DataBoundItem is BmpMidiEntry entry)
             {
                 filename     = entry.FilePath.FilePath;
                 track        = entry.Track.Track;
@@ -277,20 +266,22 @@ namespace FFBardMusicPlayer.Controls
 
         private void Playlist_Loop_CheckedChanged(object sender, EventArgs e)
         {
-            LoopMode = (sender as CheckBox).Checked;
+            LoopMode = ((CheckBox) sender).Checked;
         }
 
         private void Playlist_Random_CheckedChanged(object sender, EventArgs e)
         {
-            RandomMode = (sender as CheckBox).Checked;
+            RandomMode = ((CheckBox) sender).Checked;
         }
 
         public void PlaySelectedMidi(bool delay = true)
         {
-            var playlistTimer = new Timer();
-            playlistTimer.Interval  = delay ? playlistDelay * 1000 : 100;
-            playlistTimer.AutoReset = false;
-            playlistTimer.Elapsed += delegate(object o, ElapsedEventArgs e)
+            var playlistTimer = new Timer
+            {
+                Interval = delay ? playlistDelay * 1000 : 100, AutoReset = false
+            };
+
+            playlistTimer.Elapsed += delegate
             {
                 TimerPlayMidi();
                 playlistTimer.Dispose();
@@ -340,22 +331,19 @@ namespace FFBardMusicPlayer.Controls
 
         private void BmpMidiEntryList_CellMouseMove(object sender, DataGridViewCellMouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
+            if (e.Button == MouseButtons.Left && !actuallyMoving)
             {
                 // if we don't yet have an initial row index
-                if (!actuallyMoving)
+                // and we've moved the cursor with the button held down for
+                // a decently sufficient time, i.e. 10 pixels. seems good.
+                if (Math.Abs(mouseYCoordForMovement - e.Y) >= 10)
                 {
-                    // and we've moved the cursor with the button held down for
-                    // a decently sufficient time, i.e. 10 pixels. seems good.
-                    if (Math.Abs(mouseYCoordForMovement - e.Y) >= 10)
-                    {
-                        actuallyMoving = true;
+                    actuallyMoving = true;
 
-                        Console.WriteLine("initialRow detected as {0}", initialRowIndexForMovement);
+                    Console.WriteLine($"initialRow detected as {initialRowIndexForMovement}");
 
-                        var data = PlaylistView.Rows[initialRowIndexForMovement].DataBoundItem as BmpMidiEntry;
-                        DoDragDrop(data, DragDropEffects.Move);
-                    }
+                    var data = PlaylistView.Rows[initialRowIndexForMovement].DataBoundItem as BmpMidiEntry;
+                    DoDragDrop(data, DragDropEffects.Move);
                 }
             }
         }
@@ -402,15 +390,16 @@ namespace FFBardMusicPlayer.Controls
             }
 
             var dropIndex = 0;
-            if (hit.Type == DataGridViewHitTestType.Cell)
+            switch (hit.Type)
             {
-                // user has dnd onto an existing cell, move above the hovered midi
-                dropIndex = hit.RowIndex - 1;
-            }
-            else if (hit.Type == DataGridViewHitTestType.None)
-            {
-                // user has dnd onto empty space, simply add midi to the end of the playlist
-                dropIndex = playlistEntries.Count;
+                case DataGridViewHitTestType.Cell:
+                    // user has dnd onto an existing cell, move above the hovered midi
+                    dropIndex = hit.RowIndex - 1;
+                    break;
+                case DataGridViewHitTestType.None:
+                    // user has dnd onto empty space, simply add midi to the end of the playlist
+                    dropIndex = playlistEntries.Count;
+                    break;
             }
 
             if (e.Effect == DragDropEffects.Move)

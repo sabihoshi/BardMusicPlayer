@@ -1,10 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Threading;
 using FFBardMusicPlayer.FFXIV;
 
@@ -32,7 +28,7 @@ namespace FFBardMusicPlayer
 
         protected void OnDatFileChange(object o, FileSystemEventArgs e)
         {
-            Console.WriteLine(string.Format("Change, reload [{0}].", e.Name));
+            Console.WriteLine($"Change, reload [{e.Name}].");
             LoadDat(e.FullPath);
         }
 

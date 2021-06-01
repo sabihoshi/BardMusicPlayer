@@ -1,14 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Input;
 
 namespace FFBardMusicPlayer.Controls
 {
@@ -43,28 +34,27 @@ namespace FFBardMusicPlayer.Controls
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Down ||
-                e.KeyCode == Keys.Up ||
-                e.KeyCode == Keys.Enter ||
-                e.KeyCode == Keys.Escape ||
-                e.KeyCode == Keys.PageUp ||
-                e.KeyCode == Keys.PageDown)
+            switch (e.KeyCode)
             {
-                e.Handled          = true;
-                e.SuppressKeyPress = true;
+                case Keys.Down:
+                case Keys.Up:
+                case Keys.Enter:
+                case Keys.Escape:
+                case Keys.PageUp:
+                case Keys.PageDown:
+                    e.Handled          = true;
+                    e.SuppressKeyPress = true;
 
-                OnHandledKeyDown?.Invoke(this, e);
-                return;
+                    OnHandledKeyDown?.Invoke(this, e);
+                    return;
+                case Keys.Back when e.Control:
+                    e.Handled          = true;
+                    e.SuppressKeyPress = true;
+                    return;
+                default:
+                    base.OnKeyDown(e);
+                    break;
             }
-
-            if (e.KeyCode == Keys.Back && e.Control)
-            {
-                e.Handled          = true;
-                e.SuppressKeyPress = true;
-                return;
-            }
-
-            base.OnKeyDown(e);
         }
 
         protected override void OnEnter(EventArgs e)

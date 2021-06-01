@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Timer = System.Timers.Timer;
 using Sanford.Multimedia.Midi;
-using System.Windows.Forms;
-using static Sharlayan.Core.Enums.Performance;
 using System.Text.RegularExpressions;
 using FFBardMusicCommon;
 
@@ -53,7 +50,7 @@ namespace FFBardMusicPlayer
             {
                 var ms = GetTimeFromTick(CurrentTick);
                 var t = TimeSpan.FromMilliseconds(ms);
-                return string.Format("{0:D2}:{1:D2}", (int) t.TotalMinutes, t.Seconds);
+                return $"{(int) t.TotalMinutes:D2}:{t.Seconds:D2}";
                 //return string.Format("{0}", CurrentTick);
             }
         }
@@ -64,7 +61,7 @@ namespace FFBardMusicPlayer
             {
                 var ms = GetTimeFromTick(MaxTick - 1);
                 var t = TimeSpan.FromMilliseconds(ms);
-                return string.Format("{0:D2}:{1:D2}", (int) t.TotalMinutes, t.Seconds);
+                return $"{(int) t.TotalMinutes:D2}:{t.Seconds:D2}";
                 //return string.Format("{0}", MaxTick);
             }
         }
@@ -74,36 +71,16 @@ namespace FFBardMusicPlayer
 
         public int CurrentTrack => loadedTrack;
 
-        public int MaxTrack
-        {
-            get
-            {
-                if (Sequence.Count <= 0)
-                {
-                    return 0;
-                }
-
-                return Sequence.Count - 1;
-            }
-        }
+        public int MaxTrack => Sequence.Count <= 0 ? 0 : Sequence.Count - 1;
 
         public Track LoadedTrack
         {
             get
             {
                 if (loadedTrack >= Sequence.Count || loadedTrack < 0)
-                {
                     return null;
-                }
 
-                if (Properties.Settings.Default.PlayAllTracks)
-                {
-                    return Sequence[0];
-                }
-                else
-                {
-                    return Sequence[loadedTrack];
-                }
+                return Properties.Settings.Default.PlayAllTracks ? Sequence[0] : Sequence[loadedTrack];
             }
         }
 
@@ -246,11 +223,11 @@ namespace FFBardMusicPlayer
                         midiInput.StartRecording();
                         midiInput.ChannelMessageReceived += OnSimpleChannelMessagePlayed;
 
-                        Console.WriteLine(string.Format("{0} opened.", cap.name));
+                        Console.WriteLine($"{cap.name} opened.");
                     }
                     catch (InputDeviceException e)
                     {
-                        Console.WriteLine(string.Format("Couldn't open input {0}.", device));
+                        Console.WriteLine($"Couldn't open input {device}.");
                     }
                 }
             }
@@ -333,7 +310,7 @@ namespace FFBardMusicPlayer
                 var instName = ProgramToInstrumentName(e.Message.Data1);
                 if (!string.IsNullOrEmpty(instName))
                 {
-                    Console.WriteLine("Program change to voice/instrument: " + instName + " " + e.Message.Data2);
+                    Console.WriteLine($"Program change to voice/instrument: {instName} {e.Message.Data2}");
                 }
             }
         }
@@ -375,7 +352,7 @@ namespace FFBardMusicPlayer
             {
                 var builder = new MetaTextBuilder(e.Message);
                 OnTrackNameChange?.Invoke(this, builder.Text);
-                Console.WriteLine("Instrument name: " + builder.Text);
+                Console.WriteLine($"Instrument name: {builder.Text}");
             }
         }
 
@@ -511,25 +488,19 @@ namespace FFBardMusicPlayer
                 while (trackNum < Sequence.Count)
                 {
                     var tnotes = 0;
-
-                    foreach (var ev in Sequence[trackNum].Iterator())
+                    if (intendedTrack == 1)
                     {
-                        if (intendedTrack == 1)
+                        foreach (var ev in Sequence[trackNum].Iterator())
                         {
-                            if (ev.MidiMessage is ChannelMessage chanMsg)
+                            switch (ev.MidiMessage)
                             {
-                                if (chanMsg.Command == ChannelCommand.NoteOn)
-                                {
+                                case ChannelMessage chanMsg when chanMsg.Command == ChannelCommand.NoteOn:
                                     tnotes++;
-                                }
-                            }
-
-                            if (ev.MidiMessage is MetaMessage metaMsg)
-                            {
-                                if (metaMsg.MetaType == MetaType.Lyric)
-                                {
+                                    break;
+                                
+                                case MetaMessage metaMsg when metaMsg.MetaType == MetaType.Lyric:
                                     tnotes++;
-                                }
+                                    break;
                             }
                         }
                     }
@@ -587,30 +558,36 @@ namespace FFBardMusicPlayer
             // Search beginning for text stuff
             foreach (var ev in LoadedTrack.Iterator())
             {
-                if (ev.MidiMessage is MetaMessage msg)
+                switch (ev.MidiMessage)
                 {
-                    if (msg.MetaType == MetaType.TrackName)
+                    case MetaMessage msg:
                     {
-                        OnMetaMessagePlayed(this, new MetaMessageEventArgs(LoadedTrack, msg));
-                    }
+                        switch (msg.MetaType)
+                        {
+                            case MetaType.TrackName:
+                                OnMetaMessagePlayed(this, new MetaMessageEventArgs(LoadedTrack, msg));
+                                break;
+                            case MetaType.Lyric:
+                                lyricCount++;
+                                break;
+                        }
 
-                    if (msg.MetaType == MetaType.Lyric)
-                    {
-                        lyricCount++;
+                        break;
                     }
-                }
-
-                if (ev.MidiMessage is ChannelMessage chanMsg)
-                {
-                    if (chanMsg.Command == ChannelCommand.ProgramChange)
+                    case ChannelMessage chanMsg:
                     {
-                        OnSimpleChannelMessagePlayed(this, new ChannelMessageEventArgs(Sequence[0], chanMsg));
+                        if (chanMsg.Command == ChannelCommand.ProgramChange)
+                        {
+                            OnSimpleChannelMessagePlayed(this, new ChannelMessageEventArgs(Sequence[0], chanMsg));
+                        }
+
+                        break;
                     }
                 }
             }
 
             OnLoad?.Invoke(this, EventArgs.Empty);
-            Console.WriteLine("Loaded Midi [" + file + "] t" + trackNum);
+            Console.WriteLine($"Loaded Midi [{file}] t{trackNum}");
         }
     }
 }

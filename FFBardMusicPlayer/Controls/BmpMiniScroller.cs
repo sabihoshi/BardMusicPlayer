@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FFBardMusicPlayer.Controls
@@ -48,13 +41,10 @@ namespace FFBardMusicPlayer.Controls
         private void LeftRightButton_Click(object sender, EventArgs e)
         {
             var scroll = 50;
-            if (ModifierKeys == Keys.Shift)
+            switch (ModifierKeys)
             {
-                scroll = 100;
-            }
-            else if (ModifierKeys == Keys.Control)
-            {
-                scroll = 10;
+                case Keys.Shift:   scroll = 100; break;
+                case Keys.Control: scroll = 10; break;
             }
 
             scroll *= sender as Button == LeftButton ? -1 : 1;

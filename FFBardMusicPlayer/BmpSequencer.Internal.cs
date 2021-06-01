@@ -86,7 +86,7 @@ namespace FFBardMusicPlayer
                 stopper.Process(e.Message);
             };
 
-            clock.Tick += delegate(object sender, EventArgs e)
+            clock.Tick += delegate
             {
                 lock (lockObject)
                 {

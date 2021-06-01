@@ -1,10 +1,8 @@
 ﻿using Sanford.Multimedia.Midi;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.IO;
-using System.Linq;
 
 namespace FFBardMusicPlayer
 {
@@ -30,7 +28,7 @@ namespace FFBardMusicPlayer
         public bool LoadFile(string file, out Sequencer seq, out string error)
         {
             seq   = null;
-            error = string.Format("Unknown song filetype. [{0}]", Path.GetExtension(file));
+            error = $"Unknown song filetype. [{Path.GetExtension(file)}]";
 
             var ext = Path.GetExtension(file).Substring(1).ToLower();
 

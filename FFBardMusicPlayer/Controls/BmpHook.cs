@@ -1,17 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Threading;
 using FFBardMusicCommon;
 using Sharlayan;
-using Sharlayan.Models.ReadResults;
 using Sharlayan.Core;
 using Sharlayan.Core.Enums;
 using Timer = System.Timers.Timer;
@@ -96,14 +90,14 @@ namespace FFBardMusicPlayer.Controls
 
         private void Log(string text)
         {
-            var str = string.Format("[BMP] {0}", text);
+            var str = $"[BMP] {text}";
             Console.WriteLine(str);
             logger.Debug(str);
         }
 
         private void Memory_OnProcessReady(object sender, Process proc)
         {
-            var str = string.Format("Ready: {0} ({1})", proc.ProcessName, proc.Id);
+            var str = $"Ready: {proc.ProcessName} ({proc.Id})";
             this.Invoke(t => t.SetHookStatus(str));
         }
 
@@ -236,84 +230,81 @@ namespace FFBardMusicPlayer.Controls
 
         public void SendChatString(string text)
         {
-            if (true)
+            var watch = new Stopwatch();
+            var chatKeybind = hotkeys["CMD_CHAT"];
+
+            hook.FocusWindow();
+            // Now that our window is focused, we may use SendInput as much as we want
+
+            var keyInputs = new List<FFXIVHook.KEYBDINPUT>();
+            if (IsPerformanceReady())
             {
-                var watch = new Stopwatch();
-                var chatKeybind = hotkeys["CMD_CHAT"];
-
-                hook.FocusWindow();
-                // Now that our window is focused, we may use SendInput as much as we want
-
-                var keyInputs = new List<FFXIVHook.KEYBDINPUT>();
-                if (IsPerformanceReady())
+                // First reset the keyboard then focus chat input
+                keyInputs.Clear();
+                foreach (var keybind in hotkeys.GetPerformanceKeybinds())
                 {
-                    // First reset the keyboard then focus chat input
-                    keyInputs.Clear();
-                    foreach (var keybind in hotkeys.GetPerformanceKeybinds())
+                    keyInputs.Add(new FFXIVHook.KEYBDINPUT
                     {
-                        keyInputs.Add(new FFXIVHook.KEYBDINPUT
-                        {
-                            wVk     = (ushort) keybind.GetKey(),
-                            dwFlags = 0x0002
-                        });
-                    }
-
-                    hook.SendKeyInput(keyInputs);
+                        wVk     = (ushort) keybind.GetKey(),
+                        dwFlags = 0x0002
+                    });
                 }
 
-                if (Reader.CanGetChatInput() && !memory.ChatInputOpen)
-                {
-                    while (!memory.ChatInputOpen)
-                    {
-                        if (chatKeybind is FFXIVKeybindDat.Keybind)
-                        {
-                            hook.SendSyncKeybind(chatKeybind);
-                            Thread.Sleep(100);
-                        }
-                    }
-                }
-
-                if (Reader.CanGetChatInput() && !string.IsNullOrEmpty(memory.ChatInputString))
-                {
-                    hook.SendSyncKey(Keys.A | Keys.Control);
-                    watch.Start();
-                    while (!string.IsNullOrEmpty(memory.ChatInputString))
-                    {
-                        hook.SendSyncKey(Keys.Back);
-                        if (watch.ElapsedMilliseconds > 500)
-                        {
-                            break;
-                        }
-
-                        Thread.Sleep(1);
-                    }
-
-                    watch.Stop();
-                }
-
-                hook.SendString(text);
-
-                var entered = false;
-                if (Reader.CanGetChatInput())
-                {
-                    watch.Start();
-
-                    while (!memory.ChatInputString.Equals(text))
-                    {
-                        // ...
-                        if (watch.ElapsedMilliseconds > 100)
-                        {
-                            break;
-                        }
-
-                        Thread.Sleep(1);
-                    }
-
-                    entered = memory.ChatInputString.Equals(text);
-                }
-
-                hook.SendSyncKey(Keys.Enter);
+                hook.SendKeyInput(keyInputs);
             }
+
+            if (Reader.CanGetChatInput() && !memory.ChatInputOpen)
+            {
+                while (!memory.ChatInputOpen)
+                {
+                    if (chatKeybind != null)
+                    {
+                        hook.SendSyncKeybind(chatKeybind);
+                        Thread.Sleep(100);
+                    }
+                }
+            }
+
+            if (Reader.CanGetChatInput() && !string.IsNullOrEmpty(memory.ChatInputString))
+            {
+                hook.SendSyncKey(Keys.A | Keys.Control);
+                watch.Start();
+                while (!string.IsNullOrEmpty(memory.ChatInputString))
+                {
+                    hook.SendSyncKey(Keys.Back);
+                    if (watch.ElapsedMilliseconds > 500)
+                    {
+                        break;
+                    }
+
+                    Thread.Sleep(1);
+                }
+
+                watch.Stop();
+            }
+
+            hook.SendString(text);
+
+            var entered = false;
+            if (Reader.CanGetChatInput())
+            {
+                watch.Start();
+
+                while (!memory.ChatInputString.Equals(text))
+                {
+                    // ...
+                    if (watch.ElapsedMilliseconds > 100)
+                    {
+                        break;
+                    }
+
+                    Thread.Sleep(1);
+                }
+
+                entered = memory.ChatInputString.Equals(text);
+            }
+
+            hook.SendSyncKey(Keys.Enter);
         }
 
         public void SetHookStatus(string status = null)
@@ -363,18 +354,18 @@ namespace FFBardMusicPlayer.Controls
             catch (Win32Exception ex)
             {
                 Log(string.Format(ex.Message));
-                findProcessError.Invoke(this, ProcessError.ProcessNonAccessible);
+                findProcessError?.Invoke(this, ProcessError.ProcessNonAccessible);
                 return;
             }
 
             if (hook.Hook(proc))
             {
-                Log(string.Format("Process hooking succeeded."));
+                Log("Process hooking succeeded.");
 
-                var str = string.Format("Hooked: {0} ({1})", proc.ProcessName, proc.Id);
+                var str = $"Hooked: {proc.ProcessName} ({proc.Id})";
                 this.Invoke(t => t.SetHookStatus(str));
 
-                procMutex = new Mutex(true, string.Format("bard-music-player-{0}", proc.Id));
+                procMutex = new Mutex(true, $"bard-music-player-{proc.Id}");
                 if (procMutex.WaitOne(TimeSpan.Zero, true))
                 {
                     SetupMemory(proc);
@@ -382,9 +373,9 @@ namespace FFBardMusicPlayer.Controls
             }
             else
             {
-                Log(string.Format("Process hooking failed."));
+                Log("Process hooking failed.");
                 SetHookStatus("F: Hook process...");
-                findProcessError.Invoke(this, ProcessError.ProcessFailed);
+                findProcessError?.Invoke(this, ProcessError.ProcessFailed);
             }
         }
 
@@ -397,7 +388,7 @@ namespace FFBardMusicPlayer.Controls
 
             if (proc.ProcessName == "ffxiv_dx11")
             {
-                Log(string.Format("FFXIV memory parsing..."));
+                Log("FFXIV memory parsing...");
 
                 // memory setprocess
                 memory.SetProcess(proc);
@@ -457,7 +448,7 @@ namespace FFBardMusicPlayer.Controls
         {
             var id = (sender as ComboBox).Text as string;
 
-            Log(string.Format("Forced FFXIV character ID: [{0}].", id));
+            Log($"Forced FFXIV character ID: [{id}].");
 
             hook.ClearLastPerformanceKeybinds();
             hotkeys.LoadKeybindDat(id);
@@ -468,7 +459,7 @@ namespace FFBardMusicPlayer.Controls
 
         private void ForceModeToggle_CheckedChanged(object sender, EventArgs e)
         {
-            var value = (sender as CheckBox).Checked;
+            var value = ((CheckBox) sender).Checked;
             Properties.Settings.Default.ForcedOpen = value;
             forceModeChanged?.Invoke(sender, value);
         }

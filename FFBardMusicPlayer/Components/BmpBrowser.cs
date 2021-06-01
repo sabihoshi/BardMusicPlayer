@@ -2,12 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FFBardMusicPlayer.Components
@@ -33,12 +30,9 @@ namespace FFBardMusicPlayer.Components
                     var sp = Properties.Settings.Default.SongDirectory;
                     var file1 = Path.GetFullPath(fileName);
                     var path2 = Path.GetFullPath(sp);
-                    if (file1.IndexOf(path2) != 0)
-                    {
-                        return file1;
-                    }
-
-                    return file1.Remove(0, path2.Length - sp.Length);
+                    return file1.IndexOf(path2) != 0 
+                        ? file1 
+                        : file1.Remove(0, path2.Length - sp.Length);
                 }
             }
 
@@ -217,7 +211,7 @@ namespace FFBardMusicPlayer.Components
                 {
                     var path = file.FileName.CompressedPath;
                     var filename = file.FileName.ShortFileName;
-                    var fmt = string.Format("└ {0}{1}{2}", path, Path.DirectorySeparatorChar, filename);
+                    var fmt = $"└ {path}{Path.DirectorySeparatorChar}{filename}";
 
                     var lastSlash = fmt.LastIndexOf(Path.DirectorySeparatorChar);
                     if (lastSlash > 0)
@@ -283,32 +277,22 @@ namespace FFBardMusicPlayer.Components
                     Items.Clear();
                     return;
                 }
-                else
+
+                var filename = filenameFilter.ToLower();
+                if (filename.EndsWith(".mid") || filename.EndsWith(".mmsong"))
                 {
-                    if (filenameFilter.ToLower().EndsWith(".mid") || filenameFilter.ToLower().EndsWith(".mmsong"))
-                    {
-                        foreach (MidiFile file in Items)
-                        {
-                            if (file.Enabled)
-                            {
-                                if (file.FileName.RelativeFileName == filenameFilter)
-                                {
-                                    singleEntry = file;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    singleEntry = Items.Cast<MidiFile>()
+                        .FirstOrDefault(file => 
+                            file.Enabled && 
+                            file.FileName.RelativeFileName == filenameFilter);
                 }
             }
 
             midis.Clear();
             Items.Clear();
 
-            foreach (var path in GetSongFiles())
+            foreach (var file in GetSongFiles().Select(path => new MidiFile(path)))
             {
-                var file = new MidiFile(path);
-
                 if (!string.IsNullOrEmpty(filenameFilter))
                 {
                     var f1 = file.FileName.TinyFileName.ToUpper();
@@ -321,12 +305,9 @@ namespace FFBardMusicPlayer.Components
                             focusEntry = file;
                         }
                     }
-                    else if (singleEntry == null)
+                    else if (!f1.Contains(f3))
                     {
-                        if (!f1.Contains(f3))
-                        {
-                            continue;
-                        }
+                        continue;
                     }
                 }
 
@@ -377,15 +358,9 @@ namespace FFBardMusicPlayer.Components
 
         public void EnterFile()
         {
-            if (SelectedItem != null)
+            if (SelectedItem is MidiFile file && file.Enabled)
             {
-                if (SelectedItem is MidiFile file)
-                {
-                    if (file.Enabled)
-                    {
-                        OnMidiFileSelect?.Invoke(this, new BmpMidiEntry(file.FileName.RelativeFileName));
-                    }
-                }
+                OnMidiFileSelect?.Invoke(this, new BmpMidiEntry(file.FileName.RelativeFileName));
             }
         }
 
@@ -395,21 +370,18 @@ namespace FFBardMusicPlayer.Components
             MidiFile fullMatch = null;
 
             var f1 = filename.ToUpper();
-            foreach (MidiFile file in Items)
+            foreach (var file in Items.Cast<MidiFile>().Where(file => file.Enabled))
             {
-                if (file.Enabled)
+                var f2 = file.FileName.ShortFileName.ToUpper();
+                if (f2.StartsWith(f1) && halfMatch == null)
                 {
-                    var f2 = file.FileName.ShortFileName.ToUpper();
-                    if (f2.StartsWith(f1) && halfMatch == null)
-                    {
-                        halfMatch = file;
-                    }
+                    halfMatch = file;
+                }
 
-                    var f3 = file.FileName.RelativeFileName.ToUpper();
-                    if (f3.Equals(f1) && fullMatch == null)
-                    {
-                        fullMatch = file;
-                    }
+                var f3 = file.FileName.RelativeFileName.ToUpper();
+                if (f3.Equals(f1) && fullMatch == null)
+                {
+                    fullMatch = file;
                 }
             }
 
@@ -431,9 +403,7 @@ namespace FFBardMusicPlayer.Components
         public void NextFile(int step = 1)
         {
             if (Items.Count <= 0)
-            {
                 return;
-            }
 
             var i = SelectedIndex + step;
             if (i >= Items.Count)
@@ -441,14 +411,11 @@ namespace FFBardMusicPlayer.Components
                 i = 0;
             }
 
-            if (Items[i] is MidiFile file)
+            if (Items[i] is MidiFile file && !file.Enabled)
             {
-                if (!file.Enabled)
+                if (i < Items.Count - 1)
                 {
-                    if (i < Items.Count - 1)
-                    {
-                        i++;
-                    }
+                    i++;
                 }
             }
 
@@ -458,24 +425,19 @@ namespace FFBardMusicPlayer.Components
         public void PreviousFile(int step = 1)
         {
             if (Items.Count <= 0)
-            {
                 return;
-            }
-
+            
             var i = SelectedIndex - step;
             if (i < 0)
             {
                 i = Items.Count - 1;
             }
 
-            if (Items[i] is MidiFile file)
+            if (Items[i] is MidiFile file && !file.Enabled)
             {
-                if (!file.Enabled)
+                if (i > 0)
                 {
-                    if (i > 0)
-                    {
-                        i--;
-                    }
+                    i--;
                 }
             }
 

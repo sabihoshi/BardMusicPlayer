@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Timer = System.Timers.Timer;
 using Sharlayan;
 using System.Threading;
 
@@ -104,11 +100,11 @@ namespace FFBardMusicPlayer
                         origName = Reader.GetCurrentPlayer().CurrentPlayer.Name;
                         if (string.IsNullOrEmpty(origName))
                         {
-                            name = string.Format("{0} (?)", button.Text);
+                            name = $"{button.Text} (?)";
                         }
                         else
                         {
-                            name = string.Format("{0} ({1})", origName, process.Id);
+                            name = $"{origName} ({process.Id})";
                         }
                     }
 
@@ -160,7 +156,7 @@ namespace FFBardMusicPlayer
                         continue;
                     }
 
-                    var debug = string.Format("{0} - {1}", process.ProcessName, process.MainWindowTitle);
+                    var debug = $"{process.ProcessName} - {process.MainWindowTitle}";
                     var width = ProcessList.Size.Width - 20;
                     var height = 20;
                     var button = new Button()
@@ -196,7 +192,7 @@ namespace FFBardMusicPlayer
             }
             else if (Program.programOptions.HookPid != 0)
             {
-                Console.WriteLine(string.Format("{0}", Program.programOptions.HookPid));
+                Console.WriteLine($"{Program.programOptions.HookPid}");
                 var proc = Process.GetProcessById(Program.programOptions.HookPid);
                 if (proc != null)
                 {
@@ -207,7 +203,7 @@ namespace FFBardMusicPlayer
             // Mutex that shit
             foreach (var process in processes.ToList())
             {
-                var mutex = new Mutex(true, string.Format("bard-music-player-{0}", process.Id));
+                var mutex = new Mutex(true, $"bard-music-player-{process.Id}");
                 if (!mutex.WaitOne(TimeSpan.Zero, true))
                 {
                     processes.Remove(process);
@@ -233,7 +229,7 @@ namespace FFBardMusicPlayer
 
                 foreach (var process in processes)
                 {
-                    var debug = string.Format("{0} ({1})", process.ProcessName, process.Id);
+                    var debug = $"{process.ProcessName} ({process.Id})";
                     var width = ProcessList.Size.Width - (ProcessList.Padding.Left + ProcessList.Padding.Right);
                     var height = 35;
                     var button = new Button()

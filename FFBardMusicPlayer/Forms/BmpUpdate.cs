@@ -1,15 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using ServiceStack;
 using ServiceStack.Text;
@@ -85,8 +77,8 @@ namespace FFBardMusicPlayer
         {
             currentVersion = UpdateVersion.Version;
 
-            var updateJson = Program.urlBase + $"update?v={UpdateVersion.Version}";
-            Console.WriteLine("Updatejson: " + updateJson);
+            var updateJson = $"{Program.urlBase}update?v={UpdateVersion.Version}";
+            Console.WriteLine($"Updatejson: {updateJson}");
 
             version = JsonSerializer.DeserializeFromString<UpdateVersion>(updateJson.GetJsonFromUrl());
 
@@ -114,22 +106,21 @@ namespace FFBardMusicPlayer
                     !(sigExist && strExist))
                 {
                     Console.WriteLine("Downloading signatures");
-                    var sigUrl = string.Format("update?f=signatures&v={0}", UpdateVersion.Version.ToString());
+                    var sigUrl = $"update?f=signatures&v={UpdateVersion.Version.ToString()}";
                     if (DownloadToProgramFile(sigUrl, "signatures.json"))
                     {
                         Console.WriteLine("Downloaded signatures");
                     }
 
                     Console.WriteLine("Downloading structures");
-                    var strUrl = string.Format("update?f=structures&v={0}", UpdateVersion.Version.ToString());
+                    var strUrl = $"update?f=structures&v={UpdateVersion.Version.ToString()}";
                     if (DownloadToProgramFile(strUrl, "structures.json"))
                     {
                         Console.WriteLine("Downloaded structures");
                     }
 
                     Properties.Settings.Default.SigVersion = version.sigVersion;
-                    Console.WriteLine(string.Format("ver1: {0} ver2: {1}", version.sigVersion,
-                        Properties.Settings.Default.SigVersion));
+                    Console.WriteLine($"ver1: {version.sigVersion} ver2: {Properties.Settings.Default.SigVersion}");
                     Properties.Settings.Default.Save();
 
                     // New signature update
@@ -179,20 +170,20 @@ namespace FFBardMusicPlayer
 
         public override string ToString()
         {
-            var str = string.Format("{0} {1}", appName, Version);
+            var str = $"{appName} {Version}";
             if (!string.IsNullOrEmpty(appVersion))
             {
-                str = string.Format("{0} [{1}]", str, appVersion);
+                str = $"{str} [{appVersion}]";
             }
 
             if (!string.IsNullOrEmpty(creatorName))
             {
-                str = string.Format("{0} by {1}", str, creatorName);
+                str = $"{str} by {creatorName}";
             }
 
             if (!string.IsNullOrEmpty(creatorWorld))
             {
-                str = string.Format("{0} ({1})", str, creatorWorld);
+                str = $"{str} ({creatorWorld})";
             }
 
             return str;

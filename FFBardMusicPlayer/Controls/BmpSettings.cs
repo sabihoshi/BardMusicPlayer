@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Text.RegularExpressions;
 using System.Diagnostics;
 using Sanford.Multimedia.Midi;
 
@@ -59,7 +53,7 @@ namespace FFBardMusicPlayer.Controls
             InitializeComponent();
 
             KeyboardTest.Click    += delegate(object o, EventArgs e) { OnKeyboardTest?.Invoke(o, e); };
-            SignatureFolder.Click += delegate(object o, EventArgs e) { Process.Start(Sharlayan.Reader.JsonPath); };
+            SignatureFolder.Click += delegate { Process.Start(Sharlayan.Reader.JsonPath); };
 
             RefreshMidiInput();
 
@@ -94,7 +88,7 @@ namespace FFBardMusicPlayer.Controls
 
         private void ForceOpenToggle_CheckedChanged(object sender, EventArgs e)
         {
-            var check = (sender as CheckBox).Checked;
+            var check = ((CheckBox) sender).Checked;
             Properties.Settings.Default.ForcedOpen = check;
             Properties.Settings.Default.Save();
             OnForcedOpen?.Invoke(this, check);
@@ -107,7 +101,7 @@ namespace FFBardMusicPlayer.Controls
             {
                 if (inp.name == device)
                 {
-                    Console.WriteLine("Found input: " + inp.name);
+                    Console.WriteLine($"Found input: {inp.name}");
                     input = inp;
                     break;
                 }
@@ -127,9 +121,7 @@ namespace FFBardMusicPlayer.Controls
         public MidiInput GetMidiInput()
         {
             if (SettingMidiInput.SelectedValue is MidiInput input)
-            {
                 return input;
-            }
 
             return null;
         }
@@ -157,7 +149,7 @@ namespace FFBardMusicPlayer.Controls
 
         private void DiscordLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start(Program.urlBase + "discord/");
+            Process.Start($"{Program.urlBase}discord/");
         }
 
         private void AboutLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

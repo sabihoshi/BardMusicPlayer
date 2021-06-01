@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using ServiceStack.Text;
 
 namespace FFBardMusicPlayer
@@ -28,14 +24,13 @@ namespace FFBardMusicPlayer
             worker.DoWork                     += UpdateApp;
             worker.RunWorkerCompleted += delegate(object o, RunWorkerCompletedEventArgs a)
             {
-                var don = a.Result as DonatorResponse;
-                if (don != null)
+                if (a.Result is DonatorResponse don)
                 {
                     OnDonatorResponse?.Invoke(this, don);
                 }
             };
             var donatorJson =
-                new Uri(Program.urlBase + string.Format("donator?n={0}&w={1}", characterName, characterWorld));
+                new Uri($"{Program.urlBase}donator?n={characterName}&w={characterWorld}");
             worker.RunWorkerAsync(donatorJson);
         }
 
@@ -55,7 +50,7 @@ namespace FFBardMusicPlayer
 
             var response = request.EndGetResponse(res) as HttpWebResponse;
             args.Result = new DonatorResponse();
-            if (response.StatusCode == HttpStatusCode.OK)
+            if (response != null && response.StatusCode == HttpStatusCode.OK)
             {
                 using (var reader = new StreamReader(response.GetResponseStream()))
                 {

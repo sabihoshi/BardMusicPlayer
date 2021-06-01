@@ -8,7 +8,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using FFBardMusicCommon;
-using static Sharlayan.Core.Enums.Performance;
 
 namespace FFBardMusicPlayer
 {
@@ -71,41 +70,38 @@ namespace FFBardMusicPlayer
                     {
                         long lastTime = 0;
                         var lastNote = 254;
-                        foreach (var sEvent in bard.sequence)
+                        foreach (var sEvent in bard.sequence.Where(sEvent => !failure))
                         {
-                            if (!failure)
+                            if (lastNote == 254)
                             {
-                                if (lastNote == 254)
+                                if (sEvent.Value <= 60 && sEvent.Value >= 24 &&
+                                    (sEvent.Key * 25 % 100 == 50 || sEvent.Key * 25 % 100 == 0))
                                 {
-                                    if (sEvent.Value <= 60 && sEvent.Value >= 24 &&
-                                        (sEvent.Key * 25 % 100 == 50 || sEvent.Key * 25 % 100 == 0))
-                                    {
-                                        lastNote = sEvent.Value + 24;
-                                        lastTime = sEvent.Key * 25;
-                                    }
-                                    else
-                                    {
-                                        failure = true;
-                                    }
+                                    lastNote = sEvent.Value + 24;
+                                    lastTime = sEvent.Key * 25;
                                 }
                                 else
                                 {
-                                    if (sEvent.Value == 254)
+                                    failure = true;
+                                }
+                            }
+                            else
+                            {
+                                if (sEvent.Value == 254)
+                                {
+                                    var dur = sEvent.Key * 25 - lastTime;
+                                    notes.Add(new Note((SevenBitNumber) lastNote, dur, lastTime)
                                     {
-                                        var dur = sEvent.Key * 25 - lastTime;
-                                        notes.Add(new Note((SevenBitNumber) lastNote, dur, lastTime)
-                                        {
-                                            Channel     = (FourBitNumber) 14,
-                                            Velocity    = (SevenBitNumber) (int) 127,
-                                            OffVelocity = (SevenBitNumber) (int) 0
-                                        });
-                                        lastNote = 254;
-                                        lastTime = sEvent.Key * 25;
-                                    }
-                                    else
-                                    {
-                                        failure = true;
-                                    }
+                                        Channel     = (FourBitNumber) 14,
+                                        Velocity    = (SevenBitNumber) (int) 127,
+                                        OffVelocity = (SevenBitNumber) (int) 0
+                                    });
+                                    lastNote = 254;
+                                    lastTime = sEvent.Key * 25;
+                                }
+                                else
+                                {
+                                    failure = true;
                                 }
                             }
                         }

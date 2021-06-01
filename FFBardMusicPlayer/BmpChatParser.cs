@@ -1,11 +1,8 @@
 ﻿using Sharlayan.Core;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 // Fixes and colors chat accordingly
 
@@ -24,7 +21,7 @@ namespace FFBardMusicPlayer
                 {
                     // Party
                     var pid = (int) (format[0] & 0xF) + 1;
-                    format = string.Format("[{0}] {1}", pid, format.Substring(1));
+                    format = $"[{pid}] {format.Substring(1)}";
                     break;
                 }
                 case "000D":
@@ -42,7 +39,7 @@ namespace FFBardMusicPlayer
                     // PM Send
                     if (format.IndexOf(": ") != -1)
                     {
-                        format = ">> " + format;
+                        format = $">> {format}";
                     }
 
                     break;
@@ -50,7 +47,7 @@ namespace FFBardMusicPlayer
                 case "001B":
                 {
                     // Novice Network
-                    format = "[NN] " + format;
+                    format = $"[NN] {format}";
                     break;
                 }
                 case "001C":
@@ -76,7 +73,7 @@ namespace FFBardMusicPlayer
                 case "0018":
                 {
                     // FC
-                    format = string.Format("<FC> {0}", format);
+                    format = $"<FC> {format}";
                     break;
                 }
                 case "0010":
@@ -90,7 +87,7 @@ namespace FFBardMusicPlayer
                 {
                     // LS
                     var ls = int.Parse(item.Code.Substring(3)) + 1;
-                    format = string.Format("[{0}] {1}", ls, format);
+                    format = $"[{ls}] {format}";
                     break;
                 }
                 default:
@@ -111,13 +108,13 @@ namespace FFBardMusicPlayer
                 color = Color.White;
             }
 
-            var col = string.Format(@"\red{0}\green{1}\blue{2}", color.R, color.G, color.B);
+            var col = $@"\red{color.R}\green{color.G}\blue{color.B}";
             if (bold)
             {
                 ftext = string.Format("\\b" + ftext + "\\b0");
             }
 
-            return string.Format(@"{{\rtf1 {{\colortbl ;{0};}}\cf1 {1} }}", col, ftext);
+            return $@"{{\rtf1 {{\colortbl ;{col};}}\cf1 {ftext} }}";
         }
 
         public static string FormatChat(ChatLogItem item)
@@ -196,7 +193,7 @@ namespace FFBardMusicPlayer
                 }
             }
 
-            format = string.Format("[{0}] {1}", timestamp, format);
+            format = $"[{timestamp}] {format}";
             return FormatRtf(format, col, bold);
         }
 
@@ -207,7 +204,7 @@ namespace FFBardMusicPlayer
             {
                 if (c == '\\' || c == '{' || c == '}')
                 {
-                    sb.Append(@"\" + c);
+                    sb.Append($@"\{c}");
                 }
                 else if (c == '\n')
                 {
@@ -219,7 +216,7 @@ namespace FFBardMusicPlayer
                 }
                 else
                 {
-                    sb.Append("\\u" + Convert.ToUInt32(c) + "?");
+                    sb.Append($"\\u{Convert.ToUInt32(c)}?");
                 }
             }
 

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 
 namespace FFBardMusicPlayer
@@ -25,9 +21,7 @@ namespace FFBardMusicPlayer
         {
             var volume = GetVolumeObject(pid);
             if (volume == null)
-            {
                 return 0.0f;
-            }
 
             float level;
             volume.GetMasterVolume(out level);
@@ -39,9 +33,7 @@ namespace FFBardMusicPlayer
         {
             var volume = GetVolumeObject(pid);
             if (volume == null)
-            {
                 return false;
-            }
 
             bool mute;
             volume.GetMute(out mute);
@@ -53,9 +45,8 @@ namespace FFBardMusicPlayer
         {
             var volume = GetVolumeObject(pid);
             if (volume == null)
-            {
                 return;
-            }
+            
 
             var guid = Guid.Empty;
             volume.SetMasterVolume(level / 100, ref guid);

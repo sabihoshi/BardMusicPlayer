@@ -1,13 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Threading;
 using FFBardMusicCommon;
-using static Sharlayan.Core.Enums.Performance;
 
 // Key/Keybind - the actual key to simulate
 // PerfKey/pk - PERFORMANCE_MODE_ key to get the keybind
@@ -56,7 +49,7 @@ namespace FFBardMusicPlayer
                 }
             }
 
-            public override string ToString() => string.Format("HOTBAR_{0}_{1:X}", Hotbar, Slot);
+            public override string ToString() => $"HOTBAR_{Hotbar}_{Slot:X}";
         }
 
         public class HotbarJobSlots : Dictionary<int, HotbarSlot>
@@ -132,7 +125,7 @@ namespace FFBardMusicPlayer
 
         public void LoadHotbarDat(string charId)
         {
-            var fileToLoad = Program.programOptions.DatPrefix + "HOTBAR.DAT";
+            var fileToLoad = $"{Program.programOptions.DatPrefix}HOTBAR.DAT";
             LoadDatId(charId, fileToLoad);
         }
 

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
 namespace FFBardMusicPlayer.Controls
@@ -30,7 +23,7 @@ namespace FFBardMusicPlayer.Controls
         protected override void UpdateEditText()
         {
             ChangingText = true;
-            Text         = Value.ToString() + "%";
+            Text         = $"{Value}%";
             ChangingText = false;
         }
     }

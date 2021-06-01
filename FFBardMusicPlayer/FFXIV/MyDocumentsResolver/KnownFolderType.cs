@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Reflection;
 
 namespace FFBardMusicPlayer.FFXIV.MyDocumentsResolver
 {

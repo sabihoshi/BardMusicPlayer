@@ -3,9 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Threading;
 
 // Key/Keybind - the actual key to simulate
 // PerfKey/pk - PERFORMANCE_MODE_ key to get the keybind
@@ -127,18 +125,9 @@ namespace FFBardMusicPlayer
         // keybindList contains map between PERFORMANCE_MODE_* to Keybind
         private Dictionary<string, Keybind> keybindList = new Dictionary<string, Keybind>();
 
-        public Keybind this[string key]
-        {
-            get
-            {
-                if (!keybindList.ContainsKey(key))
-                {
-                    return new Keybind();
-                }
-
-                return keybindList[key];
-            }
-        }
+        public Keybind this[string key] => !keybindList.ContainsKey(key) 
+            ? new Keybind() 
+            : keybindList[key];
 
         public List<string> GetKeybindList() => keybindList.Keys.ToList();
 
@@ -224,7 +213,7 @@ namespace FFBardMusicPlayer
             var oc = (int) (fn / 12) - 1;
             if (key > 0)
             {
-                return string.Format("{0}{1}", realPianoKeyMap[key], oc);
+                return $"{realPianoKeyMap[key]}{oc}";
             }
 
             return string.Empty;
@@ -267,7 +256,7 @@ namespace FFBardMusicPlayer
 
         public void LoadKeybindDat(string charId)
         {
-            var fileToLoad = Program.programOptions.DatPrefix + "KEYBIND.DAT";
+            var fileToLoad = $"{Program.programOptions.DatPrefix}KEYBIND.DAT";
             LoadDatId(charId, fileToLoad);
         }
 
@@ -301,7 +290,7 @@ namespace FFBardMusicPlayer
                 }
             }
 
-            Console.WriteLine("Read " + keybindList.Count + " keys");
+            Console.WriteLine($"Read {keybindList.Count} keys");
             return true;
         }
 
