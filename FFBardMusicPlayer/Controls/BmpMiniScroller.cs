@@ -8,55 +8,61 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FFBardMusicPlayer.Controls {
-	public partial class BmpMiniScroller : UserControl {
+namespace FFBardMusicPlayer.Controls
+{
+    public partial class BmpMiniScroller : UserControl
+    {
+        public EventHandler<int> OnScroll;
+        public EventHandler OnStatusClick;
 
-		public EventHandler<int> OnScroll;
-		public EventHandler OnStatusClick;
+        private delegate void textDelegate(string text);
 
-		private delegate void textDelegate(string text);
-		private void setText(string text)
+        private void setText(string text)
         {
-			if (InvokeRequired)
-			{
-				var d = new textDelegate(setText);
-				Invoke(d, new object[] { text });
-			}
-			else
-			{
-				Status.Text = text;
-			}
+            if (InvokeRequired)
+            {
+                var d = new textDelegate(setText);
+                Invoke(d, new object[] { text });
+            }
+            else
+            {
+                Status.Text = text;
+            }
         }
-		public override string Text {
-			get { return Status.Text; }
-			set {
-				setText(value);
-			}
-		}
 
-		public BmpMiniScroller() {
-			InitializeComponent();
+        public override string Text
+        {
+            get => Status.Text;
+            set => setText(value);
+        }
 
-			LeftButton.Click += LeftRightButton_Click;
-			RightButton.Click += LeftRightButton_Click;
-			Status.Click += Status_Click;
-		}
+        public BmpMiniScroller()
+        {
+            InitializeComponent();
 
-		private void LeftRightButton_Click(object sender, EventArgs e) {
-			int scroll = 50;
-			if(Control.ModifierKeys == Keys.Shift) {
-				scroll = 100;
-			} else if(Control.ModifierKeys == Keys.Control) {
-				scroll = 10;
-			}
-			scroll *= ((sender as Button) == LeftButton ? -1 : 1);
-			OnScroll?.Invoke(this, scroll);
+            LeftButton.Click  += LeftRightButton_Click;
+            RightButton.Click += LeftRightButton_Click;
+            Status.Click      += Status_Click;
+        }
 
-			this.Status_Click(sender, e);
-		}
+        private void LeftRightButton_Click(object sender, EventArgs e)
+        {
+            var scroll = 50;
+            if (ModifierKeys == Keys.Shift)
+            {
+                scroll = 100;
+            }
+            else if (ModifierKeys == Keys.Control)
+            {
+                scroll = 10;
+            }
 
-		private void Status_Click(object sender, EventArgs e) {
-			OnStatusClick?.Invoke(this, e);
-		}
-	}
+            scroll *= sender as Button == LeftButton ? -1 : 1;
+            OnScroll?.Invoke(this, scroll);
+
+            Status_Click(sender, e);
+        }
+
+        private void Status_Click(object sender, EventArgs e) { OnStatusClick?.Invoke(this, e); }
+    }
 }

@@ -13,7 +13,6 @@ namespace FFBardMusicPlayer.FFXIV.MyDocumentsResolver
     internal static class KnownFolders
     {
         // ---- MEMBERS ------------------------------------------------------------------------------------------------
-
         private static Dictionary<KnownFolderType, KnownFolder> _knownFolderInstances;
 
         // ---- PROPERTIES ---------------------------------------------------------------------------------------------
@@ -670,14 +669,17 @@ namespace FFBardMusicPlayer.FFXIV.MyDocumentsResolver
         {
             // Check if the caching directory exists yet.
             if (_knownFolderInstances == null)
+            {
                 _knownFolderInstances = new Dictionary<KnownFolderType, KnownFolder>();
+            }
 
             // Get a KnownFolder instance out of the cache dictionary or create it when not cached yet.
-            if (!_knownFolderInstances.TryGetValue(type, out KnownFolder knownFolder))
+            if (!_knownFolderInstances.TryGetValue(type, out var knownFolder))
             {
                 knownFolder = new KnownFolder(type);
                 _knownFolderInstances.Add(type, knownFolder);
             }
+
             return knownFolder;
         }
     }

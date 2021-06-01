@@ -11,260 +11,316 @@ using static FFBardMusicPlayer.BmpProcessSelect;
 using static FFBardMusicPlayer.Controls.BmpPlayer;
 using static Sharlayan.Core.Enums.Performance;
 using Sanford.Multimedia.Midi;
-
 using Timer = System.Timers.Timer;
 using System.Timers;
 using Sharlayan.Models.ReadResults;
 using Sharlayan.Core;
 using System.Diagnostics;
 
-namespace FFBardMusicPlayer.Controls {
-	public partial class BmpLocalOrchestra : UserControl {
+namespace FFBardMusicPlayer.Controls
+{
+    public partial class BmpLocalOrchestra : UserControl
+    {
+        public EventHandler<bool> onMemoryCheck;
 
-		public EventHandler<bool> onMemoryCheck;
-		public class SyncData {
-			public Dictionary<uint, long> idTimestamp = new Dictionary<uint, long>();
-		};
+        public class SyncData
+        {
+            public Dictionary<uint, long> idTimestamp = new Dictionary<uint, long>();
+        };
 
         private BmpSequencer parentSequencer;
+
         public BmpSequencer Sequencer
         {
             set
             {
                 parentSequencer = value;
 
-                this.UpdatePerformers(value);
-                this.UpdateMemory();
+                UpdatePerformers(value);
+                UpdateMemory();
             }
-
-            get
-            {
-                return parentSequencer;
-            }
+            get => parentSequencer;
         }
 
         private bool orchestraEnabled = false;
-		public bool OrchestraEnabled {
-			get { return orchestraEnabled; }
-			set {
-				orchestraEnabled = value;
-			}
-		}
 
-		public BmpLocalOrchestra() {
-			InitializeComponent();
-		}
+        public bool OrchestraEnabled
+        {
+            get => orchestraEnabled;
+            set => orchestraEnabled = value;
+        }
 
-		private void StartSyncWorker() {
-			BackgroundWorker syncWorker = new BackgroundWorker();
-			syncWorker.WorkerSupportsCancellation = true;
-			syncWorker.DoWork += SyncWorker_DoWork;
-			syncWorker.RunWorkerCompleted += SyncWorker_RunWorkerCompleted;
+        public BmpLocalOrchestra() { InitializeComponent(); }
 
-			this.UpdateMemory();
+        private void StartSyncWorker()
+        {
+            var syncWorker = new BackgroundWorker();
+            syncWorker.WorkerSupportsCancellation =  true;
+            syncWorker.DoWork                     += SyncWorker_DoWork;
+            syncWorker.RunWorkerCompleted         += SyncWorker_RunWorkerCompleted;
 
-			List<uint> actorIds = new List<uint>();
-			foreach(Control ctl in PerformerPanel.Controls) {
-				BmpLocalPerformer performer = (ctl as BmpLocalPerformer);
-				if(performer != null && performer.PerformerEnabled && performer.PerformanceUp) {
-					actorIds.Add(performer.actorId);
-				}
-			}
-			syncWorker.RunWorkerAsync(actorIds);
+            UpdateMemory();
 
-			onMemoryCheck.Invoke(this, true);
-		}
+            var actorIds = new List<uint>();
+            foreach (Control ctl in PerformerPanel.Controls)
+            {
+                var performer = ctl as BmpLocalPerformer;
+                if (performer != null && performer.PerformerEnabled && performer.PerformanceUp)
+                {
+                    actorIds.Add(performer.actorId);
+                }
+            }
 
-		private void SyncWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
-			SyncData data = (e.Result as SyncData);
+            syncWorker.RunWorkerAsync(actorIds);
 
-			StringBuilder debugDump = new StringBuilder();
-			
-			if(Sharlayan.MemoryHandler.Instance.IsAttached) {
-				if(Sharlayan.Reader.CanGetActors()) {
-					ActorResult actors = Sharlayan.Reader.GetActors();
-					foreach(KeyValuePair<uint, long> kvp in data.idTimestamp) {
-						if(actors.CurrentPCs.ContainsKey(kvp.Key)) {
-							ActorItem item = actors.CurrentPCs[kvp.Key];
-							debugDump.AppendLine(string.Format("{0} MS {1}", item.Name, kvp.Value));
-						}
-					}
-				}
-			}
+            onMemoryCheck.Invoke(this, true);
+        }
 
-			onMemoryCheck.Invoke(this, false);
+        private void SyncWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            var data = e.Result as SyncData;
 
-			//MessageBox.Show(this.Parent, debugDump.ToString());
-			Console.WriteLine(debugDump.ToString());
-		}
+            var debugDump = new StringBuilder();
 
-		// Start memory poll sync
+            if (Sharlayan.MemoryHandler.Instance.IsAttached)
+            {
+                if (Sharlayan.Reader.CanGetActors())
+                {
+                    var actors = Sharlayan.Reader.GetActors();
+                    foreach (var kvp in data.idTimestamp)
+                    {
+                        if (actors.CurrentPCs.ContainsKey(kvp.Key))
+                        {
+                            var item = actors.CurrentPCs[kvp.Key];
+                            debugDump.AppendLine(string.Format("{0} MS {1}", item.Name, kvp.Value));
+                        }
+                    }
+                }
+            }
 
-		private void SyncWorker_DoWork(object sender, DoWorkEventArgs e) {
-			BackgroundWorker worker = (sender as BackgroundWorker);
-			List<uint> actorIds = (e.Argument as List<uint>);
-			SyncData data = new SyncData();
-			Dictionary<uint, uint> performanceToActor = new Dictionary<uint, uint>();
+            onMemoryCheck.Invoke(this, false);
 
-			if(Sharlayan.MemoryHandler.Instance.IsAttached) {
-				if(Sharlayan.Reader.CanGetPartyMembers() && Sharlayan.Reader.CanGetActors()) {
-					ActorResult actors = Sharlayan.Reader.GetActors();
-					foreach(ActorItem actor in actors.CurrentPCs.Values.ToList()) {
-						if(actorIds.Contains(actor.ID)) {
-							performanceToActor[actor.PerformanceID / 2] = actor.ID;
-						}
-					}
-				}
-			}
+            //MessageBox.Show(this.Parent, debugDump.ToString());
+            Console.WriteLine(debugDump.ToString());
+        }
 
-			if(e.Cancel) {
-				return;
-			}
+        // Start memory poll sync
 
-			PerformanceResult performanceCache = null;
-			List<uint> perfKeys = performanceToActor.Keys.ToList();
+        private void SyncWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            var worker = sender as BackgroundWorker;
+            var actorIds = e.Argument as List<uint>;
+            var data = new SyncData();
+            var performanceToActor = new Dictionary<uint, uint>();
 
-			Stopwatch msCounter = Stopwatch.StartNew();
-			DateTime now = DateTime.Now;
+            if (Sharlayan.MemoryHandler.Instance.IsAttached)
+            {
+                if (Sharlayan.Reader.CanGetPartyMembers() && Sharlayan.Reader.CanGetActors())
+                {
+                    var actors = Sharlayan.Reader.GetActors();
+                    foreach (var actor in actors.CurrentPCs.Values.ToList())
+                    {
+                        if (actorIds.Contains(actor.ID))
+                        {
+                            performanceToActor[actor.PerformanceID / 2] = actor.ID;
+                        }
+                    }
+                }
+            }
 
-			while(!worker.CancellationPending) {
-				if(e.Cancel) {
-					return;
-				}
-				if(Sharlayan.MemoryHandler.Instance.IsAttached) {
-					if(Sharlayan.Reader.CanGetPerformance()) {
-						performanceCache = Sharlayan.Reader.GetPerformance();
+            if (e.Cancel)
+            {
+                return;
+            }
 
-						foreach(uint pid in perfKeys) {
-							if(performanceToActor.ContainsKey(pid)) {
-								// Check it
-								if(performanceCache.Performances[pid].Animation > 0) {
-									uint aid = performanceToActor[pid];
-									//data.idTimestamp[aid] = msCounter.ElapsedMilliseconds;
-									data.idTimestamp[aid] = (long)((DateTime.Now - now).TotalMilliseconds);
-									performanceToActor.Remove(pid);
-								}
-							}
-						}
-						if(perfKeys.Count != performanceToActor.Keys.Count) {
-							perfKeys = performanceToActor.Keys.ToList();
-						}
-						if(performanceToActor.Keys.Count == 0) {
-							break;
-						}
-					}
-				}
-			}
+            PerformanceResult performanceCache = null;
+            var perfKeys = performanceToActor.Keys.ToList();
 
-			e.Result = data;
-		}
+            var msCounter = Stopwatch.StartNew();
+            var now = DateTime.Now;
 
-		public void PopulateLocalProcesses(List<MultiboxProcess> processes) {
-			PerformerPanel.Controls.Clear();
+            while (!worker.CancellationPending)
+            {
+                if (e.Cancel)
+                {
+                    return;
+                }
 
-			List<BmpLocalPerformer> performers = new List<BmpLocalPerformer>();
-			int track = 1;
-			foreach(MultiboxProcess mp in processes) {
-				BmpLocalPerformer perf = new BmpLocalPerformer(mp);
-				perf.Dock = DockStyle.Top;
+                if (Sharlayan.MemoryHandler.Instance.IsAttached)
+                {
+                    if (Sharlayan.Reader.CanGetPerformance())
+                    {
+                        performanceCache = Sharlayan.Reader.GetPerformance();
 
-				if(mp.hostProcess == true) {
-					perf.hostProcess = true;
-					performers.Insert(0, perf);
-				} else {
-					performers.Add(perf);
-				}
-				track++;
-			}
-			for(int i = 0; i < performers.Count; i++) {
-				BmpLocalPerformer perf = performers[i];
-				perf.TrackNum = i+1;
-				PerformerPanel.Controls.Add(perf);
-			}
-		}
+                        foreach (var pid in perfKeys)
+                        {
+                            if (performanceToActor.ContainsKey(pid))
+                            {
+                                // Check it
+                                if (performanceCache.Performances[pid].Animation > 0)
+                                {
+                                    var aid = performanceToActor[pid];
+                                    //data.idTimestamp[aid] = msCounter.ElapsedMilliseconds;
+                                    data.idTimestamp[aid] = (long) (DateTime.Now - now).TotalMilliseconds;
+                                    performanceToActor.Remove(pid);
+                                }
+                            }
+                        }
 
-		public void UpdateMemory() {
-			if(Sharlayan.MemoryHandler.Instance.IsAttached) {
-				if(Sharlayan.Reader.CanGetActors() && Sharlayan.Reader.CanGetPerformance()) {
+                        if (perfKeys.Count != performanceToActor.Keys.Count)
+                        {
+                            perfKeys = performanceToActor.Keys.ToList();
+                        }
 
-					List<string> performerNames = GetPerformerNames();
+                        if (performanceToActor.Keys.Count == 0)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
 
-					int pid = -1;
-					PerformanceResult perfs = Sharlayan.Reader.GetPerformance();
-					ActorResult ares = Sharlayan.Reader.GetActors();
-					if(ares != null) {
-						foreach(ActorItem actor in ares.CurrentPCs.Values.ToList()) {
-							if(performerNames.Contains(actor.Name)) {
-								
-								uint perfId = actor.PerformanceID / 2;
-								if(perfId >= 0 && perfId < 99 && perfs.Performances.ContainsKey(perfId)) {
-									PerformanceItem item = perfs.Performances[perfId];
+            e.Result = data;
+        }
 
-									BmpLocalPerformer perf = this.FindPerformer(actor.Name, perfId, actor.ID);
-									if(perf != null) {
-										perf.PerformanceUp = item.IsReady();
-										perf.performanceId = perfId;
-										perf.actorId = actor.ID;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+        public void PopulateLocalProcesses(List<MultiboxProcess> processes)
+        {
+            PerformerPanel.Controls.Clear();
 
-		public void UpdatePerformers(BmpSequencer seq) {
-			if(seq == null) {
-				return;
-			}
-			foreach(Control ctl in PerformerPanel.Controls) {
-				BmpLocalPerformer performer = (ctl as BmpLocalPerformer);
-				if(performer != null) {
-					performer.Sequencer = seq;
-				}
-			}
-		}
+            var performers = new List<BmpLocalPerformer>();
+            var track = 1;
+            foreach (var mp in processes)
+            {
+                var perf = new BmpLocalPerformer(mp);
+                perf.Dock = DockStyle.Top;
 
-		public void PerformerProgress(int prog) {
-			foreach(Control ctl in PerformerPanel.Controls) {
-				BmpLocalPerformer performer = (ctl as BmpLocalPerformer);
-				if(performer != null) {
-					performer.SetProgress(prog);
-				}
-			}
-		}
+                if (mp.hostProcess == true)
+                {
+                    perf.hostProcess = true;
+                    performers.Insert(0, perf);
+                }
+                else
+                {
+                    performers.Add(perf);
+                }
 
-		public void PerformerPlay(bool play) {
-			foreach(Control ctl in PerformerPanel.Controls) {
-				BmpLocalPerformer performer = (ctl as BmpLocalPerformer);
-				if(performer != null) {
-					performer.Play(play);
-				}
-			}
-		}
-		public void PerformerStop() {
-			foreach(Control ctl in PerformerPanel.Controls) {
-				BmpLocalPerformer performer = (ctl as BmpLocalPerformer);
-				if(performer != null) {
-					performer.Stop();
-				}
-			}
-		}
+                track++;
+            }
 
-		public List<string> GetPerformerNames() {
-			List<string> performerNames = new List<string>();
-			foreach(BmpLocalPerformer performer in PerformerPanel.Controls) {
-				performerNames.Add(performer.PerformerName);
-			}
-			return performerNames;
-		}
+            for (var i = 0; i < performers.Count; i++)
+            {
+                var perf = performers[i];
+                perf.TrackNum = i + 1;
+                PerformerPanel.Controls.Add(perf);
+            }
+        }
+
+        public void UpdateMemory()
+        {
+            if (Sharlayan.MemoryHandler.Instance.IsAttached)
+            {
+                if (Sharlayan.Reader.CanGetActors() && Sharlayan.Reader.CanGetPerformance())
+                {
+                    var performerNames = GetPerformerNames();
+
+                    var pid = -1;
+                    var perfs = Sharlayan.Reader.GetPerformance();
+                    var ares = Sharlayan.Reader.GetActors();
+                    if (ares != null)
+                    {
+                        foreach (var actor in ares.CurrentPCs.Values.ToList())
+                        {
+                            if (performerNames.Contains(actor.Name))
+                            {
+                                var perfId = actor.PerformanceID / 2;
+                                if (perfId >= 0 && perfId < 99 && perfs.Performances.ContainsKey(perfId))
+                                {
+                                    var item = perfs.Performances[perfId];
+
+                                    var perf = FindPerformer(actor.Name, perfId, actor.ID);
+                                    if (perf != null)
+                                    {
+                                        perf.PerformanceUp = item.IsReady();
+                                        perf.performanceId = perfId;
+                                        perf.actorId       = actor.ID;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public void UpdatePerformers(BmpSequencer seq)
+        {
+            if (seq == null)
+            {
+                return;
+            }
+
+            foreach (Control ctl in PerformerPanel.Controls)
+            {
+                var performer = ctl as BmpLocalPerformer;
+                if (performer != null)
+                {
+                    performer.Sequencer = seq;
+                }
+            }
+        }
+
+        public void PerformerProgress(int prog)
+        {
+            foreach (Control ctl in PerformerPanel.Controls)
+            {
+                var performer = ctl as BmpLocalPerformer;
+                if (performer != null)
+                {
+                    performer.SetProgress(prog);
+                }
+            }
+        }
+
+        public void PerformerPlay(bool play)
+        {
+            foreach (Control ctl in PerformerPanel.Controls)
+            {
+                var performer = ctl as BmpLocalPerformer;
+                if (performer != null)
+                {
+                    performer.Play(play);
+                }
+            }
+        }
+
+        public void PerformerStop()
+        {
+            foreach (Control ctl in PerformerPanel.Controls)
+            {
+                var performer = ctl as BmpLocalPerformer;
+                if (performer != null)
+                {
+                    performer.Stop();
+                }
+            }
+        }
+
+        public List<string> GetPerformerNames()
+        {
+            var performerNames = new List<string>();
+            foreach (BmpLocalPerformer performer in PerformerPanel.Controls)
+            {
+                performerNames.Add(performer.PerformerName);
+            }
+
+            return performerNames;
+        }
 
         public BmpLocalPerformer FindPerformer(string name, uint performerId, uint actorId)
         {
             foreach (Control ctl in PerformerPanel.Controls)
             {
-                BmpLocalPerformer performer = (ctl as BmpLocalPerformer);
+                var performer = ctl as BmpLocalPerformer;
                 if (performer != null)
                 {
                     // few things can happen here
@@ -292,65 +348,78 @@ namespace FFBardMusicPlayer.Controls {
             return null;
         }
 
-        private void openInstruments_Click(object sender, EventArgs e) {
-			
-			foreach(Control ctl in PerformerPanel.Controls) {
-				BmpLocalPerformer performer = (ctl as BmpLocalPerformer);
-				if(performer != null && performer.PerformerEnabled) {
-					performer.OpenInstrument();
-				}
-			}
-		}
+        private void openInstruments_Click(object sender, EventArgs e)
+        {
+            foreach (Control ctl in PerformerPanel.Controls)
+            {
+                var performer = ctl as BmpLocalPerformer;
+                if (performer != null && performer.PerformerEnabled)
+                {
+                    performer.OpenInstrument();
+                }
+            }
+        }
 
-		private void closeInstruments_Click(object sender, EventArgs e) {
+        private void closeInstruments_Click(object sender, EventArgs e)
+        {
             parentSequencer.Pause();
-            foreach (Control ctl in PerformerPanel.Controls) {
-				BmpLocalPerformer performer = (ctl as BmpLocalPerformer);
-				if(performer != null && performer.PerformerEnabled) {
-					performer.CloseInstrument();
-				}
-			}
-		}
+            foreach (Control ctl in PerformerPanel.Controls)
+            {
+                var performer = ctl as BmpLocalPerformer;
+                if (performer != null && performer.PerformerEnabled)
+                {
+                    performer.CloseInstrument();
+                }
+            }
+        }
 
-		private void muteAll_Click(object sender, EventArgs e) {
-			
-			foreach(Control ctl in PerformerPanel.Controls) {
-				BmpLocalPerformer performer = (ctl as BmpLocalPerformer);
-				if(performer != null && performer.PerformerEnabled) {
-					performer.ToggleMute();
-				}
-			}
-		}
+        private void muteAll_Click(object sender, EventArgs e)
+        {
+            foreach (Control ctl in PerformerPanel.Controls)
+            {
+                var performer = ctl as BmpLocalPerformer;
+                if (performer != null && performer.PerformerEnabled)
+                {
+                    performer.ToggleMute();
+                }
+            }
+        }
 
-		private void ensembleCheck_Click(object sender, EventArgs e) {
+        private void ensembleCheck_Click(object sender, EventArgs e)
+        {
+            var openTimer = new Timer
+            {
+                Interval = 500
+            };
+            openTimer.Elapsed += delegate(object o, ElapsedEventArgs ev)
+            {
+                openTimer.Stop();
+                openTimer = null;
 
-			Timer openTimer = new Timer {
-				Interval = 500
-			};
-			openTimer.Elapsed += delegate (object o, ElapsedEventArgs ev) {
-				openTimer.Stop();
-				openTimer = null;
-				
-				foreach(Control ctl in PerformerPanel.Controls) {
-					BmpLocalPerformer performer = (ctl as BmpLocalPerformer);
-					if(performer != null && performer.PerformerEnabled && !performer.hostProcess) {
-						performer.EnsembleAccept();
-					}
-				}
-			};
-			openTimer.Start();
-		}
+                foreach (Control ctl in PerformerPanel.Controls)
+                {
+                    var performer = ctl as BmpLocalPerformer;
+                    if (performer != null && performer.PerformerEnabled && !performer.hostProcess)
+                    {
+                        performer.EnsembleAccept();
+                    }
+                }
+            };
+            openTimer.Start();
+        }
 
-		private void testC_Click(object sender, EventArgs e) {
+        private void testC_Click(object sender, EventArgs e)
+        {
+            //StartSyncWorker();
 
-			//StartSyncWorker();
-
-			foreach(Control ctl in PerformerPanel.Controls) {
-				BmpLocalPerformer performer = (ctl as BmpLocalPerformer);
-				if(performer != null && performer.PerformerEnabled) {
-					performer.NoteKey("C");
-				}
-			}
-		}
-	}
+            foreach (Control ctl in PerformerPanel.Controls)
+            {
+                var performer = ctl as BmpLocalPerformer;
+                if (performer != null && performer.PerformerEnabled)
+                {
+                    performer.NoteKey("C");
+                }
+            }
+        }
+    }
 }
