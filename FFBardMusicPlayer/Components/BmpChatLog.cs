@@ -64,13 +64,13 @@ namespace FFBardMusicPlayer.Components
 
             if (box.InvokeRequired)
             {
-                Invoke(new AddRtfCallback(AddRtf), new object[] { box, format });
+                Invoke(new AddRtfCallback(AddRtf), box, format);
                 return;
             }
 
             var rtfPoint = Point.Empty;
             SendMessage(box.Handle, EM_GETSCROLLPOS, 0, ref rtfPoint);
-            GetScrollRange((IntPtr) box.Handle, SB_VERT, out var vmin, out var vmax);
+            GetScrollRange(box.Handle, SB_VERT, out var vmin, out var vmax);
 
             var pos = rtfPoint.Y + box.ClientSize.Height;
             var bottom = pos >= vmax;

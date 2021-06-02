@@ -10,7 +10,7 @@ namespace FFBardMusicPlayer.Controls
 {
     public partial class BmpExplorer : UserControl
     {
-        private bool ignoreTrackChange = false;
+        private bool ignoreTrackChange;
         private readonly bool initState = true;
         public EventHandler<bool> OnBrowserVisibleChange;
         public EventHandler<BmpMidiEntry> OnBrowserSelect;
@@ -48,7 +48,7 @@ namespace FFBardMusicPlayer.Controls
         {
             InitializeComponent();
 
-            selectFlashingTimer.Tick += delegate(object o, EventArgs a)
+            selectFlashingTimer.Tick += delegate
             {
                 var random = new Random();
                 int min = 0, max = Colors.Length;
@@ -59,7 +59,7 @@ namespace FFBardMusicPlayer.Controls
             selectFlashingTimer.Start();
 
             SongBrowser.OnMidiFileSelect += SongBrowser_EnterFile;
-            SelectorTrack.ValueChanged += delegate(object o, EventArgs e)
+            SelectorTrack.ValueChanged += delegate
             {
                 if (!ignoreTrackChange)
                 {
@@ -67,7 +67,7 @@ namespace FFBardMusicPlayer.Controls
                 }
             };
 
-            MusicReload.Click += delegate(object sender, EventArgs e)
+            MusicReload.Click += delegate
             {
                 SongBrowser.RefreshList();
                 EnterFile();
@@ -86,14 +86,14 @@ namespace FFBardMusicPlayer.Controls
                 }
             };
 
-            SelectorSong.GotFocus += delegate(object sender, EventArgs e)
+            SelectorSong.GotFocus += delegate
             {
                 if (!SongBrowserVisible)
                 {
                     SongBrowserVisible = true;
                 }
             };
-            SelectorSong.LostFocus += delegate(object sender, EventArgs e)
+            SelectorSong.LostFocus += delegate
             {
                 if (!SongBrowser.Focused)
                 {
@@ -102,7 +102,7 @@ namespace FFBardMusicPlayer.Controls
                 }
             };
 
-            SongBrowser.LostFocus += delegate(object sender, EventArgs e)
+            SongBrowser.LostFocus += delegate
             {
                 if (!SelectorSong.Focused && !SelectorTrack.Focused && !MusicReload.Focused)
                 {
@@ -111,8 +111,7 @@ namespace FFBardMusicPlayer.Controls
             };
             SongBrowser.MouseWheel += delegate(object sender, MouseEventArgs e)
             {
-                var browser = sender as BmpBrowser;
-                if (browser != null)
+                if (sender is BmpBrowser browser)
                 {
                     if (e.Delta > 0)
                     {

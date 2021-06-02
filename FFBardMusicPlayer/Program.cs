@@ -52,7 +52,7 @@ namespace FFBardMusicPlayer
         private static void Main(string[] args)
         {
             // Parse args
-            Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(options => { ProgramOptions = options; });
+            Parser.Default.ParseArguments<Options>(args).WithParsed(options => { ProgramOptions = options; });
 
             Application.EnableVisualStyles();
 

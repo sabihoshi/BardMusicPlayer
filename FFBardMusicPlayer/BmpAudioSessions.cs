@@ -6,8 +6,6 @@ namespace FFBardMusicPlayer
 {
     internal class BmpAudioSessions
     {
-        public BmpAudioSessions() { }
-
         public static void ToggleProcessMute(Process process)
         {
             var mute = VolumeMixer.GetApplicationMute(process.Id);
@@ -23,8 +21,7 @@ namespace FFBardMusicPlayer
             if (volume == null)
                 return 0.0f;
 
-            float level;
-            volume.GetMasterVolume(out level);
+            volume.GetMasterVolume(out var level);
             Marshal.ReleaseComObject(volume);
             return level * 100;
         }
@@ -35,8 +32,7 @@ namespace FFBardMusicPlayer
             if (volume == null)
                 return false;
 
-            bool mute;
-            volume.GetMute(out mute);
+            volume.GetMute(out var mute);
             Marshal.ReleaseComObject(volume);
             return mute;
         }
@@ -70,30 +66,24 @@ namespace FFBardMusicPlayer
         {
             // get the speakers (1st render + multimedia) device
             var deviceEnumerator = (IMmDeviceEnumerator) new MMDeviceEnumerator();
-            IMmDevice speakers;
-            deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.ERender, ERole.EMultimedia, out speakers);
+            deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.ERender, ERole.EMultimedia, out var speakers);
 
             // activate the session manager. we need the enumerator
             var iidIAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
-            object o;
-            speakers.Activate(ref iidIAudioSessionManager2, 0, IntPtr.Zero, out o);
+            speakers.Activate(ref iidIAudioSessionManager2, 0, IntPtr.Zero, out var o);
             var mgr = (IAudioSessionManager2) o;
 
             // enumerate sessions for on this device
-            IAudioSessionEnumerator sessionEnumerator;
-            mgr.GetSessionEnumerator(out sessionEnumerator);
-            int count;
-            sessionEnumerator.GetCount(out count);
+            mgr.GetSessionEnumerator(out var sessionEnumerator);
+            sessionEnumerator.GetCount(out var count);
 
             // search for an audio session with the required name
             // NOTE: we could also use the process id instead of the app name (with IAudioSessionControl2)
             ISimpleAudioVolume volumeControl = null;
             for (var i = 0; i < count; i++)
             {
-                IAudioSessionControl2 ctl;
-                sessionEnumerator.GetSession(i, out ctl);
-                int cpid;
-                ctl.GetProcessId(out cpid);
+                sessionEnumerator.GetSession(i, out var ctl);
+                ctl.GetProcessId(out var cpid);
 
                 if (cpid == pid)
                 {

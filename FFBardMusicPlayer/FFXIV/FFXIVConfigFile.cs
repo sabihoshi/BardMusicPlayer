@@ -18,16 +18,16 @@ namespace FFBardMusicPlayer
         {
             //string subDirName = Registry.LocalMachine.OpenSubKey("Computer\HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\SquareEnix\FINAL FANTASY XIV - A Realm Reborn");
             var doc = FFXIVDocsResolver.GetPath();
-            var dirPath = Path.Combine(new string[] { doc, "My Games" });
+            var dirPath = Path.Combine(new[] { doc, "My Games" });
             foreach (var dir in Directory.GetDirectories(dirPath, "FINAL FANTASY XIV - *"))
             {
-                var ffc = Path.Combine(new string[] { dir, "FFXIV.cfg" });
+                var ffc = Path.Combine(new[] { dir, "FFXIV.cfg" });
                 if (File.Exists(ffc))
                 {
                     FFXIVConfig = ParseConfigFile(ffc);
                 }
 
-                var ffbc = Path.Combine(new string[] { dir, "FFXIV_BOOT.cfg" });
+                var ffbc = Path.Combine(new[] { dir, "FFXIV_BOOT.cfg" });
                 if (File.Exists(ffbc))
                 {
                     BootConfig = ParseConfigFile(ffbc);
@@ -40,7 +40,7 @@ namespace FFBardMusicPlayer
             var configData = new ConfigDictionary();
             using (var reader = new StreamReader(path))
             {
-                var line = string.Empty;
+                string line;
                 while ((line = reader.ReadLine()) != null)
                 {
                     if (Regex.Match(line, @"^(\w+)\t(.*)$") is Match match)

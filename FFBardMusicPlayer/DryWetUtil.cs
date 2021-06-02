@@ -21,7 +21,7 @@ namespace FFBardMusicPlayer
             .OrderByDescending(s => s.Length).ToArray();
 
         private static string _lastMd5 = "invalid";
-        private static MidiFile _lastFile = null;
+        private static MidiFile _lastFile;
 
         public static MemoryStream ScrubFile(string filePath)
         {
@@ -29,7 +29,6 @@ namespace FFBardMusicPlayer
             IEnumerable<TrackChunk> originalTrackChunks;
             TempoMap tempoMap;
 
-            MidiFile newMidiFile;
             ConcurrentDictionary<int, TrackChunk> newTrackChunks;
 
             try
@@ -274,11 +273,7 @@ namespace FFBardMusicPlayer
                     watch = Stopwatch.StartNew();
 
                     var octaveShift = 0;
-                    var trackName = originalChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text;
-                    if (trackName == null)
-                    {
-                        trackName = "";
-                    }
+                    var trackName = originalChunk.Events.OfType<SequenceTrackNameEvent>().FirstOrDefault()?.Text ?? "";
 
                     trackName = trackName.ToLower().Trim().Replace(" ", string.Empty);
                     var rex = new Regex(@"^([A-Za-z]+)([-+]\d)?");
@@ -352,7 +347,7 @@ namespace FFBardMusicPlayer
                     Debug.WriteLine($"step 6: {noteVelocity}: {watch.ElapsedMilliseconds}");
                 });
 
-                newMidiFile = new MidiFile();
+                var newMidiFile = new MidiFile();
                 newTrackChunks.TryRemove(newTrackChunks.Count, out var trackZero);
                 newMidiFile.Chunks.Add(trackZero);
                 newMidiFile.TimeDivision = new TicksPerQuarterNoteTimeDivision(600);

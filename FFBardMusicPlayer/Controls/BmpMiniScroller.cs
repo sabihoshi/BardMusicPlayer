@@ -5,7 +5,7 @@ namespace FFBardMusicPlayer.Controls
 {
     public partial class BmpMiniScroller : UserControl
     {
-        public EventHandler<int> OnScroll;
+        public new EventHandler<int> OnScroll;
         public EventHandler OnStatusClick;
 
         private delegate void TextDelegate(string text);
@@ -15,7 +15,7 @@ namespace FFBardMusicPlayer.Controls
             if (InvokeRequired)
             {
                 var d = new TextDelegate(SetText);
-                Invoke(d, new object[] { text });
+                Invoke(d, text);
             }
             else
             {

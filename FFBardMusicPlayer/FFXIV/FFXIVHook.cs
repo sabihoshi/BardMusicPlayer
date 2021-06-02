@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -145,11 +144,8 @@ namespace FFBardMusicPlayer
         private static MessageProc _proc;
         private IntPtr hookId = IntPtr.Zero;
         public EventHandler<Keys> OnKeyPressed;
-        private Process referenceProcess;
 
-        public Process Process => referenceProcess;
-
-        public FFXIVHook() { }
+        public Process Process { get; private set; }
 
         public bool Hook(Process process, bool useCallback = true)
         {
@@ -163,21 +159,14 @@ namespace FFBardMusicPlayer
                 Unhook();
             }
 
-            referenceProcess = process;
+            Process = process;
             mainWindowHandle = process.MainWindowHandle;
 
             if (useCallback)
             {
-                _proc    = new MessageProc(HookCallback);
+                _proc    = HookCallback;
                 hookId = SetWindowsHookEx(WH_KEYBOARD_LL, _proc, IntPtr.Zero, 0);
-                if (hookId != IntPtr.Zero)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return hookId != IntPtr.Zero;
             }
 
             return true;
@@ -188,7 +177,7 @@ namespace FFBardMusicPlayer
             if (hookId != IntPtr.Zero)
             {
                 UnhookWindowsHookEx(hookId);
-                referenceProcess = null;
+                Process = null;
                 hookId          = IntPtr.Zero;
             }
         }
@@ -344,7 +333,7 @@ namespace FFBardMusicPlayer
 
             if (keyUp != Keys.None)
             {
-                SendAsyncKey(keyDown | modDown, true, false, true);
+                SendAsyncKey(keyDown | modDown, true, false);
             }
         }
 
@@ -420,17 +409,17 @@ namespace FFBardMusicPlayer
 
         public void SendAsyncKeybind(FFXIVKeybindDat.Keybind keybind)
         {
-            SendAsyncKey(keybind.GetKey(), true, true, true);
+            SendAsyncKey(keybind.GetKey());
         }
 
         public void SendSyncKeybind(FFXIVKeybindDat.Keybind keybind)
         {
-            SendSyncKey(keybind.GetKey(), true, true, true);
+            SendSyncKey(keybind.GetKey());
         }
 
         public void SendTimedSyncKeybind(FFXIVKeybindDat.Keybind keybind)
         {
-            SendTimedSyncKey(keybind.GetKey(), true, true, true);
+            SendTimedSyncKey(keybind.GetKey());
         }
 
         public void SendKeybindDown(FFXIVKeybindDat.Keybind keybind)
@@ -467,7 +456,7 @@ namespace FFBardMusicPlayer
                 return;
             }
 
-            SendAsyncKey(key, true, false, true);
+            SendAsyncKey(key, true, false);
 
             if (LastPerformanceKeys.Contains(keybind))
             {
@@ -479,7 +468,7 @@ namespace FFBardMusicPlayer
         {
             foreach (var keybind in LastPerformanceKeys.ToArray())
             {
-                SendSyncKey(keybind.GetKey(), true, false, true);
+                SendSyncKey(keybind.GetKey(), true, false);
             }
 
             LastPerformanceKeys.Clear();
@@ -546,26 +535,15 @@ namespace FFBardMusicPlayer
 
         public Rect GetClientRect()
         {
-            if (mainWindowHandle != null)
+            if (GetClientRect(new HandleRef(this, mainWindowHandle), out var rect))
             {
-                if (GetClientRect(new HandleRef(this, mainWindowHandle), out var rect))
-                {
-                    return rect;
-                }
+                return rect;
             }
 
             return new Rect();
         }
 
-        public bool GetScreenFromClientPoint(ref Point point)
-        {
-            if (mainWindowHandle != null)
-            {
-                return ClientToScreen(new HandleRef(this, mainWindowHandle), ref point);
-            }
-
-            return false;
-        }
+        public bool GetScreenFromClientPoint(ref Point point) => ClientToScreen(new HandleRef(this, mainWindowHandle), ref point);
 
         public IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {

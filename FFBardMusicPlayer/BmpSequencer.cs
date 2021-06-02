@@ -16,7 +16,7 @@ namespace FFBardMusicPlayer
 {
     public class BmpSequencer : BmpCustomSequencer
     {
-        private InputDevice midiInput = null;
+        private InputDevice midiInput;
         private readonly Dictionary<Track, Instrument> preferredInstruments = new Dictionary<Track, Instrument>();
         private readonly Dictionary<Track, int> preferredOctaveShift = new Dictionary<Track, int>();
         public EventHandler OnLoad;
@@ -28,9 +28,8 @@ namespace FFBardMusicPlayer
         private readonly Timer secondTimer = new Timer(200);
         public EventHandler<int> OnTick;
         public Dictionary<Track, int> NotesPlayedCount = new Dictionary<Track, int>();
-        private string loadedError = string.Empty;
 
-        public string LoadedError => loadedError;
+        public string LoadedError { get; private set; } = string.Empty;
 
         public string LoadedFilename { get; private set; } = string.Empty;
 
@@ -64,10 +63,9 @@ namespace FFBardMusicPlayer
             }
         }
 
-        private int loadedTrack = 0;
-        private int intendedTrack = 0;
+        private int intendedTrack;
 
-        public int CurrentTrack => loadedTrack;
+        public int CurrentTrack { get; private set; }
 
         public int MaxTrack => Sequence.Count <= 0 ? 0 : Sequence.Count - 1;
 
@@ -75,18 +73,16 @@ namespace FFBardMusicPlayer
         {
             get
             {
-                if (loadedTrack >= Sequence.Count || loadedTrack < 0)
+                if (CurrentTrack >= Sequence.Count || CurrentTrack < 0)
                     return null;
 
-                return Properties.Settings.Default.PlayAllTracks ? Sequence[0] : Sequence[loadedTrack];
+                return Properties.Settings.Default.PlayAllTracks ? Sequence[0] : Sequence[CurrentTrack];
             }
         }
 
-        private int lyricCount = 0;
+        public int LyricNum { get; private set; }
 
-        public int LyricNum => lyricCount;
-
-        public BmpSequencer() : base()
+        public BmpSequencer()
         {
             Sequence = new Sequence();
 
@@ -96,7 +92,7 @@ namespace FFBardMusicPlayer
             secondTimer.Elapsed += OnSecondTimer;
         }
 
-        public BmpSequencer(string filename, int trackNum = 0) : base()
+        public BmpSequencer(string filename, int trackNum = 0)
         {
             Sequence = new Sequence();
 
@@ -438,7 +434,7 @@ namespace FFBardMusicPlayer
                 throw new FileNotFoundException("Midi file does not exist.");
             }
 
-            loadedError = string.Empty;
+            LoadedError = string.Empty;
             try
             {
                 Sequence = new Sequence(DryWetUtil.ScrubFile(file));
@@ -551,8 +547,8 @@ namespace FFBardMusicPlayer
                 }
             }
 
-            loadedTrack = trackNum;
-            lyricCount  = 0;
+            CurrentTrack = trackNum;
+            LyricNum  = 0;
             // Search beginning for text stuff
             foreach (var ev in LoadedTrack.Iterator())
             {
@@ -566,7 +562,7 @@ namespace FFBardMusicPlayer
                                 OnMetaMessagePlayed(this, new MetaMessageEventArgs(LoadedTrack, msg));
                                 break;
                             case MetaType.Lyric:
-                                lyricCount++;
+                                LyricNum++;
                                 break;
                         }
 

@@ -20,7 +20,7 @@ namespace FFBardMusicPlayer
                 case "000E":
                 {
                     // Party
-                    var pid = (int) (format[0] & 0xF) + 1;
+                    var pid = (format[0] & 0xF) + 1;
                     format = $"[{pid}] {format.Substring(1)}";
                     break;
                 }
@@ -88,10 +88,6 @@ namespace FFBardMusicPlayer
                     // LS
                     var ls = int.Parse(item.Code.Substring(3)) + 1;
                     format = $"[{ls}] {format}";
-                    break;
-                }
-                default:
-                {
                     break;
                 }
             }

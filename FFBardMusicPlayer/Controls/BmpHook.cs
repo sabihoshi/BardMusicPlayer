@@ -15,7 +15,7 @@ namespace FFBardMusicPlayer.Controls
     public partial class BmpHook : UserControl
     {
         // Keep each BMP+FFXIV instance hidden in proc list
-        private Mutex procMutex = null;
+        private Mutex procMutex;
         public FFXIVHook Hook = new FFXIVHook();
         public FFXIVMemory Memory = new FFXIVMemory();
         public FFXIVKeybindDat Hotkeys = new FFXIVKeybindDat();
@@ -28,7 +28,7 @@ namespace FFBardMusicPlayer.Controls
 
         public event EventHandler FindProcessRequest;
 
-        private Timer errorMessageTimer = null;
+        private Timer errorMessageTimer;
 
         public enum ProcessError
         {
@@ -40,16 +40,8 @@ namespace FFBardMusicPlayer.Controls
 
         private string CurrentCharId
         {
-            get
-            {
-                if (CharIdSelector.SelectedValue != null)
-                {
-                    return CharIdSelector.SelectedText;
-                }
-
-                return string.Empty;
-            }
-            set { CharIdSelector.Invoke(t => t.SelectedIndex = CharIdSelector.FindStringExact(value)); }
+            get => CharIdSelector.SelectedValue != null ? CharIdSelector.SelectedText : string.Empty;
+            set => CharIdSelector.Invoke(t => t.SelectedIndex = CharIdSelector.FindStringExact(value));
         }
 
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
@@ -336,7 +328,7 @@ namespace FFBardMusicPlayer.Controls
                 Interval = 10 * 1000, // 10 seconds
                 Enabled  = true
             };
-            errorMessageTimer.Elapsed += delegate(object o, System.Timers.ElapsedEventArgs e)
+            errorMessageTimer.Elapsed += delegate
             {
                 this.Invoke(t => { HookGlobalMessageLabel.Text = ""; });
                 errorMessageTimer.Stop();
@@ -442,11 +434,9 @@ namespace FFBardMusicPlayer.Controls
             }
         }
 
-        protected override void OnLoad(EventArgs e) { base.OnLoad(e); }
-
         private void CharIdSelector_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var id = (sender as ComboBox).Text as string;
+            var id = (sender as ComboBox).Text;
 
             Log($"Forced FFXIV character ID: [{id}].");
 

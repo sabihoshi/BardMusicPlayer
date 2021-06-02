@@ -62,8 +62,6 @@ namespace FFBardMusicPlayer
                                 x => x.Key + 2,
                                 x => x.Value);
                             break;
-                        default:
-                            break;
                     }
 
                     if (bard.Sequence.Count % 2 == 0)
@@ -93,8 +91,8 @@ namespace FFBardMusicPlayer
                                     notes.Add(new Note((SevenBitNumber) lastNote, dur, lastTime)
                                     {
                                         Channel     = (FourBitNumber) 14,
-                                        Velocity    = (SevenBitNumber) (int) 127,
-                                        OffVelocity = (SevenBitNumber) (int) 0
+                                        Velocity    = (SevenBitNumber) 127,
+                                        OffVelocity = (SevenBitNumber) 0
                                     });
                                     lastNote = 254;
                                     lastTime = sEvent.Key * 25;

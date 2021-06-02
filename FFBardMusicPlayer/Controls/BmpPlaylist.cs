@@ -5,7 +5,6 @@ using System.Windows.Forms;
 using System.IO;
 using FFBardMusicCommon;
 using Timer = System.Timers.Timer;
-using System.Timers;
 
 namespace FFBardMusicPlayer.Controls
 {
@@ -21,34 +20,22 @@ namespace FFBardMusicPlayer.Controls
 
             public BmpPlaylistRequestAddEvent(string filePath, int track, int dropIndex)
             {
-                this.FilePath  = filePath;
-                this.Track     = track;
-                this.DropIndex = dropIndex;
+                FilePath  = filePath;
+                Track     = track;
+                DropIndex = dropIndex;
             }
         }
 
-        private bool loopMode;
+        public bool LoopMode { get; set; }
 
-        public bool LoopMode
-        {
-            get => loopMode;
-            set => loopMode = value;
-        }
-
-        private bool randomMode;
-
-        public bool RandomMode
-        {
-            get => randomMode;
-            set => randomMode = value;
-        }
+        public bool RandomMode { get; set; }
 
         public bool AutoPlay => AutoPlayToggle.Checked;
 
         public EventHandler<BmpMidiEntry> OnMidiSelect;
         public EventHandler OnPlaylistRequestAdd;
         public EventHandler<BmpPlaylistRequestAddEvent> OnPlaylistManualRequestAdd;
-        private float playlistDelay = 0;
+        private float playlistDelay;
         private BmpMidiList playlistEntries = new BmpMidiList();
         private BindingList<BmpMidiEntry> playlistBinding = new BindingList<BmpMidiEntry>();
 
@@ -64,7 +51,7 @@ namespace FFBardMusicPlayer.Controls
             playlistDelay = Properties.Settings.Default.PlaylistDelay;
             var min = decimal.ToSingle(Playlist_Delay.Minimum);
             var max = decimal.ToSingle(Playlist_Delay.Maximum);
-            playlistDelay        = playlistDelay.Clamp<float>(min, max);
+            playlistDelay        = playlistDelay.Clamp(min, max);
             Playlist_Delay.Value = new decimal(playlistDelay);
 
             LoadSettings();
@@ -93,8 +80,7 @@ namespace FFBardMusicPlayer.Controls
         {
             for (var i = 0; i < PlaylistView.Rows.Count; i++)
             {
-                var entry = PlaylistView.Rows[i].DataBoundItem as BmpMidiEntry;
-                if (entry != null)
+                if (PlaylistView.Rows[i].DataBoundItem is BmpMidiEntry entry)
                 {
                     if (entry.FilePath.FilePath == filePath)
                     {
@@ -315,7 +301,7 @@ namespace FFBardMusicPlayer.Controls
         }
 
         // // Drag and Drop and/or Reorder
-        private bool actuallyMoving = false;
+        private bool actuallyMoving;
         private int mouseYCoordForMovement = -1;
         private int initialRowIndexForMovement = -1;
 

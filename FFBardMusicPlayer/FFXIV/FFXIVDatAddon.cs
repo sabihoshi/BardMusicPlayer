@@ -69,18 +69,7 @@ namespace FFBardMusicPlayer
 
         public Dictionary<uint, AddonStateData> AddonData = new Dictionary<uint, AddonStateData>();
 
-        public AddonStateData this[uint id]
-        {
-            get
-            {
-                if (!AddonData.ContainsKey(id))
-                {
-                    return new AddonStateData();
-                }
-
-                return AddonData[id];
-            }
-        }
+        public AddonStateData this[uint id] => !AddonData.ContainsKey(id) ? new AddonStateData() : AddonData[id];
 
         public void LoadAddonDat(string charId)
         {

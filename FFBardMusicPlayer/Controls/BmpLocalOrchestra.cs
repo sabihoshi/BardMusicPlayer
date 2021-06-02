@@ -6,8 +6,6 @@ using System.Text;
 using System.Windows.Forms;
 using static FFBardMusicPlayer.BmpProcessSelect;
 using Timer = System.Timers.Timer;
-using System.Timers;
-using Sharlayan.Models.ReadResults;
 using System.Diagnostics;
 
 namespace FFBardMusicPlayer.Controls
@@ -35,20 +33,13 @@ namespace FFBardMusicPlayer.Controls
             get => parentSequencer;
         }
 
-        private bool orchestraEnabled = false;
-
-        public bool OrchestraEnabled
-        {
-            get => orchestraEnabled;
-            set => orchestraEnabled = value;
-        }
+        public bool OrchestraEnabled { get; set; }
 
         public BmpLocalOrchestra() { InitializeComponent(); }
 
         private void StartSyncWorker()
         {
-            var syncWorker = new BackgroundWorker();
-            syncWorker.WorkerSupportsCancellation =  true;
+            var syncWorker = new BackgroundWorker { WorkerSupportsCancellation = true };
             syncWorker.DoWork                     += SyncWorker_DoWork;
             syncWorker.RunWorkerCompleted         += SyncWorker_RunWorkerCompleted;
 
@@ -57,8 +48,7 @@ namespace FFBardMusicPlayer.Controls
             var actorIds = new List<uint>();
             foreach (Control ctl in PerformerPanel.Controls)
             {
-                var performer = ctl as BmpLocalPerformer;
-                if (performer != null && performer.PerformerEnabled && performer.PerformanceUp)
+                if (ctl is BmpLocalPerformer performer && performer.PerformerEnabled && performer.PerformanceUp)
                 {
                     actorIds.Add(performer.ActorId);
                 }
@@ -179,10 +169,9 @@ namespace FFBardMusicPlayer.Controls
             var track = 1;
             foreach (var mp in processes)
             {
-                var perf = new BmpLocalPerformer(mp);
-                perf.Dock = DockStyle.Top;
+                var perf = new BmpLocalPerformer(mp) { Dock = DockStyle.Top };
 
-                if (mp.HostProcess == true)
+                if (mp.HostProcess)
                 {
                     perf.HostProcess = true;
                     performers.Insert(0, perf);
@@ -249,8 +238,7 @@ namespace FFBardMusicPlayer.Controls
 
             foreach (Control ctl in PerformerPanel.Controls)
             {
-                var performer = ctl as BmpLocalPerformer;
-                if (performer != null)
+                if (ctl is BmpLocalPerformer performer)
                 {
                     performer.Sequencer = seq;
                 }
@@ -261,8 +249,7 @@ namespace FFBardMusicPlayer.Controls
         {
             foreach (Control ctl in PerformerPanel.Controls)
             {
-                var performer = ctl as BmpLocalPerformer;
-                if (performer != null)
+                if (ctl is BmpLocalPerformer performer)
                 {
                     performer.SetProgress(prog);
                 }
@@ -273,8 +260,7 @@ namespace FFBardMusicPlayer.Controls
         {
             foreach (Control ctl in PerformerPanel.Controls)
             {
-                var performer = ctl as BmpLocalPerformer;
-                if (performer != null)
+                if (ctl is BmpLocalPerformer performer)
                 {
                     performer.Play(play);
                 }
@@ -285,8 +271,7 @@ namespace FFBardMusicPlayer.Controls
         {
             foreach (Control ctl in PerformerPanel.Controls)
             {
-                var performer = ctl as BmpLocalPerformer;
-                if (performer != null)
+                if (ctl is BmpLocalPerformer performer)
                 {
                     performer.Stop();
                 }
@@ -308,8 +293,7 @@ namespace FFBardMusicPlayer.Controls
         {
             foreach (Control ctl in PerformerPanel.Controls)
             {
-                var performer = ctl as BmpLocalPerformer;
-                if (performer != null)
+                if (ctl is BmpLocalPerformer performer)
                 {
                     // few things can happen here
                     if (performer.PerformerName == name)
@@ -340,8 +324,7 @@ namespace FFBardMusicPlayer.Controls
         {
             foreach (Control ctl in PerformerPanel.Controls)
             {
-                var performer = ctl as BmpLocalPerformer;
-                if (performer != null && performer.PerformerEnabled)
+                if (ctl is BmpLocalPerformer performer && performer.PerformerEnabled)
                 {
                     performer.OpenInstrument();
                 }
@@ -353,8 +336,7 @@ namespace FFBardMusicPlayer.Controls
             parentSequencer.Pause();
             foreach (Control ctl in PerformerPanel.Controls)
             {
-                var performer = ctl as BmpLocalPerformer;
-                if (performer != null && performer.PerformerEnabled)
+                if (ctl is BmpLocalPerformer performer && performer.PerformerEnabled)
                 {
                     performer.CloseInstrument();
                 }
@@ -365,8 +347,7 @@ namespace FFBardMusicPlayer.Controls
         {
             foreach (Control ctl in PerformerPanel.Controls)
             {
-                var performer = ctl as BmpLocalPerformer;
-                if (performer != null && performer.PerformerEnabled)
+                if (ctl is BmpLocalPerformer performer && performer.PerformerEnabled)
                 {
                     performer.ToggleMute();
                 }
@@ -379,15 +360,14 @@ namespace FFBardMusicPlayer.Controls
             {
                 Interval = 500
             };
-            openTimer.Elapsed += delegate(object o, ElapsedEventArgs ev)
+            openTimer.Elapsed += delegate
             {
                 openTimer.Stop();
                 openTimer = null;
 
                 foreach (Control ctl in PerformerPanel.Controls)
                 {
-                    var performer = ctl as BmpLocalPerformer;
-                    if (performer != null && performer.PerformerEnabled && !performer.HostProcess)
+                    if (ctl is BmpLocalPerformer performer && performer.PerformerEnabled && !performer.HostProcess)
                     {
                         performer.EnsembleAccept();
                     }
@@ -402,8 +382,7 @@ namespace FFBardMusicPlayer.Controls
 
             foreach (Control ctl in PerformerPanel.Controls)
             {
-                var performer = ctl as BmpLocalPerformer;
-                if (performer != null && performer.PerformerEnabled)
+                if (ctl is BmpLocalPerformer performer && performer.PerformerEnabled)
                 {
                     performer.NoteKey("C");
                 }

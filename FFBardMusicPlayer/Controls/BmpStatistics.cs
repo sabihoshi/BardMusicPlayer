@@ -6,8 +6,8 @@ namespace FFBardMusicPlayer.Controls
     public partial class BmpStatistics : UserControl
     {
         private readonly Timer npsTimer = new Timer();
-        private int npsInternalTemp = 0;
-        private int npsInternalCount = 0;
+        private int npsInternalTemp;
+        private int npsInternalCount;
 
         public BmpStatistics()
         {

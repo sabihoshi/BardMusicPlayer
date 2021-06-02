@@ -7,22 +7,19 @@ namespace FFBardMusicPlayer
 {
     public class BmpCustomSequencer : IComponent
     {
-        private Sequence sequence = null;
+        private Sequence sequence;
         private readonly List<IEnumerator<int>> enumerators = new List<IEnumerator<int>>();
         private readonly MessageDispatcher dispatcher = new MessageDispatcher();
         private readonly ChannelChaser chaser = new ChannelChaser();
         private readonly ChannelStopper stopper = new ChannelStopper();
-        private readonly MidiInternalClock clock = new MidiInternalClock();
         private int tracksPlayingCount;
         private readonly object lockObject = new object();
-        private bool playing = false;
 
-        public bool IsPlaying => playing;
+        public bool IsPlaying { get; private set; }
 
-        public MidiInternalClock InternalClock => clock;
+        public MidiInternalClock InternalClock { get; } = new MidiInternalClock();
 
-        private bool disposed = false;
-        private ISite site = null;
+        private bool disposed;
 
         #region Events
 
@@ -77,7 +74,7 @@ namespace FFBardMusicPlayer
                 }
                 else
                 {
-                    clock.Process(e.Message);
+                    InternalClock.Process(e.Message);
                 }
             };
 
@@ -86,11 +83,11 @@ namespace FFBardMusicPlayer
                 stopper.Process(e.Message);
             };
 
-            clock.Tick += delegate
+            InternalClock.Tick += delegate
             {
                 lock (lockObject)
                 {
-                    if (!playing)
+                    if (!IsPlaying)
                     {
                         return;
                     }
@@ -118,7 +115,7 @@ namespace FFBardMusicPlayer
                 {
                     Stop();
 
-                    clock.Dispose();
+                    InternalClock.Dispose();
 
                     disposed = true;
 
@@ -180,9 +177,9 @@ namespace FFBardMusicPlayer
 
                 tracksPlayingCount = Sequence.Count;
 
-                playing    = true;
-                clock.Ppqn = sequence.Division;
-                clock.Continue();
+                IsPlaying    = true;
+                InternalClock.Ppqn = sequence.Division;
+                InternalClock.Continue();
 
                 OnPlayStatusChange(EventArgs.Empty);
             }
@@ -203,16 +200,16 @@ namespace FFBardMusicPlayer
             {
                 #region Guard
 
-                if (!playing)
+                if (!IsPlaying)
                 {
                     return;
                 }
 
                 #endregion
 
-                playing = false;
+                IsPlaying = false;
 
-                clock.Stop();
+                InternalClock.Stop();
                 stopper.AllSoundOff();
 
                 OnPlayStatusChange(EventArgs.Empty);
@@ -241,8 +238,8 @@ namespace FFBardMusicPlayer
 
         public float Speed
         {
-            get => clock.TempoSpeed;
-            set => clock.TempoSpeed = value;
+            get => InternalClock.TempoSpeed;
+            set => InternalClock.TempoSpeed = value;
         }
 
         public int Length
@@ -275,7 +272,7 @@ namespace FFBardMusicPlayer
 
                 #endregion
 
-                return clock.Ticks;
+                return InternalClock.Ticks;
             }
             set
             {
@@ -296,11 +293,11 @@ namespace FFBardMusicPlayer
 
                 lock (lockObject)
                 {
-                    wasPlaying = playing;
+                    wasPlaying = IsPlaying;
 
                     Pause();
 
-                    clock.SetTicks(value);
+                    InternalClock.SetTicks(value);
                 }
 
                 lock (lockObject)
@@ -343,11 +340,7 @@ namespace FFBardMusicPlayer
 
         public event EventHandler Disposed;
 
-        public ISite Site
-        {
-            get => site;
-            set => site = value;
-        }
+        public ISite Site { get; set; }
 
         #endregion
 

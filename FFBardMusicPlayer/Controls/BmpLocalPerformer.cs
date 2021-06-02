@@ -7,7 +7,6 @@ using static FFBardMusicPlayer.BmpProcessSelect;
 using static FFBardMusicPlayer.Controls.BmpPlayer;
 using Sanford.Multimedia.Midi;
 using Timer = System.Timers.Timer;
-using System.Timers;
 using FFBardMusicCommon;
 
 namespace FFBardMusicPlayer.Controls
@@ -77,7 +76,7 @@ namespace FFBardMusicPlayer.Controls
 
         public uint PerformanceId = 0;
         public uint ActorId = 0;
-        private bool performanceUp = false;
+        private bool performanceUp;
 
         public bool PerformanceUp
         {
@@ -126,7 +125,7 @@ namespace FFBardMusicPlayer.Controls
             }
 
             Scroller.OnScroll += delegate(object o, int scroll) { sequencer.Seek(scroll); };
-            Scroller.OnStatusClick += delegate(object o, EventArgs a)
+            Scroller.OnStatusClick += delegate
             {
                 Scroller.Text = sequencer.Position.ToString();
             };
@@ -205,7 +204,7 @@ namespace FFBardMusicPlayer.Controls
 
         public void SetProgress(int progress)
         {
-            if (sequencer is BmpSequencer)
+            if (sequencer != null)
             {
                 sequencer.Position = progress;
                 Scroller.Text      = sequencer.Position.ToString();
@@ -214,7 +213,7 @@ namespace FFBardMusicPlayer.Controls
 
         public void Play(bool play)
         {
-            if (sequencer is BmpSequencer)
+            if (sequencer != null)
             {
                 Scroller.Text = sequencer.Position.ToString();
                 if (play)
@@ -230,10 +229,7 @@ namespace FFBardMusicPlayer.Controls
 
         public void Stop()
         {
-            if (sequencer is BmpSequencer)
-            {
-                sequencer.Stop();
-            }
+            sequencer?.Stop();
         }
 
         public void Update(BmpSequencer bmpSeq)
@@ -312,7 +308,7 @@ namespace FFBardMusicPlayer.Controls
                     {
                         Interval = 1000
                     };
-                    openTimer.Elapsed += delegate(object o, ElapsedEventArgs e)
+                    openTimer.Elapsed += delegate
                     {
                         openTimer.Stop();
                         openTimer = null;

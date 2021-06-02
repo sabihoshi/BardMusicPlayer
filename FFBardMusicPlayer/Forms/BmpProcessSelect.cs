@@ -12,7 +12,7 @@ namespace FFBardMusicPlayer
 {
     public partial class BmpProcessSelect : Form
     {
-        private bool hasAutoSelected = false;
+        private bool hasAutoSelected;
         public Process SelectedProcess;
         public EventHandler<Process> OnSelectProcess;
 
@@ -21,7 +21,7 @@ namespace FFBardMusicPlayer
             public Process Process;
             public string CharacterName;
             public string CharacterId;
-            public bool HostProcess = false;
+            public bool HostProcess;
         }
 
         public List<MultiboxProcess> MultiboxProcesses = new List<MultiboxProcess>();
@@ -51,13 +51,9 @@ namespace FFBardMusicPlayer
             var buttons = new Dictionary<Process, Button>();
             foreach (Button button in ProcessList.Controls)
             {
-                if (button != null)
+                if (button?.Tag is Process proc)
                 {
-                    var proc = button.Tag as Process;
-                    if (proc != null)
-                    {
-                        buttons[proc] = button;
-                    }
+                    buttons[proc] = button;
                 }
             }
 
@@ -98,14 +94,7 @@ namespace FFBardMusicPlayer
                     if (Reader.CanGetPlayerInfo())
                     {
                         origName = Reader.GetCurrentPlayer().CurrentPlayer.Name;
-                        if (string.IsNullOrEmpty(origName))
-                        {
-                            name = $"{button.Text} (?)";
-                        }
-                        else
-                        {
-                            name = $"{origName} ({process.Id})";
-                        }
+                        name     = string.IsNullOrEmpty(origName) ? $"{button.Text} (?)" : $"{origName} ({process.Id})";
                     }
 
                     if (Reader.CanGetCharacterId())
@@ -194,10 +183,7 @@ namespace FFBardMusicPlayer
             {
                 Console.WriteLine($"{Program.ProgramOptions.HookPid}");
                 var proc = Process.GetProcessById(Program.ProgramOptions.HookPid);
-                if (proc != null)
-                {
-                    processes = new List<Process>() { proc };
-                }
+                processes = new List<Process>() { proc };
             }
 
             // Mutex that shit
@@ -213,7 +199,6 @@ namespace FFBardMusicPlayer
             if (processes.Count == 0)
             {
                 HeaderText.Text = "No FFXIV processes found.\nMake sure you run with DX11 on.";
-                return;
             }
             else if (processes.Count == 1 && !hasAutoSelected)
             {
@@ -221,7 +206,6 @@ namespace FFBardMusicPlayer
                 SelectedProcess = processes[0];
                 OnSelectProcess?.Invoke(this, SelectedProcess);
                 hasAutoSelected = true;
-                return;
             }
             else
             {
@@ -270,11 +254,7 @@ namespace FFBardMusicPlayer
 
             var process = (sender as Button).Tag as Process;
 
-            UseLocalOrchestra = LocalOrchestraCheck.Checked;
-            if (ModifierKeys == Keys.Shift)
-            {
-                UseLocalOrchestra = true;
-            }
+            UseLocalOrchestra = LocalOrchestraCheck.Checked || ModifierKeys == Keys.Shift;
 
             if (UseLocalOrchestra)
             {

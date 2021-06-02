@@ -36,7 +36,7 @@ namespace FFBardMusicPlayer
         {
             var ids = new List<string>();
             var doc = FFXIVDocsResolver.GetPath();
-            var dirPath = Path.Combine(new string[] { doc, "My Games" });
+            var dirPath = Path.Combine(new[] { doc, "My Games" });
             foreach (var dir in Directory.GetDirectories(dirPath, "FINAL FANTASY XIV - *"))
             {
                 foreach (var dir2 in Directory.GetDirectories(dir, "FFXIV_CHR*", SearchOption.TopDirectoryOnly))
@@ -52,10 +52,10 @@ namespace FFBardMusicPlayer
         protected string FindFFXIVDatFile(string charId, string file)
         {
             var doc = FFXIVDocsResolver.GetPath();
-            var dirPath = Path.Combine(new string[] { doc, "My Games" });
+            var dirPath = Path.Combine(new[] { doc, "My Games" });
             foreach (var dir in Directory.GetDirectories(dirPath, "FINAL FANTASY XIV - *"))
             {
-                var path = Path.Combine(new string[] { dir, charId, file });
+                var path = Path.Combine(new[] { dir, charId, file });
                 if (File.Exists(path))
                 {
                     return path;
@@ -78,16 +78,13 @@ namespace FFBardMusicPlayer
             if (File.Exists(filePath))
             {
                 // Check for open file
-                Stream fileStream = null;
+                Stream fileStream;
                 while (true)
                 {
                     try
                     {
                         fileStream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                        if (fileStream != null)
-                        {
-                            break;
-                        }
+                        break;
                     }
                     catch (Exception)
                     {
@@ -96,14 +93,11 @@ namespace FFBardMusicPlayer
                     Thread.Sleep(100);
                 }
 
-                if (fileStream != null)
+                memStream = new MemoryStream();
+                if (fileStream.CanRead && fileStream.CanSeek)
                 {
-                    memStream = new MemoryStream();
-                    if (fileStream.CanRead && fileStream.CanSeek)
-                    {
-                        fileStream.CopyTo(memStream);
-                        fileStream.Close();
-                    }
+                    fileStream.CopyTo(memStream);
+                    fileStream.Close();
                 }
 
                 if (memStream != null && memStream.Length != 0)

@@ -38,7 +38,7 @@ namespace FFBardMusicPlayer
 
                 request.Timeout = 2000;
 
-                if (response != null && response.StatusCode == HttpStatusCode.OK)
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
                     using (var reader = new StreamReader(response.GetResponseStream()))
                     {
@@ -164,7 +164,7 @@ namespace FFBardMusicPlayer
             get
             {
                 var v = typeof(Program).Assembly.GetName().Version;
-                return (float) v.Major + (float) (v.Minor / 100f);
+                return v.Major + v.Minor / 100f;
             }
         }
 

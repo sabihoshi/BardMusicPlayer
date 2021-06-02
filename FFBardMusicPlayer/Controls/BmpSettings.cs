@@ -203,8 +203,8 @@ namespace FFBardMusicPlayer.Controls
 
     public class MidiInput
     {
-        public string Name = string.Empty;
-        public int Id = 0;
+        public string Name;
+        public int Id;
 
         public MidiInput(string n, int i)
         {

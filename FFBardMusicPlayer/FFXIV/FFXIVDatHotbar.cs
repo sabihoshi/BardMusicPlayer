@@ -15,14 +15,14 @@ namespace FFBardMusicPlayer
 
         public class HotbarSection
         {
-            internal byte Action = 0; // Higher level? 0D for 60-70 spells
-            internal byte Flag = 0;
-            internal byte Unk1 = 0;
-            internal byte Unk2 = 0;
-            internal byte Job = 0;
-            internal byte Hotbar = 0;
-            internal byte Slot = 0;
-            internal byte Type = 0;
+            internal byte Action; // Higher level? 0D for 60-70 spells
+            internal byte Flag;
+            internal byte Unk1;
+            internal byte Unk2;
+            internal byte Job;
+            internal byte Hotbar;
+            internal byte Slot;
+            internal byte Type;
         };
 
         public class HotbarSlots : Dictionary<int, HotbarJobSlot>
@@ -31,13 +31,13 @@ namespace FFBardMusicPlayer
 
         public class HotbarSlot : HotbarSection
         {
-            public new int HotbarOutput => base.Hotbar + 1;
+            public int HotbarOutput => Hotbar + 1;
 
             public int SlotOutput
             {
                 get
                 {
-                    var fslot = base.Slot + 1;
+                    var fslot = Slot + 1;
 
                     var ss = fslot % 10;
                     if (fslot > 10)
@@ -194,7 +194,7 @@ namespace FFBardMusicPlayer
                             //Console.WriteLine(string.Format("{0} ({1}): {2} {3}", ac.ToString(), ac.job, ac.action, ac.type));
                         }
 
-                        hotbarData[((HotbarSection) ac).Hotbar][((HotbarSection) ac).Slot][ac.Job] = ac;
+                        hotbarData[ac.Hotbar][ac.Slot][ac.Job] = ac;
                     }
                 }
             }

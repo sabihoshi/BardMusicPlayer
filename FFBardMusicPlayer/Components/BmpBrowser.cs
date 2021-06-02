@@ -15,20 +15,18 @@ namespace FFBardMusicPlayer.Components
 
         public class MidiFileName
         {
-            private readonly string fileName = string.Empty;
+            public string FileName { get; } = string.Empty;
 
-            public string FileName => fileName;
+            public string ShortFileName => Path.GetFileName(FileName);
 
-            public string ShortFileName => Path.GetFileName(fileName);
-
-            public string TinyFileName => Path.GetFileNameWithoutExtension(fileName);
+            public string TinyFileName => Path.GetFileNameWithoutExtension(FileName);
 
             public string RelativeFileName
             {
                 get
                 {
                     var sp = Properties.Settings.Default.SongDirectory;
-                    var file1 = Path.GetFullPath(fileName);
+                    var file1 = Path.GetFullPath(FileName);
                     var path2 = Path.GetFullPath(sp);
                     return file1.IndexOf(path2) != 0 
                         ? file1 
@@ -38,7 +36,7 @@ namespace FFBardMusicPlayer.Components
 
             public MidiFileName() { }
 
-            public MidiFileName(string f) { fileName = f; }
+            public MidiFileName(string f) { FileName = f; }
 
             // Return the full relative path
             public string RelativePath => Path.GetDirectoryName(RelativeFileName);
@@ -74,22 +72,14 @@ namespace FFBardMusicPlayer.Components
 
         public class MidiFile
         {
-            private readonly MidiFileName fileName = new MidiFileName();
+            public MidiFileName FileName { get; }
 
-            public MidiFileName FileName => fileName;
-
-            private bool enabled = true;
-
-            public bool Enabled
-            {
-                get => enabled;
-                set => enabled = value;
-            }
+            public bool Enabled { get; set; }
 
             public MidiFile(string f, bool e = true)
             {
-                fileName = new MidiFileName(f);
-                enabled  = e;
+                FileName = new MidiFileName(f);
+                Enabled  = e;
             }
         }
 
@@ -97,17 +87,9 @@ namespace FFBardMusicPlayer.Components
         {
         }
 
-        private readonly MidiList midis = new MidiList();
+        public MidiList List { get; } = new MidiList();
 
-        public MidiList List => midis;
-
-        private string filenameFilter = string.Empty;
-
-        public string FilenameFilter
-        {
-            get => filenameFilter;
-            set => filenameFilter = value;
-        }
+        public string FilenameFilter { get; set; } = string.Empty;
 
         #endregion
 
@@ -131,14 +113,6 @@ namespace FFBardMusicPlayer.Components
         {
             base.OnMouseDoubleClick(e);
             EnterFile();
-        }
-
-        protected override void OnVisibleChanged(EventArgs e)
-        {
-            base.OnVisibleChanged(e);
-            // nothing needs to happen here, since we've already force loaded the
-            // song list in Setup, and the FileSystemWatcher will refresh when
-            // the directory of midis has been updated
         }
 
         protected override void OnSelectedIndexChanged(EventArgs e)
@@ -168,10 +142,10 @@ namespace FFBardMusicPlayer.Components
             var songDir = Properties.Settings.Default.SongDirectory;
             if (Directory.Exists(songDir))
             {
-                fileWatcher.Changed += (object sender, FileSystemEventArgs e) => { this.Invoke(t => t.RefreshList()); };
-                fileWatcher.Path = songDir;
-                fileWatcher.Filter = "*.*";
-                fileWatcher.EnableRaisingEvents = true;
+                fileWatcher.Changed             += (sender, e) => { this.Invoke(t => t.RefreshList()); };
+                fileWatcher.Path                =  songDir;
+                fileWatcher.Filter              =  "*.*";
+                fileWatcher.EnableRaisingEvents =  true;
             }
 
             RefreshList();
@@ -269,35 +243,35 @@ namespace FFBardMusicPlayer.Components
             // storing the previously selected index should be sufficient, for now
             var previouslySelectedIndex = SelectedIndex;
 
-            if (!string.IsNullOrEmpty(filenameFilter))
+            if (!string.IsNullOrEmpty(FilenameFilter))
             {
                 if (!IsFilenameValid(FilenameFilter))
                 {
-                    midis.Clear();
+                    List.Clear();
                     Items.Clear();
                     return;
                 }
 
-                var filename = filenameFilter.ToLower();
+                var filename = FilenameFilter.ToLower();
                 if (filename.EndsWith(".mid") || filename.EndsWith(".mmsong"))
                 {
                     singleEntry = Items.Cast<MidiFile>()
                         .FirstOrDefault(file => 
                             file.Enabled && 
-                            file.FileName.RelativeFileName == filenameFilter);
+                            file.FileName.RelativeFileName == FilenameFilter);
                 }
             }
 
-            midis.Clear();
+            List.Clear();
             Items.Clear();
 
             foreach (var file in GetSongFiles().Select(path => new MidiFile(path)))
             {
-                if (!string.IsNullOrEmpty(filenameFilter))
+                if (!string.IsNullOrEmpty(FilenameFilter))
                 {
                     var f1 = file.FileName.TinyFileName.ToUpper();
                     var f2 = file.FileName.ShortFileName.ToUpper();
-                    var f3 = filenameFilter.ToUpper();
+                    var f3 = FilenameFilter.ToUpper();
                     if (singleEntry != null)
                     {
                         if (file.FileName.RelativeFileName == singleEntry.FileName.RelativeFileName)
@@ -311,7 +285,7 @@ namespace FFBardMusicPlayer.Components
                     }
                 }
 
-                midis.Add(file);
+                List.Add(file);
 
                 var pd = file.FileName.PathDepth;
                 if (pd > 0)
@@ -341,15 +315,12 @@ namespace FFBardMusicPlayer.Components
             }
             else
             {
-                if (SelectedIndex == -1)
+                if (SelectedIndex == -1 && Items.Count > 0)
                 {
-                    if (Items.Count > 0)
-                    {
-                        // don't allow this to pass the current index limits. this could change, say, when the user is using the search feature
-                        SelectedIndex = previouslySelectedIndex < Items.Count
-                            ? previouslySelectedIndex
-                            : Items.Count - 1;
-                    }
+                    // don't allow this to pass the current index limits. this could change, say, when the user is using the search feature
+                    SelectedIndex = previouslySelectedIndex < Items.Count
+                        ? previouslySelectedIndex
+                        : Items.Count - 1;
                 }
             }
         }

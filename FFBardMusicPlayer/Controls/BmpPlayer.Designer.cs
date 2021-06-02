@@ -31,7 +31,7 @@
             this.TrackProgress = new System.Windows.Forms.TrackBar();
             this.TotalProgressInfo = new System.Windows.Forms.Label();
             this.KeyboardTable = new System.Windows.Forms.TableLayoutPanel();
-            this.KeyboardCtl = new FFBardMusicPlayer.Controls.BmpKeyboard();
+            this.Keyboard = new FFBardMusicPlayer.Controls.BmpKeyboard();
             this.ControlTable = new System.Windows.Forms.TableLayoutPanel();
             this.ShiftPanel = new System.Windows.Forms.Panel();
             this.SelectorOctave = new FFBardMusicPlayer.Components.BmpOctaveShift();
@@ -156,7 +156,7 @@
             this.KeyboardTable.ColumnCount = 2;
             this.KeyboardTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.KeyboardTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.KeyboardTable.Controls.Add(this.KeyboardCtl, 0, 0);
+            this.KeyboardTable.Controls.Add(this.Keyboard, 0, 0);
             this.KeyboardTable.Controls.Add(this.ControlTable, 1, 0);
             this.KeyboardTable.Dock = System.Windows.Forms.DockStyle.Fill;
             this.KeyboardTable.Location = new System.Drawing.Point(4, 24);
@@ -169,15 +169,15 @@
             // 
             // KeyboardCtl
             // 
-            this.KeyboardCtl.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.KeyboardCtl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.KeyboardCtl.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
-            this.KeyboardCtl.Location = new System.Drawing.Point(1, 1);
-            this.KeyboardCtl.Margin = new System.Windows.Forms.Padding(1);
-            this.KeyboardCtl.Name = "KeyboardCtl";
-            this.KeyboardCtl.OverrideText = null;
-            this.KeyboardCtl.Size = new System.Drawing.Size(487, 142);
-            this.KeyboardCtl.TabIndex = 6;
+            this.Keyboard.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.Keyboard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Keyboard.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
+            this.Keyboard.Location = new System.Drawing.Point(1, 1);
+            this.Keyboard.Margin = new System.Windows.Forms.Padding(1);
+            this.Keyboard.Name = "Keyboard";
+            this.Keyboard.OverrideText = null;
+            this.Keyboard.Size = new System.Drawing.Size(487, 142);
+            this.Keyboard.TabIndex = 6;
             // 
             // ControlTable
             // 
@@ -405,8 +405,7 @@
 		private System.Windows.Forms.Button TrackPlay;
 		private System.Windows.Forms.TableLayoutPanel InfoTable;
 		private System.Windows.Forms.Label InfoTrackName;
-		private BmpKeyboard KeyboardCtl;
-		private SpeedShiftComponent SelectorSpeed;
+        private SpeedShiftComponent SelectorSpeed;
 		private Components.BmpOctaveShift SelectorOctave;
 		private System.Windows.Forms.ToolTip HelpTip;
 		private Components.BmpCheckButton TrackLoop;

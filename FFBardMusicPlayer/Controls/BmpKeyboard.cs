@@ -10,9 +10,9 @@ namespace FFBardMusicPlayer.Controls
     public partial class BmpKeyboard : UserControl
     {
         private readonly KeyboardData keyboardData = new KeyboardData();
-        private int lowFreq = 0;
-        private int highFreq = 0;
-        private int maxFreq = 0;
+        private int lowFreq;
+        private int highFreq;
+        private int maxFreq;
         private readonly SolidBrush fgContrastBrush = new SolidBrush(Color.FromArgb(255, 30, 30, 30));
         private readonly SolidBrush bgContrastBrush = new SolidBrush(Color.FromArgb(100, 200, 200, 200));
         private readonly Font textFont = new Font("Segoe UI", 8);
@@ -295,7 +295,7 @@ namespace FFBardMusicPlayer.Controls
 
     public class KeyboardUiLetter
     {
-        public int Frequency = 0;
+        public int Frequency;
         public string Key = string.Empty;
         public float X;
         public float Y;
@@ -335,7 +335,7 @@ namespace FFBardMusicPlayer.Controls
             var ww = 1f / nk;
             for (var i = 0; i < nk; i++)
             {
-                LetterList.Add(mainKeys[i], new KeyboardUiLetter(i * ww + ww / 2f, 1.0f, false));
+                LetterList.Add(mainKeys[i], new KeyboardUiLetter(i * ww + ww / 2f, 1.0f));
             }
 
             nk = 15;

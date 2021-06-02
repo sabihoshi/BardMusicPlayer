@@ -9,13 +9,6 @@ namespace FFBardMusicPlayer.Controls
         public EventHandler<string> OnTextChange;
 
         // Events
-        protected override void OnTextChanged(EventArgs e)
-        {
-            base.OnTextChanged(e);
-            // we can't do this here. loading a song will change the text, and call
-            // this twice. see: OnKeyPress
-            // OnTextChange?.Invoke(this, this.Text);
-        }
 
         protected override void OnKeyUp(KeyEventArgs e)
         {

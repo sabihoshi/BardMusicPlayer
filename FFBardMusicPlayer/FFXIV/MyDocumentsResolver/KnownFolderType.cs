@@ -792,7 +792,7 @@ namespace FFBardMusicPlayer.FFXIV.MyDocumentsResolver
     /// Represents an attribute to decorate the members of the <see cref="KnownFolderType"/> enumeration with their
     /// corresponding <see cref="Guid"/> on the Windows system.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
+    [AttributeUsage(AttributeTargets.Field)]
     internal class KnownFolderGuidAttribute : Attribute
     {
         // ---- CONSTRUCTORS & DESTRUCTOR ------------------------------------------------------------------------------

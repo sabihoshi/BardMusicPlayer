@@ -22,12 +22,12 @@ namespace FFBardMusicPlayer.Forms
     public partial class BmpMain : Form
     {
         private readonly BmpProcessSelect processSelector = new BmpProcessSelect();
-        private bool keyboardWarning = false;
+        private bool keyboardWarning;
         private readonly DialogResult updateResult;
         private readonly string updateTitle = string.Empty;
         private readonly string updateText = string.Empty;
-        private bool proceedPlaylistMidi = false;
-        private bool tempPlaying = false;
+        private bool proceedPlaylistMidi;
+        private bool tempPlaying;
 
         public bool DonationStatus
         {
@@ -91,14 +91,14 @@ namespace FFBardMusicPlayer.Forms
                 }
             };
 
-            FFXIV.FindProcessRequest += delegate(object o, EventArgs empty) { this.Invoke(t => t.FindProcess()); };
+            FFXIV.FindProcessRequest += delegate { this.Invoke(t => t.FindProcess()); };
 
             FFXIV.FindProcessError += delegate(object o, BmpHook.ProcessError error)
             {
                 this.Invoke(t => t.ErrorProcess(error));
             };
 
-            FFXIV.Hotkeys.OnFileLoad += delegate(object o, EventArgs empty)
+            FFXIV.Hotkeys.OnFileLoad += delegate
             {
                 this.Invoke(t => t.Hotkeys_OnFileLoad(FFXIV.Hotkeys));
             };
@@ -153,7 +153,7 @@ namespace FFBardMusicPlayer.Forms
                     }
                 }
             };
-            FFXIV.Memory.OnProcessLost += delegate(object o, EventArgs arg) { Log("Attached process exited."); };
+            FFXIV.Memory.OnProcessLost += delegate { Log("Attached process exited."); };
             FFXIV.Memory.OnChatReceived += delegate(object o, ChatLogItem item)
             {
                 this.Invoke(t => t.Memory_OnChatReceived(item));
@@ -178,14 +178,9 @@ namespace FFBardMusicPlayer.Forms
                     world = Sharlayan.Reader.GetWorld();
                 }
 
-                if (string.IsNullOrEmpty(world))
-                {
-                    Log($"Character [{res.CurrentPlayer.Name}] logged in.");
-                }
-                else
-                {
-                    Log($"Character [{res.CurrentPlayer.Name}] logged in at [{world}].");
-                }
+                Log(string.IsNullOrEmpty(world)
+                    ? $"Character [{res.CurrentPlayer.Name}] logged in."
+                    : $"Character [{res.CurrentPlayer.Name}] logged in at [{world}].");
 
                 if (!Program.ProgramOptions.DisableUpdate)
                 {
@@ -211,12 +206,12 @@ namespace FFBardMusicPlayer.Forms
                 var format = $"Character [{res.CurrentPlayer.Name}] logged out.";
                 Log(format);
             };
-            FFXIV.Memory.OnPartyChanged += delegate(object o, PartyResult res)
+            FFXIV.Memory.OnPartyChanged += delegate
             {
                 this.Invoke(t => t.LocalOrchestraUpdate());
             };
 
-            Player.OnStatusChange += delegate(object o, PlayerStatus status)
+            Player.OnStatusChange += delegate
             {
                 this.Invoke(t => t.UpdatePerformance());
             };
@@ -242,7 +237,7 @@ namespace FFBardMusicPlayer.Forms
                     Log($"Switched to {input.Name} ({input.Id})");
                 }
             };
-            Settings.OnKeyboardTest += delegate(object o, EventArgs arg)
+            Settings.OnKeyboardTest += delegate
             {
                 foreach (var keybind in FFXIV.Hotkeys.GetPerformanceKeybinds())
                 {

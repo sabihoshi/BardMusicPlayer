@@ -55,10 +55,10 @@ namespace FFBardMusicPlayer
 
         public class Keybind
         {
-            public int MainKey1 = 0;
-            public int ModKey1 = 0;
-            public int MainKey2 = 0;
-            public int ModKey2 = 0;
+            public int MainKey1;
+            public int ModKey1;
+            public int MainKey2;
+            public int ModKey2;
 
             public Keys GetKey() => GetKey1();
 
@@ -210,24 +210,11 @@ namespace FFBardMusicPlayer
             };
             var fn = note + 12 * 4;
             var key = fn % 12;
-            var oc = (int) (fn / 12) - 1;
-            if (key > 0)
-            {
-                return $"{realPianoKeyMap[key]}{oc}";
-            }
-
-            return string.Empty;
+            var oc = fn / 12 - 1;
+            return key > 0 ? $"{realPianoKeyMap[key]}{oc}" : string.Empty;
         }
 
-        public static string NoteKeyToPerformanceKey(string nk)
-        {
-            if (PianoKeyMap.ContainsKey(nk))
-            {
-                return PianoKeyMap[nk];
-            }
-
-            return string.Empty;
-        }
+        public static string NoteKeyToPerformanceKey(string nk) => PianoKeyMap.ContainsKey(nk) ? PianoKeyMap[nk] : string.Empty;
 
         public Keybind GetKeybindFromNoteByte(int note)
         {
@@ -246,12 +233,7 @@ namespace FFBardMusicPlayer
         public Keybind GetKeybindFromNoteKey(string nk)
         {
             var pk = NoteKeyToPerformanceKey(nk);
-            if (!string.IsNullOrEmpty(pk))
-            {
-                return this[pk];
-            }
-
-            return null;
+            return !string.IsNullOrEmpty(pk) ? this[pk] : null;
         }
 
         public void LoadKeybindDat(string charId)

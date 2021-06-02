@@ -10,7 +10,6 @@ namespace FFBardMusicPlayer.Controls
     public partial class BmpPlayer : UserControl
     {
         // Player manager and manipulator
-        private readonly BmpSequencer player = new BmpSequencer();
         public EventHandler<Track> OnMidiTrackLoad;
         public EventHandler<bool> OnMidiStatusChange;
         public EventHandler<int> OnMidiProgressChange;
@@ -74,9 +73,9 @@ namespace FFBardMusicPlayer.Controls
             set => PlayTable.Enabled = value;
         }
 
-        public BmpKeyboard Keyboard => KeyboardCtl;
+        public BmpKeyboard Keyboard { get; private set; }
 
-        public BmpSequencer Player => player;
+        public BmpSequencer Player { get; } = new BmpSequencer();
 
         private bool loop;
 
@@ -91,13 +90,7 @@ namespace FFBardMusicPlayer.Controls
             }
         }
 
-        private int tempo;
-
-        public int Tempo
-        {
-            get => tempo;
-            set => tempo = value;
-        }
+        public int Tempo { get; set; }
 
         private string trackname;
 
@@ -120,8 +113,8 @@ namespace FFBardMusicPlayer.Controls
             {
                 octaveShift = value.Clamp(-4, 4);
 
-                SelectorOctave.Invoke(t => t.Value = (decimal) octaveShift);
-                UpdateKeyboard(player.LoadedTrack);
+                SelectorOctave.Invoke(t => t.Value = octaveShift);
+                UpdateKeyboard(Player.LoadedTrack);
             }
         }
 
@@ -140,12 +133,12 @@ namespace FFBardMusicPlayer.Controls
         }
 
         public Instrument PreferredInstrument =>
-            player.LoadedTrack == null ? 0 : player.GetTrackPreferredInstrument(player.LoadedTrack);
+            Player.LoadedTrack == null ? 0 : Player.GetTrackPreferredInstrument(Player.LoadedTrack);
 
-        public int TotalNoteCount => player.NotesPlayedCount.Values.Sum();
+        public int TotalNoteCount => Player.NotesPlayedCount.Values.Sum();
 
         public int CurrentNoteCount =>
-            player.LoadedTrack == null ? 0 : player.NotesPlayedCount[player.LoadedTrack];
+            Player.LoadedTrack == null ? 0 : Player.NotesPlayedCount[Player.LoadedTrack];
 
         private bool trackHoldPlaying;
         private readonly Dictionary<Track, int> trackNumLut = new Dictionary<Track, int>();
@@ -154,17 +147,17 @@ namespace FFBardMusicPlayer.Controls
         {
             InitializeComponent();
 
-            player.OnLoad += OnPlayerMidiLoad;
-            player.OnTick += OnMidiTick;
+            Player.OnLoad += OnPlayerMidiLoad;
+            Player.OnTick += OnMidiTick;
 
-            player.OnTempoChange     += OnMidiTempoChange;
-            player.OnTrackNameChange += OnMidiTrackNameChange;
+            Player.OnTempoChange     += OnMidiTempoChange;
+            Player.OnTrackNameChange += OnMidiTrackNameChange;
 
-            player.OnNote  += OnPlayerMidiNote;
-            player.OffNote += OffPlayerMidiNote;
+            Player.OnNote  += OnPlayerMidiNote;
+            Player.OffNote += OffPlayerMidiNote;
 
-            player.PlayEnded        += OnPlayEnded;
-            player.PlayStatusChange += OnMidiPlayStatusChange;
+            Player.PlayEnded        += OnPlayEnded;
+            Player.PlayStatusChange += OnMidiPlayStatusChange;
 
             SelectorOctave.MouseWheel += Disable_Scroll;
             SelectorSpeed.MouseWheel  += Disable_Scroll;
@@ -206,18 +199,18 @@ namespace FFBardMusicPlayer.Controls
         // Events
         private void OnPlayerMidiLoad(object o, EventArgs e)
         {
-            OnMidiTrackLoad?.Invoke(o, player.LoadedTrack);
+            OnMidiTrackLoad?.Invoke(o, Player.LoadedTrack);
 
             // set the initial octave shift here
             // this will also update the keyboard
-            OctaveShift = player.GetTrackPreferredOctaveShift(player.LoadedTrack);
+            OctaveShift = Player.GetTrackPreferredOctaveShift(Player.LoadedTrack);
 
-            TotalProgressInfo.Invoke(t => t.Text = player.MaxTime);
+            TotalProgressInfo.Invoke(t => t.Text = Player.MaxTime);
 
             trackNumLut.Clear();
-            for (var i = 0; i < player.Sequence.Count; i++)
+            for (var i = 0; i < Player.Sequence.Count; i++)
             {
-                trackNumLut[player.Sequence[i]] = i;
+                trackNumLut[Player.Sequence[i]] = i;
             }
 
             UpdatePlayer();
@@ -268,7 +261,7 @@ namespace FFBardMusicPlayer.Controls
         private void OnMidiPlayStatusChange(object o, EventArgs e)
         {
             UpdatePlayer();
-            OnMidiStatusChange?.Invoke(o, player.IsPlaying);
+            OnMidiStatusChange?.Invoke(o, Player.IsPlaying);
         }
 
         private void OnMidiTick(object o, int position)
@@ -277,7 +270,7 @@ namespace FFBardMusicPlayer.Controls
             {
                 TrackProgress.Invoke(t => t.Value = position);
 
-                CurrentProgressInfo.Invoke(t => t.Text = player.CurrentTime);
+                CurrentProgressInfo.Invoke(t => t.Text = Player.CurrentTime);
             }
         }
 
@@ -287,20 +280,20 @@ namespace FFBardMusicPlayer.Controls
         {
             if (!string.IsNullOrEmpty(filename))
             {
-                player.Load(filename, track);
+                Player.Load(filename, track);
             }
         }
 
         public void UpdatePlayer()
         {
-            TrackProgress.Invoke(t => t.Maximum = player.MaxTick);
+            TrackProgress.Invoke(t => t.Maximum = Player.MaxTick);
             TrackProgress.Invoke(t => t.Value   = 0);
-            if (player.CurrentTick < player.MaxTick)
+            if (Player.CurrentTick < Player.MaxTick)
             {
-                TrackProgress.Invoke(t => t.Value = player.CurrentTick);
+                TrackProgress.Invoke(t => t.Value = Player.CurrentTick);
             }
 
-            var playPauseBmp = player.IsPlaying ? Properties.Resources.Pause : Properties.Resources.Play;
+            var playPauseBmp = Player.IsPlaying ? Properties.Resources.Pause : Properties.Resources.Play;
             TrackPlay.Invoke(t => t.Image = playPauseBmp);
         }
 
@@ -342,33 +335,33 @@ namespace FFBardMusicPlayer.Controls
 
         private void TrackProgress_MouseDown(object sender, MouseEventArgs e)
         {
-            if (!player.Loaded)
+            if (!Player.Loaded)
             {
                 return;
             }
 
             if (e.Button == MouseButtons.Left)
             {
-                trackHoldPlaying = player.IsPlaying;
-                player.Pause();
+                trackHoldPlaying = Player.IsPlaying;
+                Player.Pause();
                 TrackProgress_MouseMove(sender, e);
             }
         }
 
         private void TrackProgress_MouseMove(object sender, MouseEventArgs e)
         {
-            if (!player.Loaded)
+            if (!Player.Loaded)
             {
                 return;
             }
 
-            if (e.Button == MouseButtons.Left && !player.IsPlaying)
+            if (e.Button == MouseButtons.Left && !Player.IsPlaying)
             {
                 var v = (float) (e.X - 6) / (TrackProgress.Width - 12);
                 if (v >= 0f && v <= 1f)
                 {
                     v               *= (TrackProgress.Maximum - TrackProgress.Minimum);
-                    player.Position =  (int) v;
+                    Player.Position =  (int) v;
                     OnMidiProgressChange?.Invoke(this, (int) v);
                     UpdatePlayer();
                 }
@@ -377,35 +370,35 @@ namespace FFBardMusicPlayer.Controls
 
         private void TrackProgress_MouseUp(object sender, MouseEventArgs e)
         {
-            if (!player.Loaded)
+            if (!Player.Loaded)
             {
                 return;
             }
 
-            if (e.Button == MouseButtons.Left && !player.IsPlaying)
+            if (e.Button == MouseButtons.Left && !Player.IsPlaying)
             {
                 if (trackHoldPlaying)
                 {
-                    player.Play();
+                    Player.Play();
                 }
 
                 UpdatePlayer();
-                if (player.CurrentTick > player.MaxTick)
+                if (Player.CurrentTick > Player.MaxTick)
                     return;
                 
-                TrackProgress.Invoke(t => t.Value = (int) player.CurrentTick);
+                TrackProgress.Invoke(t => t.Value = Player.CurrentTick);
             }
         }
 
         private void TrackPlay_Click(object sender, EventArgs e)
         {
-            if (player.IsPlaying)
+            if (Player.IsPlaying)
             {
-                player.Pause();
+                Player.Pause();
             }
             else
             {
-                player.Play();
+                Player.Play();
             }
         }
 

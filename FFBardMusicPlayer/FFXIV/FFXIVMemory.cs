@@ -30,34 +30,12 @@ namespace FFBardMusicPlayer
             }
         }
 
-        public bool ChatInputOpen
-        {
-            get
-            {
-                if (Reader.CanGetChatInput())
-                {
-                    return Reader.IsChatInputOpen();
-                }
+        public bool ChatInputOpen => Reader.CanGetChatInput() && Reader.IsChatInputOpen();
 
-                return false;
-            }
-        }
+        public string ChatInputString => Reader.CanGetChatInput() ? Reader.GetChatInputString() : string.Empty;
 
-        public string ChatInputString
-        {
-            get
-            {
-                if (Reader.CanGetChatInput())
-                {
-                    return Reader.GetChatInputString();
-                }
-
-                return string.Empty;
-            }
-        }
-
-        private int previousArrayIndex = 0;
-        private int previousOffset = 0;
+        private int previousArrayIndex;
+        private int previousOffset;
         private readonly Stack<ChatLogItem> logItems = new Stack<ChatLogItem>();
         private readonly List<ChatLogItem> completeLog = new List<ChatLogItem>();
 
@@ -130,7 +108,7 @@ namespace FFBardMusicPlayer
             };
             MemoryHandler.Instance.ExceptionEvent       += MemoryHandler_ExceptionEvent;
             MemoryHandler.Instance.SignaturesFoundEvent += MemoryHandler_SignaturesFoundEvent;
-            MemoryHandler.Instance.SetProcess(processModel, gameLanguage, patchVersion, useLocalCache, false);
+            MemoryHandler.Instance.SetProcess(processModel, gameLanguage, patchVersion, useLocalCache);
         }
 
         public void UnsetProcess()
@@ -164,35 +142,24 @@ namespace FFBardMusicPlayer
             }
         }
 
-        public bool IsThreadAlive()
-        {
-            if (thread == null)
-            {
-                return false;
-            }
-
-            return thread.IsAlive;
-        }
+        public bool IsThreadAlive() => thread != null && thread.IsAlive;
 
         public void FFXIVMemory_Main()
         {
             Console.WriteLine("Memory main loop");
-            var alive = true;
+            
             try
             {
-                while (alive)
+                if (!Refresh())
                 {
-                    if (!Refresh())
-                    {
-                        // Restart?
-                    }
-
-                    Thread.Sleep(100);
+                    // Restart?
                 }
+
+                Thread.Sleep(100);
             }
             catch (ThreadInterruptedException)
             {
-                alive = false;
+                
             }
 
             Console.WriteLine("Reached end");
@@ -292,7 +259,7 @@ namespace FFBardMusicPlayer
 
                 var pcount = Party.PartyMembers.Count;
                 var pcount2 = party2.PartyMembers.Count;
-                if (!(Party is PartyResult) || Party is PartyResult && pcount != pcount2)
+                if (pcount != pcount2)
                 {
                     Party = party2;
                     OnPartyChanged?.Invoke(this, party2);
