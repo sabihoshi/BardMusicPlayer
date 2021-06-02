@@ -1,5 +1,5 @@
-﻿using System.IO;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.IO;
 using FFBardMusicCommon;
 
 // Key/Keybind - the actual key to simulate
@@ -7,7 +7,7 @@ using FFBardMusicCommon;
 // NoteKey/nk/byte - C+1, C#, etc
 // byte key - the raw midi note byte
 
-namespace FFBardMusicPlayer
+namespace FFBardMusicPlayer.FFXIV
 {
     public class FFXIVHotbarDat : FFXIVDatFile
     {

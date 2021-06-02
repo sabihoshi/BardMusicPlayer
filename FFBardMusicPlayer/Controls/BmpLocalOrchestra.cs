@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using static FFBardMusicPlayer.BmpProcessSelect;
+using static FFBardMusicPlayer.Forms.BmpProcessSelect;
 using Timer = System.Timers.Timer;
 using System.Diagnostics;
 

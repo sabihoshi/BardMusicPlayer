@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
 
-namespace FFBardMusicPlayer.Controls
+namespace FFBardMusicPlayer.Components
 {
     public partial class SpeedShiftComponent : NumericUpDown
     {

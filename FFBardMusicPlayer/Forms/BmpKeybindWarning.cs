@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace FFBardMusicPlayer
+namespace FFBardMusicPlayer.Forms
 {
     public partial class BmpKeybindWarning : Form
     {

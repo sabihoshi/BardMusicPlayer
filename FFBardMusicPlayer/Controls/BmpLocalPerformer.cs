@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using static FFBardMusicPlayer.BmpProcessSelect;
+using static FFBardMusicPlayer.Forms.BmpProcessSelect;
 using static FFBardMusicPlayer.Controls.BmpPlayer;
 using Sanford.Multimedia.Midi;
 using Timer = System.Timers.Timer;
 using FFBardMusicCommon;
+using FFBardMusicPlayer.FFXIV;
 
 namespace FFBardMusicPlayer.Controls
 {

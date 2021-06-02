@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Windows.Forms;
 
-namespace FFBardMusicPlayer
+namespace FFBardMusicPlayer.Forms
 {
     public partial class BmpAbout : Form
     {

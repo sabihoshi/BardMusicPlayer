@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using System.Diagnostics;
 using Sharlayan;
+using Sharlayan.Core;
+using Sharlayan.Events;
 using Sharlayan.Models;
 using Sharlayan.Models.ReadResults;
-using Sharlayan.Events;
-using Sharlayan.Core;
 
-namespace FFBardMusicPlayer
+namespace FFBardMusicPlayer.FFXIV
 {
     public class FFXIVMemory
     {

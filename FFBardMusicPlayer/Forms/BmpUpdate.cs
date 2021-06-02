@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using ServiceStack;
 using ServiceStack.Text;
 
-namespace FFBardMusicPlayer
+namespace FFBardMusicPlayer.Forms
 {
     public partial class BmpUpdate : Form
     {

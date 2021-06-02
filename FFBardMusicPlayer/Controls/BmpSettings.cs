@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Diagnostics;
+using FFBardMusicPlayer.Forms;
 using Sanford.Multimedia.Midi;
 
 namespace FFBardMusicPlayer.Controls

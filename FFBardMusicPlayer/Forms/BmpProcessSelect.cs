@@ -4,11 +4,11 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using Sharlayan;
-using System.Threading;
 
-namespace FFBardMusicPlayer
+namespace FFBardMusicPlayer.Forms
 {
     public partial class BmpProcessSelect : Form
     {

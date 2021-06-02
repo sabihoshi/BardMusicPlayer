@@ -16,6 +16,7 @@ using System.Threading;
 using System.Windows.Forms;
 using static FFBardMusicPlayer.Controls.BmpPlayer;
 using System.Security.Principal;
+using FFBardMusicPlayer.FFXIV;
 
 namespace FFBardMusicPlayer.Forms
 {

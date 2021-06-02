@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.IO;
 
-namespace FFBardMusicPlayer
+namespace FFBardMusicPlayer.FFXIV
 {
     public class FFXIVAddonDat : FFXIVDatFile
     {

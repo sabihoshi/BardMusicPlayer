@@ -1,4 +1,4 @@
-﻿namespace FFBardMusicPlayer.Controls {
+﻿namespace FFBardMusicPlayer.Components {
 	partial class SongSearcher {
 		/// <summary>
 		/// Required designer variable.

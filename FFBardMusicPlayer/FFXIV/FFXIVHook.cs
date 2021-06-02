@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FFBardMusicPlayer
+namespace FFBardMusicPlayer.FFXIV
 {
     public class FFXIVHook
     {

@@ -1,4 +1,6 @@
-﻿namespace FFBardMusicPlayer.Controls {
+﻿using FFBardMusicPlayer.Components;
+
+namespace FFBardMusicPlayer.Controls {
 	partial class BmpExplorer {
 		/// <summary> 
 		/// Required designer variable.
@@ -27,7 +29,7 @@
             this.SeekerTable = new System.Windows.Forms.TableLayoutPanel();
             this.PlayAllTracks = new FFBardMusicPlayer.Components.BmpCheckButton(this.components);
             this.MusicReload = new System.Windows.Forms.Button();
-            this.SelectorSong = new FFBardMusicPlayer.Controls.SongSearcher();
+            this.SelectorSong = new SongSearcher();
             this.SelectorTrack = new FFBardMusicPlayer.Components.BmpTrackShift();
             this.BrowserTable = new System.Windows.Forms.TableLayoutPanel();
             this.SongBrowser = new FFBardMusicPlayer.Components.BmpBrowser(this.components);

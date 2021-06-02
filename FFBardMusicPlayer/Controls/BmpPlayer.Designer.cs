@@ -1,4 +1,6 @@
-﻿namespace FFBardMusicPlayer.Controls {
+﻿using FFBardMusicPlayer.Components;
+
+namespace FFBardMusicPlayer.Controls {
 	partial class BmpPlayer {
 		/// <summary> 
 		/// Required designer variable.
@@ -35,7 +37,7 @@
             this.ControlTable = new System.Windows.Forms.TableLayoutPanel();
             this.ShiftPanel = new System.Windows.Forms.Panel();
             this.SelectorOctave = new FFBardMusicPlayer.Components.BmpOctaveShift();
-            this.SelectorSpeed = new FFBardMusicPlayer.Controls.SpeedShiftComponent();
+            this.SelectorSpeed = new SpeedShiftComponent();
             this.TrackPlay = new System.Windows.Forms.Button();
             this.SongCtlPanel = new System.Windows.Forms.Panel();
             this.TrackLoop = new FFBardMusicPlayer.Components.BmpCheckButton(this.components);

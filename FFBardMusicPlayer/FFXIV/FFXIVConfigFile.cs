@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using FFBardMusicPlayer.FFXIV;
 
-namespace FFBardMusicPlayer
+namespace FFBardMusicPlayer.FFXIV
 {
     internal class FFXIVConfigFile
     {

@@ -1,4 +1,4 @@
-﻿namespace FFBardMusicPlayer {
+﻿namespace FFBardMusicPlayer.Forms {
 	partial class BmpKeybindWarning {
 		/// <summary>
 		/// Required designer variable.

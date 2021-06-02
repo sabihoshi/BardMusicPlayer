@@ -1,16 +1,15 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
-using FFBardMusicPlayer.FFXIV;
 
-// Key/Keybind - the actual key to simulate
+namespace FFBardMusicPlayer.FFXIV
+{
+    // Key/Keybind - the actual key to simulate
 // PerfKey/pk - PERFORMANCE_MODE_ key to get the keybind
 // NoteKey/nk/byte - C+1, C#, etc
 // byte key - the raw midi note byte
 
-namespace FFBardMusicPlayer
-{
     public class FFXIVDatFile
     {
         public EventHandler OnFileLoad;
@@ -127,69 +126,69 @@ namespace FFBardMusicPlayer
             return stream.BaseStream.Length - Header.FileSize == 32;
         }
     }
-}
 
-public static class XorTools
-{
-    public static byte ReadXorByte(BinaryReader reader, int xor = 0) => (byte) (reader.ReadByte() ^ (byte) xor);
-
-    public static short ReadXorInt16(BinaryReader reader, int xor = 0)
+    public static class XorTools
     {
-        var data = reader.ReadBytes(2);
-        if (xor != 0)
+        public static byte ReadXorByte(BinaryReader reader, int xor = 0) => (byte) (reader.ReadByte() ^ (byte) xor);
+
+        public static short ReadXorInt16(BinaryReader reader, int xor = 0)
         {
-            Array.Reverse(data);
-            for (var i = 0; i < data.Length; i++)
+            var data = reader.ReadBytes(2);
+            if (xor != 0)
             {
-                data[i] ^= (byte) xor;
+                Array.Reverse(data);
+                for (var i = 0; i < data.Length; i++)
+                {
+                    data[i] ^= (byte) xor;
+                }
             }
+
+            return BitConverter.ToInt16(data, 0);
         }
 
-        return BitConverter.ToInt16(data, 0);
-    }
-
-    public static int ReadXorInt32(BinaryReader reader, int xor = 0)
-    {
-        var data = reader.ReadBytes(4);
-        if (xor != 0)
+        public static int ReadXorInt32(BinaryReader reader, int xor = 0)
         {
-            Array.Reverse(data);
-            for (var i = 0; i < data.Length; i++)
+            var data = reader.ReadBytes(4);
+            if (xor != 0)
             {
-                data[i] ^= (byte) xor;
+                Array.Reverse(data);
+                for (var i = 0; i < data.Length; i++)
+                {
+                    data[i] ^= (byte) xor;
+                }
             }
+
+            return BitConverter.ToInt32(data, 0);
         }
 
-        return BitConverter.ToInt32(data, 0);
-    }
-
-    public static uint ReadXorUInt32(BinaryReader reader, int xor = 0)
-    {
-        var data = reader.ReadBytes(4);
-        if (xor != 0)
+        public static uint ReadXorUInt32(BinaryReader reader, int xor = 0)
         {
-            Array.Reverse(data);
-            for (var i = 0; i < data.Length; i++)
+            var data = reader.ReadBytes(4);
+            if (xor != 0)
             {
-                data[i] ^= (byte) xor;
+                Array.Reverse(data);
+                for (var i = 0; i < data.Length; i++)
+                {
+                    data[i] ^= (byte) xor;
+                }
             }
+
+            return BitConverter.ToUInt32(data, 0);
         }
 
-        return BitConverter.ToUInt32(data, 0);
-    }
-
-    public static byte[] ReadXorBytes(BinaryReader reader, int size, int xor)
-    {
-        var data = reader.ReadBytes(size);
-        if (xor != 0)
+        public static byte[] ReadXorBytes(BinaryReader reader, int size, int xor)
         {
-            Array.Reverse(data);
-            for (var i = 0; i < data.Length; i++)
+            var data = reader.ReadBytes(size);
+            if (xor != 0)
             {
-                data[i] ^= (byte) xor;
+                Array.Reverse(data);
+                for (var i = 0; i < data.Length; i++)
+                {
+                    data[i] ^= (byte) xor;
+                }
             }
-        }
 
-        return data;
+            return data;
+        }
     }
 }

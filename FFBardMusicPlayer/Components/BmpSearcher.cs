@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace FFBardMusicPlayer.Controls
+namespace FFBardMusicPlayer.Components
 {
     public partial class SongSearcher : TextBox
     {

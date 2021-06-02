@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Threading;
 using FFBardMusicCommon;
+using FFBardMusicPlayer.FFXIV;
 using Sharlayan;
 using Sharlayan.Core;
 using Sharlayan.Core.Enums;

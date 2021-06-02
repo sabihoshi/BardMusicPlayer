@@ -1,6 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -10,7 +10,7 @@ using System.Windows.Forms;
 // NoteKey/nk/byte - C+1, C#, etc
 // byte key - the raw midi note byte
 
-namespace FFBardMusicPlayer
+namespace FFBardMusicPlayer.FFXIV
 {
     public class FFXIVKeybindDat : FFXIVDatFile
     {
