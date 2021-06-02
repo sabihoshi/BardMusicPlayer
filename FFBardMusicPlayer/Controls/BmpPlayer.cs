@@ -73,7 +73,7 @@ namespace FFBardMusicPlayer.Controls
             set => PlayTable.Enabled = value;
         }
 
-        public BmpKeyboard Keyboard { get; private set; }
+        public BmpKeyboard Keyboard => KeyboardCtl;
 
         public BmpSequencer Player { get; } = new BmpSequencer();
 
