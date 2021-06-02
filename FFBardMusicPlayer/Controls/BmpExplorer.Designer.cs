@@ -1,35 +1,41 @@
 ﻿using FFBardMusicPlayer.Components;
 
-namespace FFBardMusicPlayer.Controls {
-	partial class BmpExplorer {
-		/// <summary> 
-		/// Required designer variable.
-		/// </summary>
-		private System.ComponentModel.IContainer components = null;
+namespace FFBardMusicPlayer.Controls
+{
+    partial class BmpExplorer
+    {
+        /// <summary> 
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
 
-		/// <summary> 
-		/// Clean up any resources being used.
-		/// </summary>
-		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-		protected override void Dispose(bool disposing) {
-			if(disposing && (components != null)) {
-				components.Dispose();
-			}
-			base.Dispose(disposing);
-		}
+        /// <summary> 
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && components != null)
+            {
+                components.Dispose();
+            }
 
-		#region Component Designer generated code
+            base.Dispose(disposing);
+        }
 
-		/// <summary> 
-		/// Required method for Designer support - do not modify 
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent() {
+        #region Component Designer generated code
+
+        /// <summary> 
+        /// Required method for Designer support - do not modify 
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
             this.components = new System.ComponentModel.Container();
             this.SeekerTable = new System.Windows.Forms.TableLayoutPanel();
             this.PlayAllTracks = new FFBardMusicPlayer.Components.BmpCheckButton(this.components);
             this.MusicReload = new System.Windows.Forms.Button();
-            this.SelectorSong = new SongSearcher();
+            this.SelectorSong = new FFBardMusicPlayer.Components.SongSearcher();
             this.SelectorTrack = new FFBardMusicPlayer.Components.BmpTrackShift();
             this.BrowserTable = new System.Windows.Forms.TableLayoutPanel();
             this.SongBrowser = new FFBardMusicPlayer.Components.BmpBrowser(this.components);
@@ -161,16 +167,16 @@ namespace FFBardMusicPlayer.Controls {
             this.BrowserTable.ResumeLayout(false);
             this.ResumeLayout(false);
 
-		}
+        }
 
-		#endregion
+        #endregion
 
-		private System.Windows.Forms.TableLayoutPanel SeekerTable;
-		private System.Windows.Forms.Button MusicReload;
-		private SongSearcher SelectorSong;
-		private Components.BmpTrackShift SelectorTrack;
-		private System.Windows.Forms.TableLayoutPanel BrowserTable;
-		private Components.BmpBrowser SongBrowser;
-        private Components.BmpCheckButton PlayAllTracks;
+        private System.Windows.Forms.TableLayoutPanel SeekerTable;
+        private System.Windows.Forms.Button MusicReload;
+        private SongSearcher SelectorSong;
+        private BmpTrackShift SelectorTrack;
+        private System.Windows.Forms.TableLayoutPanel BrowserTable;
+        private BmpBrowser SongBrowser;
+        private BmpCheckButton PlayAllTracks;
     }
 }
