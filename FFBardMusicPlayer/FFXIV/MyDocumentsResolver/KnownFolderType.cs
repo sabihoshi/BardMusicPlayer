@@ -79,7 +79,7 @@ namespace FFBardMusicPlayer.FFXIV.MyDocumentsResolver
         /// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\Burn\Burn&quot;.
         /// </summary>
         [KnownFolderGuid("9E52AB10-F80D-49DF-ACB8-4330F5687855")]
-        CDBurning,
+        CdBurning,
 
         /// <summary>
         /// The common Administrative Tools folder.
@@ -521,7 +521,7 @@ namespace FFBardMusicPlayer.FFXIV.MyDocumentsResolver
         /// Defaults to &quot;%PUBLIC%\RecordedTV.library-ms&quot;.
         /// </summary>
         [KnownFolderGuid("1A6FDBA2-F42D-4358-A798-B74D745926C5")]
-        RecordedTVLibrary,
+        RecordedTvLibrary,
 
         /// <summary>
         /// The fixed Resources folder.

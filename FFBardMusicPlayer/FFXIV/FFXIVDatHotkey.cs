@@ -16,12 +16,12 @@ namespace FFBardMusicPlayer
     {
         private class KeybindSection
         {
-            public byte type;
-            public int size;
-            public byte[] data;
+            public byte Type;
+            public int Size;
+            public byte[] Data;
         };
 
-        private static Dictionary<int, int> mainKeyMap = new Dictionary<int, int>
+        private static readonly Dictionary<int, int> MainKeyMap = new Dictionary<int, int>
         {
             { 130, 187 }, // =
             { 131, 188 }, // ,
@@ -37,7 +37,7 @@ namespace FFBardMusicPlayer
             { 141, 223 }  // `
         };
 
-        private static Dictionary<string, string> oemKeyFix = new Dictionary<string, string>()
+        private static readonly Dictionary<string, string> OemKeyFix = new Dictionary<string, string>()
         {
             { "OemQuestion", "?" },
             { "Oemplus", "+" },
@@ -55,16 +55,16 @@ namespace FFBardMusicPlayer
 
         public class Keybind
         {
-            public int mainKey1 = 0;
-            public int modKey1 = 0;
-            public int mainKey2 = 0;
-            public int modKey2 = 0;
+            public int MainKey1 = 0;
+            public int ModKey1 = 0;
+            public int MainKey2 = 0;
+            public int ModKey2 = 0;
 
             public Keys GetKey() => GetKey1();
 
-            public Keys GetKey1() => GetMain(mainKey1) | GetMod(modKey1);
+            public Keys GetKey1() => GetMain(MainKey1) | GetMod(ModKey1);
 
-            public Keys GetKey2() => GetMain(mainKey2) | GetMod(modKey2);
+            public Keys GetKey2() => GetMain(MainKey2) | GetMod(ModKey2);
 
             private Keys GetMain(int key)
             {
@@ -72,9 +72,9 @@ namespace FFBardMusicPlayer
                 {
                     return (Keys) key;
                 }
-                else if (mainKeyMap.ContainsKey(key))
+                else if (MainKeyMap.ContainsKey(key))
                 {
-                    return (Keys) mainKeyMap[key];
+                    return (Keys) MainKeyMap[key];
                 }
 
                 return Keys.None;
@@ -112,9 +112,9 @@ namespace FFBardMusicPlayer
                 {
                     var kc = new KeysConverter();
                     var str = kc.ConvertToString(key);
-                    if (oemKeyFix.ContainsKey(str))
+                    if (OemKeyFix.ContainsKey(str))
                     {
-                        str = oemKeyFix[str];
+                        str = OemKeyFix[str];
                     }
 
                     return str;
@@ -123,7 +123,7 @@ namespace FFBardMusicPlayer
         }
 
         // keybindList contains map between PERFORMANCE_MODE_* to Keybind
-        private Dictionary<string, Keybind> keybindList = new Dictionary<string, Keybind>();
+        private readonly Dictionary<string, Keybind> keybindList = new Dictionary<string, Keybind>();
 
         public Keybind this[string key] => !keybindList.ContainsKey(key) 
             ? new Keybind() 
@@ -136,7 +136,7 @@ namespace FFBardMusicPlayer
             get
             {
                 var all = true;
-                foreach (var kk in pianoKeyMap.Values.ToList())
+                foreach (var kk in PianoKeyMap.Values.ToList())
                 {
                     if (this[kk] is Keybind kb)
                     {
@@ -152,7 +152,7 @@ namespace FFBardMusicPlayer
             }
         }
 
-        public static Dictionary<string, string> pianoKeyMap = new Dictionary<string, string>
+        public static Dictionary<string, string> PianoKeyMap = new Dictionary<string, string>
         {
             { "C-1", "PERFORMANCE_MODE_EX_C3" }, { "C#-1", "PERFORMANCE_MODE_EX_C3_SHARP" },
             { "D-1", "PERFORMANCE_MODE_EX_D3" }, { "Eb-1", "PERFORMANCE_MODE_EX_D3_SHARP" },
@@ -181,7 +181,7 @@ namespace FFBardMusicPlayer
         public List<Keybind> GetPerformanceKeybinds()
         {
             var keybinds = new List<Keybind>();
-            foreach (var noteKey in pianoKeyMap.Keys)
+            foreach (var noteKey in PianoKeyMap.Keys)
             {
                 if (GetKeybindFromNoteKey(noteKey) is Keybind keybind)
                 {
@@ -194,9 +194,9 @@ namespace FFBardMusicPlayer
 
         public static string NoteByteToPerformanceKey(int note)
         {
-            if (note >= 0 && note < pianoKeyMap.Count)
+            if (note >= 0 && note < PianoKeyMap.Count)
             {
-                return pianoKeyMap.Keys.ToArray()[note];
+                return PianoKeyMap.Keys.ToArray()[note];
             }
 
             return string.Empty;
@@ -221,9 +221,9 @@ namespace FFBardMusicPlayer
 
         public static string NoteKeyToPerformanceKey(string nk)
         {
-            if (pianoKeyMap.ContainsKey(nk))
+            if (PianoKeyMap.ContainsKey(nk))
             {
-                return pianoKeyMap[nk];
+                return PianoKeyMap[nk];
             }
 
             return string.Empty;
@@ -234,9 +234,9 @@ namespace FFBardMusicPlayer
             var pk = NoteByteToPerformanceKey(note);
             if (!string.IsNullOrEmpty(pk))
             {
-                if (pianoKeyMap.ContainsKey(pk))
+                if (PianoKeyMap.ContainsKey(pk))
                 {
-                    return this[pianoKeyMap[pk]];
+                    return this[PianoKeyMap[pk]];
                 }
             }
 
@@ -256,7 +256,7 @@ namespace FFBardMusicPlayer
 
         public void LoadKeybindDat(string charId)
         {
-            var fileToLoad = $"{Program.programOptions.DatPrefix}KEYBIND.DAT";
+            var fileToLoad = $"{Program.ProgramOptions.DatPrefix}KEYBIND.DAT";
             LoadDatId(charId, fileToLoad);
         }
 
@@ -266,14 +266,14 @@ namespace FFBardMusicPlayer
             if (base.ParseDat(stream))
             {
                 stream.BaseStream.Seek(0x11, SeekOrigin.Begin);
-                while (stream.BaseStream.Position < header.dataSize)
+                while (stream.BaseStream.Position < Header.DataSize)
                 {
                     var command = ParseSection(stream);
                     var keybind = ParseSection(stream);
 
-                    var key = Encoding.UTF8.GetString(command.data);
+                    var key = Encoding.UTF8.GetString(command.Data);
                     key = key.Substring(0, key.Length - 1); // Trim off \0
-                    var dat = Encoding.UTF8.GetString(keybind.data);
+                    var dat = Encoding.UTF8.GetString(keybind.Data);
                     var datKeys = dat.Split(',');
                     if (datKeys.Length == 3)
                     {
@@ -281,10 +281,10 @@ namespace FFBardMusicPlayer
                         var key2 = datKeys[1].Split('.');
                         keybindList.Add(key, new Keybind
                         {
-                            mainKey1 = int.Parse(key1[0], System.Globalization.NumberStyles.HexNumber),
-                            mainKey2 = int.Parse(key2[0], System.Globalization.NumberStyles.HexNumber),
-                            modKey1  = int.Parse(key1[1], System.Globalization.NumberStyles.HexNumber),
-                            modKey2  = int.Parse(key2[1], System.Globalization.NumberStyles.HexNumber)
+                            MainKey1 = int.Parse(key1[0], System.Globalization.NumberStyles.HexNumber),
+                            MainKey2 = int.Parse(key2[0], System.Globalization.NumberStyles.HexNumber),
+                            ModKey1  = int.Parse(key1[1], System.Globalization.NumberStyles.HexNumber),
+                            ModKey2  = int.Parse(key2[1], System.Globalization.NumberStyles.HexNumber)
                         });
                     }
                 }
@@ -299,11 +299,11 @@ namespace FFBardMusicPlayer
             var headerBytes = XorTools.ReadXorBytes(stream, 3, 0x73);
             var section = new KeybindSection
             {
-                type = headerBytes[0],
-                size = headerBytes[1]
+                Type = headerBytes[0],
+                Size = headerBytes[1]
             };
-            section.data = XorTools.ReadXorBytes(stream, section.size, 0x73);
-            Array.Reverse(section.data);
+            section.Data = XorTools.ReadXorBytes(stream, section.Size, 0x73);
+            Array.Reverse(section.Data);
             return section;
         }
     }

@@ -8,14 +8,14 @@ namespace FFBardMusicPlayer
 {
     public class BmpDonationChecker
     {
-        private BackgroundWorker worker = new BackgroundWorker();
+        private readonly BackgroundWorker worker = new BackgroundWorker();
         public EventHandler<DonatorResponse> OnDonatorResponse;
 
         public class DonatorResponse
         {
-            public bool donator { get; set; }
+            public bool Donator { get; set; }
 
-            public string donationMessage { get; set; }
+            public string DonationMessage { get; set; }
         };
 
         public BmpDonationChecker(string characterName, string characterWorld)
@@ -30,7 +30,7 @@ namespace FFBardMusicPlayer
                 }
             };
             var donatorJson =
-                new Uri($"{Program.urlBase}donator?n={characterName}&w={characterWorld}");
+                new Uri($"{Program.UrlBase}donator?n={characterName}&w={characterWorld}");
             worker.RunWorkerAsync(donatorJson);
         }
 

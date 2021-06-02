@@ -11,10 +11,10 @@ namespace FFBardMusicPlayer.Controls
     public partial class BmpExplorer : UserControl
     {
         private bool ignoreTrackChange = false;
-        private bool initState = true;
+        private readonly bool initState = true;
         public EventHandler<bool> OnBrowserVisibleChange;
         public EventHandler<BmpMidiEntry> OnBrowserSelect;
-        private Timer selectFlashingTimer = new Timer();
+        private readonly Timer selectFlashingTimer = new Timer();
 
         public bool SongBrowserVisible
         {
@@ -37,7 +37,7 @@ namespace FFBardMusicPlayer.Controls
             }
         }
 
-        private static Tuple<int, int, int>[] colors =
+        private static readonly Tuple<int, int, int>[] Colors =
         {
             Tuple.Create(255, 207, 135),
             Tuple.Create(207, 135, 255),
@@ -51,8 +51,8 @@ namespace FFBardMusicPlayer.Controls
             selectFlashingTimer.Tick += delegate(object o, EventArgs a)
             {
                 var random = new Random();
-                int min = 0, max = colors.Length;
-                var color = colors[random.Next(min, max)];
+                int min = 0, max = Colors.Length;
+                var color = Colors[random.Next(min, max)];
                 SelectorSong.BackColor = Color.FromArgb(color.Item1, color.Item2, color.Item3);
             };
             selectFlashingTimer.Interval = 100;

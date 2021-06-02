@@ -12,7 +12,7 @@ namespace FFBardMusicPlayer.FFXIV.MyDocumentsResolver
 {
     internal static class SeerExtensions
     {
-        private static uint TOKEN_QUERY = 0x0008;
+        private static readonly uint TokenQuery = 0x0008;
 
         internal static WindowsIdentity WindowsIdentity(this Process process)
         {
@@ -20,7 +20,7 @@ namespace FFBardMusicPlayer.FFXIV.MyDocumentsResolver
             WindowsIdentity wi;
             try
             {
-                OpenProcessToken(process.Handle, TOKEN_QUERY, out ph);
+                OpenProcessToken(process.Handle, TokenQuery, out ph);
                 wi = new WindowsIdentity(ph);
             }
             finally

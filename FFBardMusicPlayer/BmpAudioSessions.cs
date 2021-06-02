@@ -69,14 +69,14 @@ namespace FFBardMusicPlayer
         private static ISimpleAudioVolume GetVolumeObject(int pid)
         {
             // get the speakers (1st render + multimedia) device
-            var deviceEnumerator = (IMMDeviceEnumerator) new MMDeviceEnumerator();
-            IMMDevice speakers;
-            deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+            var deviceEnumerator = (IMmDeviceEnumerator) new MMDeviceEnumerator();
+            IMmDevice speakers;
+            deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.ERender, ERole.EMultimedia, out speakers);
 
             // activate the session manager. we need the enumerator
-            var IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
+            var iidIAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
             object o;
-            speakers.Activate(ref IID_IAudioSessionManager2, 0, IntPtr.Zero, out o);
+            speakers.Activate(ref iidIAudioSessionManager2, 0, IntPtr.Zero, out o);
             var mgr = (IAudioSessionManager2) o;
 
             // enumerate sessions for on this device
@@ -120,35 +120,35 @@ namespace FFBardMusicPlayer
 
     internal enum EDataFlow
     {
-        eRender,
-        eCapture,
-        eAll,
-        EDataFlow_enum_count
+        ERender,
+        ECapture,
+        EAll,
+        EDataFlowEnumCount
     }
 
     internal enum ERole
     {
-        eConsole,
-        eMultimedia,
-        eCommunications,
-        ERole_enum_count
+        EConsole,
+        EMultimedia,
+        ECommunications,
+        ERoleEnumCount
     }
 
     [Guid("A95664D2-9614-4F35-A746-DE8DB63617E6")]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    internal interface IMMDeviceEnumerator
+    internal interface IMmDeviceEnumerator
     {
         int NotImpl1();
 
         [PreserveSig]
-        int GetDefaultAudioEndpoint(EDataFlow dataFlow, ERole role, out IMMDevice ppDevice);
+        int GetDefaultAudioEndpoint(EDataFlow dataFlow, ERole role, out IMmDevice ppDevice);
 
         // the rest is not implemented
     }
 
     [Guid("D666063F-1587-4E43-81F1-B948E807363F")]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-    internal interface IMMDevice
+    internal interface IMmDevice
     {
         [PreserveSig]
         int Activate(ref Guid iid, int dwClsCtx, IntPtr pActivationParams,
@@ -166,7 +166,7 @@ namespace FFBardMusicPlayer
         int NotImpl2();
 
         [PreserveSig]
-        int GetSessionEnumerator(out IAudioSessionEnumerator SessionEnum);
+        int GetSessionEnumerator(out IAudioSessionEnumerator sessionEnum);
 
         // the rest is not implemented
     }
@@ -176,10 +176,10 @@ namespace FFBardMusicPlayer
     internal interface IAudioSessionEnumerator
     {
         [PreserveSig]
-        int GetCount(out int SessionCount);
+        int GetCount(out int sessionCount);
 
         [PreserveSig]
-        int GetSession(int SessionCount, out IAudioSessionControl2 Session);
+        int GetSession(int sessionCount, out IAudioSessionControl2 session);
     }
 
     [Guid("87CE5498-68D6-44E5-9215-6DA47EF883D8")]
@@ -187,13 +187,13 @@ namespace FFBardMusicPlayer
     internal interface ISimpleAudioVolume
     {
         [PreserveSig]
-        int SetMasterVolume(float fLevel, ref Guid EventContext);
+        int SetMasterVolume(float fLevel, ref Guid eventContext);
 
         [PreserveSig]
         int GetMasterVolume(out float pfLevel);
 
         [PreserveSig]
-        int SetMute(bool bMute, ref Guid EventContext);
+        int SetMute(bool bMute, ref Guid eventContext);
 
         [PreserveSig]
         int GetMute(out bool pbMute);
@@ -211,22 +211,22 @@ namespace FFBardMusicPlayer
         int GetDisplayName([MarshalAs(UnmanagedType.LPWStr)] out string pRetVal);
 
         [PreserveSig]
-        int SetDisplayName([MarshalAs(UnmanagedType.LPWStr)] string Value,
-            [MarshalAs(UnmanagedType.LPStruct)] Guid EventContext);
+        int SetDisplayName([MarshalAs(UnmanagedType.LPWStr)] string value,
+            [MarshalAs(UnmanagedType.LPStruct)] Guid eventContext);
 
         [PreserveSig]
         int GetIconPath([MarshalAs(UnmanagedType.LPWStr)] out string pRetVal);
 
         [PreserveSig]
-        int SetIconPath([MarshalAs(UnmanagedType.LPWStr)] string Value,
-            [MarshalAs(UnmanagedType.LPStruct)] Guid EventContext);
+        int SetIconPath([MarshalAs(UnmanagedType.LPWStr)] string value,
+            [MarshalAs(UnmanagedType.LPStruct)] Guid eventContext);
 
         [PreserveSig]
         int GetGroupingParam(out Guid pRetVal);
 
         [PreserveSig]
-        int SetGroupingParam([MarshalAs(UnmanagedType.LPStruct)] Guid Override,
-            [MarshalAs(UnmanagedType.LPStruct)] Guid EventContext);
+        int SetGroupingParam([MarshalAs(UnmanagedType.LPStruct)] Guid @override,
+            [MarshalAs(UnmanagedType.LPStruct)] Guid eventContext);
 
         [PreserveSig]
         int NotImpl1();

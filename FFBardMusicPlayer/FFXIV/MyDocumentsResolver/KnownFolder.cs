@@ -152,7 +152,7 @@ namespace FFBardMusicPlayer.FFXIV.MyDocumentsResolver
         private enum KnownFolderFlags : uint
         {
             None = 0x00000000,
-            SimpleIDList = 0x00000100,
+            SimpleIdList = 0x00000100,
             NotParentRelative = 0x00000200,
             DefaultPath = 0x00000400,
             Init = 0x00000800,

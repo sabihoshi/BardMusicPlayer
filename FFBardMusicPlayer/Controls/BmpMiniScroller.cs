@@ -8,13 +8,13 @@ namespace FFBardMusicPlayer.Controls
         public EventHandler<int> OnScroll;
         public EventHandler OnStatusClick;
 
-        private delegate void textDelegate(string text);
+        private delegate void TextDelegate(string text);
 
-        private void setText(string text)
+        private void SetText(string text)
         {
             if (InvokeRequired)
             {
-                var d = new textDelegate(setText);
+                var d = new TextDelegate(SetText);
                 Invoke(d, new object[] { text });
             }
             else
@@ -26,7 +26,7 @@ namespace FFBardMusicPlayer.Controls
         public override string Text
         {
             get => Status.Text;
-            set => setText(value);
+            set => SetText(value);
         }
 
         public BmpMiniScroller()

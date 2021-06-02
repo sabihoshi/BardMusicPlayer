@@ -8,11 +8,11 @@ namespace FFBardMusicPlayer
     public class BmpCustomSequencer : IComponent
     {
         private Sequence sequence = null;
-        private List<IEnumerator<int>> enumerators = new List<IEnumerator<int>>();
-        private MessageDispatcher dispatcher = new MessageDispatcher();
-        private ChannelChaser chaser = new ChannelChaser();
-        private ChannelStopper stopper = new ChannelStopper();
-        private MidiInternalClock clock = new MidiInternalClock();
+        private readonly List<IEnumerator<int>> enumerators = new List<IEnumerator<int>>();
+        private readonly MessageDispatcher dispatcher = new MessageDispatcher();
+        private readonly ChannelChaser chaser = new ChannelChaser();
+        private readonly ChannelStopper stopper = new ChannelStopper();
+        private readonly MidiInternalClock clock = new MidiInternalClock();
         private int tracksPlayingCount;
         private readonly object lockObject = new object();
         private bool playing = false;

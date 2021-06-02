@@ -14,11 +14,11 @@ namespace FFBardMusicPlayer.Controls
 {
     public partial class BmpLocalOrchestra : UserControl
     {
-        public EventHandler<bool> onMemoryCheck;
+        public EventHandler<bool> OnMemoryCheck;
 
         public class SyncData
         {
-            public Dictionary<uint, long> idTimestamp = new Dictionary<uint, long>();
+            public Dictionary<uint, long> IdTimestamp = new Dictionary<uint, long>();
         };
 
         private BmpSequencer parentSequencer;
@@ -60,13 +60,13 @@ namespace FFBardMusicPlayer.Controls
                 var performer = ctl as BmpLocalPerformer;
                 if (performer != null && performer.PerformerEnabled && performer.PerformanceUp)
                 {
-                    actorIds.Add(performer.actorId);
+                    actorIds.Add(performer.ActorId);
                 }
             }
 
             syncWorker.RunWorkerAsync(actorIds);
 
-            onMemoryCheck.Invoke(this, true);
+            OnMemoryCheck.Invoke(this, true);
         }
 
         private void SyncWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -80,7 +80,7 @@ namespace FFBardMusicPlayer.Controls
                 if (Sharlayan.Reader.CanGetActors())
                 {
                     var actors = Sharlayan.Reader.GetActors();
-                    foreach (var kvp in data.idTimestamp)
+                    foreach (var kvp in data.IdTimestamp)
                     {
                         if (actors.CurrentPCs.ContainsKey(kvp.Key))
                         {
@@ -91,7 +91,7 @@ namespace FFBardMusicPlayer.Controls
                 }
             }
 
-            onMemoryCheck.Invoke(this, false);
+            OnMemoryCheck.Invoke(this, false);
 
             //MessageBox.Show(this.Parent, debugDump.ToString());
             Console.WriteLine(debugDump.ToString());
@@ -149,7 +149,7 @@ namespace FFBardMusicPlayer.Controls
                                 {
                                     var aid = performanceToActor[pid];
                                     //data.idTimestamp[aid] = msCounter.ElapsedMilliseconds;
-                                    data.idTimestamp[aid] = (long) (DateTime.Now - now).TotalMilliseconds;
+                                    data.IdTimestamp[aid] = (long) (DateTime.Now - now).TotalMilliseconds;
                                     performanceToActor.Remove(pid);
                                 }
                             }
@@ -182,9 +182,9 @@ namespace FFBardMusicPlayer.Controls
                 var perf = new BmpLocalPerformer(mp);
                 perf.Dock = DockStyle.Top;
 
-                if (mp.hostProcess == true)
+                if (mp.HostProcess == true)
                 {
-                    perf.hostProcess = true;
+                    perf.HostProcess = true;
                     performers.Insert(0, perf);
                 }
                 else
@@ -230,8 +230,8 @@ namespace FFBardMusicPlayer.Controls
                                 if (perf != null)
                                 {
                                     perf.PerformanceUp = item.IsReady();
-                                    perf.performanceId = perfId;
-                                    perf.actorId       = actor.ID;
+                                    perf.PerformanceId = perfId;
+                                    perf.ActorId       = actor.ID;
                                 }
                             }
                         }
@@ -314,14 +314,14 @@ namespace FFBardMusicPlayer.Controls
                     // few things can happen here
                     if (performer.PerformerName == name)
                     {
-                        if (performer.performanceId == 0 && performer.actorId == 0)
+                        if (performer.PerformanceId == 0 && performer.ActorId == 0)
                         {
                             // here, we've found the performer with the name for the first time
                             // after returning here, the perfId and actorId should be set
                             // so, just return them, i guess
                             return performer;
                         }
-                        else if (performer.performanceId == performerId && performer.actorId == actorId)
+                        else if (performer.PerformanceId == performerId && performer.ActorId == actorId)
                         {
                             // we've seen this performer before, and can damn well make sure that
                             // this /is/ the character we want to return
@@ -387,7 +387,7 @@ namespace FFBardMusicPlayer.Controls
                 foreach (Control ctl in PerformerPanel.Controls)
                 {
                     var performer = ctl as BmpLocalPerformer;
-                    if (performer != null && performer.PerformerEnabled && !performer.hostProcess)
+                    if (performer != null && performer.PerformerEnabled && !performer.HostProcess)
                     {
                         performer.EnsembleAccept();
                     }

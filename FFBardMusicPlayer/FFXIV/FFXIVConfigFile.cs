@@ -11,8 +11,8 @@ namespace FFBardMusicPlayer
         {
         }
 
-        public ConfigDictionary ffxivConfig = new ConfigDictionary();
-        public ConfigDictionary bootConfig = new ConfigDictionary();
+        public ConfigDictionary FFXIVConfig = new ConfigDictionary();
+        public ConfigDictionary BootConfig = new ConfigDictionary();
 
         public FFXIVConfigFile()
         {
@@ -24,13 +24,13 @@ namespace FFBardMusicPlayer
                 var ffc = Path.Combine(new string[] { dir, "FFXIV.cfg" });
                 if (File.Exists(ffc))
                 {
-                    ffxivConfig = ParseConfigFile(ffc);
+                    FFXIVConfig = ParseConfigFile(ffc);
                 }
 
                 var ffbc = Path.Combine(new string[] { dir, "FFXIV_BOOT.cfg" });
                 if (File.Exists(ffbc))
                 {
-                    bootConfig = ParseConfigFile(ffbc);
+                    BootConfig = ParseConfigFile(ffbc);
                 }
             }
         }

@@ -17,24 +17,22 @@ namespace FFBardMusicPlayer
     public class BmpSequencer : BmpCustomSequencer
     {
         private InputDevice midiInput = null;
-        private Dictionary<Track, Instrument> preferredInstruments = new Dictionary<Track, Instrument>();
-        private Dictionary<Track, int> preferredOctaveShift = new Dictionary<Track, int>();
+        private readonly Dictionary<Track, Instrument> preferredInstruments = new Dictionary<Track, Instrument>();
+        private readonly Dictionary<Track, int> preferredOctaveShift = new Dictionary<Track, int>();
         public EventHandler OnLoad;
         public EventHandler<ChannelMessageEventArgs> OnNote;
         public EventHandler<ChannelMessageEventArgs> OffNote;
         public EventHandler<string> OnLyric;
         public EventHandler<int> OnTempoChange;
         public EventHandler<string> OnTrackNameChange;
-        private Timer secondTimer = new Timer(200);
+        private readonly Timer secondTimer = new Timer(200);
         public EventHandler<int> OnTick;
-        public Dictionary<Track, int> notesPlayedCount = new Dictionary<Track, int>();
+        public Dictionary<Track, int> NotesPlayedCount = new Dictionary<Track, int>();
         private string loadedError = string.Empty;
 
         public string LoadedError => loadedError;
 
-        private string loadedFilename = string.Empty;
-
-        public string LoadedFilename => loadedFilename;
+        public string LoadedFilename { get; private set; } = string.Empty;
 
         public bool Loaded => Sequence != null;
 
@@ -456,17 +454,17 @@ namespace FFBardMusicPlayer
                 trackNum = Sequence.Count - 1;
             }
 
-            loadedFilename = file;
+            LoadedFilename = file;
             intendedTrack  = trackNum;
 
             preferredInstruments.Clear();
             preferredOctaveShift.Clear();
 
             // Collect statistics
-            notesPlayedCount.Clear();
+            NotesPlayedCount.Clear();
             foreach (var track in Sequence)
             {
-                notesPlayedCount[track] = 0;
+                NotesPlayedCount[track] = 0;
                 foreach (var ev in track.Iterator())
                 {
                     if (ev.MidiMessage is ChannelMessage chanMsg)
@@ -475,7 +473,7 @@ namespace FFBardMusicPlayer
                         {
                             if (chanMsg.Data2 > 0)
                             {
-                                notesPlayedCount[track]++;
+                                NotesPlayedCount[track]++;
                             }
                         }
                     }

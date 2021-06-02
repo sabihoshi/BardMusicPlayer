@@ -8,7 +8,7 @@ namespace FFBardMusicPlayer
 {
     internal class BmpPluginHelper
     {
-        public List<string> loadedDlls = new List<string>();
+        public List<string> LoadedDlls = new List<string>();
 
         public static BmpPluginHelper LoadPlugins()
         {

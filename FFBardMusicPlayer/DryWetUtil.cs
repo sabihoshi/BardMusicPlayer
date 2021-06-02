@@ -16,12 +16,12 @@ namespace FFBardMusicPlayer
 {
     internal class DryWetUtil
     {
-        private static string[] InstrumentEnumNamesAsStringsSorted = Array
+        private static readonly string[] InstrumentEnumNamesAsStringsSorted = Array
             .ConvertAll((Instrument[]) Enum.GetValues(typeof(Instrument)), s => s.ToString())
             .OrderByDescending(s => s.Length).ToArray();
 
-        private static string lastMD5 = "invalid";
-        private static MidiFile lastFile = null;
+        private static string _lastMd5 = "invalid";
+        private static MidiFile _lastFile = null;
 
         public static MemoryStream ScrubFile(string filePath)
         {
@@ -34,11 +34,11 @@ namespace FFBardMusicPlayer
 
             try
             {
-                var md5 = CalculateMD5(filePath);
-                if (lastMD5.Equals(md5) && lastFile != null)
+                var md5 = CalculateMd5(filePath);
+                if (_lastMd5.Equals(md5) && _lastFile != null)
                 {
                     var oldfile = new MemoryStream();
-                    lastFile.Write(oldfile, MidiFileFormat.MultiTrack,
+                    _lastFile.Write(oldfile, MidiFileFormat.MultiTrack,
                         new WritingSettings { CompressionPolicy = CompressionPolicy.NoCompression });
                     oldfile.Flush();
                     oldfile.Position = 0;
@@ -47,7 +47,7 @@ namespace FFBardMusicPlayer
 
                 if (Path.GetExtension(filePath).ToLower().Equals(".mmsong"))
                 {
-                    midiFile = Plugin_MMsong.Load(filePath).Clone();
+                    midiFile = PluginMMsong.Load(filePath).Clone();
                 }
                 else
                 {
@@ -130,16 +130,16 @@ namespace FFBardMusicPlayer
 
                     foreach (var note in originalChunk.GetNotes())
                     {
-                        long noteOnMS = 0;
+                        long noteOnMs = 0;
 
-                        long noteOffMS = 0;
+                        long noteOffMs = 0;
 
                         try
                         {
-                            noteOnMS = 5000 +
+                            noteOnMs = 5000 +
                                 note.GetTimedNoteOnEvent().TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds /
                                 1000 - firstNote;
-                            noteOffMS = 5000 +
+                            noteOffMs = 5000 +
                                 note.GetTimedNoteOffEvent().TimeAs<MetricTimeSpan>(tempoMap).TotalMicroseconds /
                                 1000 - firstNote;
                         }
@@ -151,8 +151,8 @@ namespace FFBardMusicPlayer
                         int noteNumber = note.NoteNumber;
 
                         var newNote = new Note((SevenBitNumber) noteNumber,
-                            time: noteOnMS,
-                            length: noteOffMS - noteOnMS
+                            time: noteOnMs,
+                            length: noteOffMs - noteOnMs
                         )
                         {
                             Channel     = (FourBitNumber) 0,
@@ -160,17 +160,17 @@ namespace FFBardMusicPlayer
                             OffVelocity = (SevenBitNumber) noteVelocity
                         };
 
-                        if (allNoteEvents[noteNumber].ContainsKey(noteOnMS))
+                        if (allNoteEvents[noteNumber].ContainsKey(noteOnMs))
                         {
-                            var previousNote = allNoteEvents[noteNumber][noteOnMS];
+                            var previousNote = allNoteEvents[noteNumber][noteOnMs];
                             if (previousNote.Length < note.Length)
                             {
-                                allNoteEvents[noteNumber][noteOnMS] = newNote;
+                                allNoteEvents[noteNumber][noteOnMs] = newNote;
                             }
                         }
                         else
                         {
-                            allNoteEvents[noteNumber].Add(noteOnMS, newNote);
+                            allNoteEvents[noteNumber].Add(noteOnMs, newNote);
                         }
                     }
 
@@ -394,8 +394,8 @@ namespace FFBardMusicPlayer
                 loaderWatch.Stop();
                 Console.WriteLine($"Scrubbing MS: {loaderWatch.ElapsedMilliseconds}");
 
-                lastMD5  = md5;
-                lastFile = newMidiFile;
+                _lastMd5  = md5;
+                _lastFile = newMidiFile;
 
                 return stream;
             }
@@ -413,7 +413,7 @@ namespace FFBardMusicPlayer
             }
         }
 
-        private static string CalculateMD5(string filename)
+        private static string CalculateMd5(string filename)
         {
             using (var md5 = MD5.Create())
             {

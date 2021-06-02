@@ -9,16 +9,16 @@ namespace FFBardMusicPlayer.Controls
 {
     public partial class BmpKeyboard : UserControl
     {
-        private KeyboardData keyboardData = new KeyboardData();
+        private readonly KeyboardData keyboardData = new KeyboardData();
         private int lowFreq = 0;
         private int highFreq = 0;
         private int maxFreq = 0;
-        private SolidBrush fgContrastBrush = new SolidBrush(Color.FromArgb(255, 30, 30, 30));
-        private SolidBrush bgContrastBrush = new SolidBrush(Color.FromArgb(100, 200, 200, 200));
-        private Font textFont = new Font("Segoe UI", 8);
-        private Font textLargeFont = new Font("Segoe UI", 12);
+        private readonly SolidBrush fgContrastBrush = new SolidBrush(Color.FromArgb(255, 30, 30, 30));
+        private readonly SolidBrush bgContrastBrush = new SolidBrush(Color.FromArgb(100, 200, 200, 200));
+        private readonly Font textFont = new Font("Segoe UI", 8);
+        private readonly Font textLargeFont = new Font("Segoe UI", 12);
 
-        private StringFormat centerTextFormat = new StringFormat
+        private readonly StringFormat centerTextFormat = new StringFormat
         {
             LineAlignment = StringAlignment.Center,
             Alignment     = StringAlignment.Center
@@ -60,7 +60,7 @@ namespace FFBardMusicPlayer.Controls
 
         public void UpdateFrequency(IEnumerable<int> notes)
         {
-            var list = keyboardData.letterList;
+            var list = keyboardData.LetterList;
             var notesAvailable = 0;
             var notesInRange = 0;
 
@@ -69,7 +69,7 @@ namespace FFBardMusicPlayer.Controls
 
             foreach (var key in list.Keys)
             {
-                list[key].frequency = 0;
+                list[key].Frequency = 0;
             }
 
             foreach (var note in notes)
@@ -79,7 +79,7 @@ namespace FFBardMusicPlayer.Controls
                 if (list.ContainsKey(perfKey))
                 {
                     notesInRange++;
-                    list[perfKey].frequency++;
+                    list[perfKey].Frequency++;
                 }
                 else
                 {
@@ -110,15 +110,15 @@ namespace FFBardMusicPlayer.Controls
 
         public void UpdateNoteKeys(FFXIVKeybindDat hotkeys)
         {
-            var list = keyboardData.letterList;
+            var list = keyboardData.LetterList;
             foreach (var key in list.Keys)
             {
-                list[key].key = string.Empty;
+                list[key].Key = string.Empty;
 
                 var pk = FFXIVKeybindDat.NoteKeyToPerformanceKey(key);
                 if (!string.IsNullOrEmpty(pk))
                 {
-                    list[key].key = hotkeys[pk].ToString();
+                    list[key].Key = hotkeys[pk].ToString();
                 }
             }
 
@@ -128,10 +128,10 @@ namespace FFBardMusicPlayer.Controls
         private void DrawKey(KeyboardUiLetter letter, PaintEventArgs e)
         {
             var noteKey = string.Empty;
-            if (keyboardData.letterList.ContainsValue(letter))
+            if (keyboardData.LetterList.ContainsValue(letter))
             {
-                foreach (var k in keyboardData.letterList.Keys
-                    .Where(k => keyboardData.letterList[k].Equals(letter)))
+                foreach (var k in keyboardData.LetterList.Keys
+                    .Where(k => keyboardData.LetterList[k].Equals(letter)))
                 {
                     noteKey = k;
                 }
@@ -142,11 +142,11 @@ namespace FFBardMusicPlayer.Controls
                 return;
             }
 
-            var drawKey = letter.key; // k = letter.key
+            var drawKey = letter.Key; // k = letter.key
 
             // Determine colors
             var keyBrush = new SolidBrush(Color.Transparent);
-            if (letter.sup)
+            if (letter.Sup)
             {
                 keyBrush.Color = Enabled ? ForeColor : Color.FromArgb(50, 50, 50);
             }
@@ -156,13 +156,13 @@ namespace FFBardMusicPlayer.Controls
             }
 
             // Determine region
-            var ww = Width / (float) ((letter.sup ? 26 : 22) - 1);
-            var keySize = new SizeF(ww, letter.y * Height);
-            var keyPosition = new PointF(letter.x * Width - keySize.Width / 2f, 0f);
+            var ww = Width / (float) ((letter.Sup ? 26 : 22) - 1);
+            var keySize = new SizeF(ww, letter.Y * Height);
+            var keyPosition = new PointF(letter.X * Width - keySize.Width / 2f, 0f);
             var keyRect = new RectangleF(keyPosition, keySize);
 
             // Draw color
-            if (letter.sup)
+            if (letter.Sup)
             {
                 e.Graphics.FillRectangle(keyBrush, keyRect);
             }
@@ -174,18 +174,18 @@ namespace FFBardMusicPlayer.Controls
             // Draw key and frequency
             var keyX = keyRect.X + keyRect.Width / 2f;
             var keyY = keyRect.Y + keyRect.Height - 8f;
-            if (letter.frequency > 0)
+            if (letter.Frequency > 0)
             {
-                var freq = letter.frequency > 0 ? letter.frequency + 60 : 0;
+                var freq = letter.Frequency > 0 ? letter.Frequency + 60 : 0;
                 var size = freq / 260f;
                 if (size > 1f)
                 {
                     size = 1f;
                 }
 
-                var freqCol = letter.sup ? Color.Yellow : Color.Red;
+                var freqCol = letter.Sup ? Color.Yellow : Color.Red;
                 var freqBrush = new SolidBrush(Color.FromArgb(50 + (int) (size * 150), freqCol));
-                e.Graphics.FillCircle(freqBrush, keyX, letter.sup ? keyRect.Y : keyRect.Y + keyRect.Height,
+                e.Graphics.FillCircle(freqBrush, keyX, letter.Sup ? keyRect.Y : keyRect.Y + keyRect.Height,
                     size * Height);
             }
 
@@ -199,7 +199,7 @@ namespace FFBardMusicPlayer.Controls
             }
 
             // Draw line
-            if (!letter.sup && !noteKey.Equals("C+2"))
+            if (!letter.Sup && !noteKey.Equals("C+2"))
             {
                 var p1 = new PointF(keyRect.X + keyRect.Width - 2, keyRect.Y);
                 var p2 = new PointF(keyRect.X + keyRect.Width - 2, keyRect.Y + keyRect.Height);
@@ -208,7 +208,7 @@ namespace FFBardMusicPlayer.Controls
 
             e.Graphics.SetClip(clip, CombineMode.Replace);
 
-            if (letter.sup)
+            if (letter.Sup)
             {
                 e.Graphics.DrawRectangle(new Pen(fgContrastBrush), Rectangle.Round(keyRect));
             }
@@ -216,15 +216,15 @@ namespace FFBardMusicPlayer.Controls
 
         private void KeyboardControl_Paint(object sender, PaintEventArgs e)
         {
-            var list = keyboardData.letterList;
+            var list = keyboardData.LetterList;
 
             // Get max frequency
             foreach (var key in list.Keys)
             {
-                var letter = keyboardData.letterList[key];
-                if (letter.frequency > maxFreq)
+                var letter = keyboardData.LetterList[key];
+                if (letter.Frequency > maxFreq)
                 {
-                    maxFreq = letter.frequency;
+                    maxFreq = letter.Frequency;
                 }
 
                 DrawKey(letter, e);
@@ -295,17 +295,17 @@ namespace FFBardMusicPlayer.Controls
 
     public class KeyboardUiLetter
     {
-        public int frequency = 0;
-        public string key = string.Empty;
-        public float x;
-        public float y;
-        public bool sup;
+        public int Frequency = 0;
+        public string Key = string.Empty;
+        public float X;
+        public float Y;
+        public bool Sup;
 
         public KeyboardUiLetter(float xx, float yy, bool s = false)
         {
-            x   = xx;
-            y   = yy;
-            sup = s;
+            X   = xx;
+            Y   = yy;
+            Sup = s;
         }
     }
 
@@ -315,7 +315,7 @@ namespace FFBardMusicPlayer.Controls
 
     public class KeyboardData
     {
-        public KeyboardLetterList letterList = new KeyboardLetterList();
+        public KeyboardLetterList LetterList = new KeyboardLetterList();
 
         public KeyboardData()
         {
@@ -335,7 +335,7 @@ namespace FFBardMusicPlayer.Controls
             var ww = 1f / nk;
             for (var i = 0; i < nk; i++)
             {
-                letterList.Add(mainKeys[i], new KeyboardUiLetter(i * ww + ww / 2f, 1.0f, false));
+                LetterList.Add(mainKeys[i], new KeyboardUiLetter(i * ww + ww / 2f, 1.0f, false));
             }
 
             nk = 15;
@@ -347,7 +347,7 @@ namespace FFBardMusicPlayer.Controls
                     add += ww;
                 }
 
-                letterList.Add(supKeys[i], new KeyboardUiLetter(i * ww + add, 0.7f, true));
+                LetterList.Add(supKeys[i], new KeyboardUiLetter(i * ww + add, 0.7f, true));
             }
         }
     }

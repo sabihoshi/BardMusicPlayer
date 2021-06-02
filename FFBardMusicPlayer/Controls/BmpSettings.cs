@@ -12,7 +12,7 @@ namespace FFBardMusicPlayer.Controls
         #region API Stuff
 
         [System.Runtime.InteropServices.DllImportAttribute("user32.dll")]
-        public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        public static extern int SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
 
         [System.Runtime.InteropServices.DllImportAttribute("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr hWnd, int wMsg, int wParam, ref Point lParam);
@@ -46,7 +46,7 @@ namespace FFBardMusicPlayer.Controls
         public EventHandler<bool> OnForcedOpen;
         public EventHandler OnKeyboardTest;
         public EventHandler<MidiInput> OnMidiInputChange;
-        private List<MidiInput> midiInputs = new List<MidiInput>();
+        private readonly List<MidiInput> midiInputs = new List<MidiInput>();
 
         public BmpSettings()
         {
@@ -58,9 +58,9 @@ namespace FFBardMusicPlayer.Controls
             RefreshMidiInput();
 
             var midiInput = Properties.Settings.Default.MidiInputDev;
-            if (!string.IsNullOrEmpty(Program.programOptions.MidiInput))
+            if (!string.IsNullOrEmpty(Program.ProgramOptions.MidiInput))
             {
-                midiInput = Program.programOptions.MidiInput;
+                midiInput = Program.ProgramOptions.MidiInput;
             }
 
             SetMidiInput(midiInput);
@@ -81,8 +81,8 @@ namespace FFBardMusicPlayer.Controls
         {
             if (GetMidiInput() is MidiInput input)
             {
-                Properties.Settings.Default.MidiInputDev = input.name;
-                SetMidiInput(input.name);
+                Properties.Settings.Default.MidiInputDev = input.Name;
+                SetMidiInput(input.Name);
             }
         }
 
@@ -99,9 +99,9 @@ namespace FFBardMusicPlayer.Controls
             var input = midiInputs[0];
             foreach (var inp in midiInputs)
             {
-                if (inp.name == device)
+                if (inp.Name == device)
                 {
-                    Console.WriteLine($"Found input: {inp.name}");
+                    Console.WriteLine($"Found input: {inp.Name}");
                     input = inp;
                     break;
                 }
@@ -109,7 +109,7 @@ namespace FFBardMusicPlayer.Controls
 
             if (input != null)
             {
-                Properties.Settings.Default.MidiInputDev = input.name;
+                Properties.Settings.Default.MidiInputDev = input.Name;
                 SettingMidiInput.SelectedItem            = input;
                 OnMidiInputChange?.Invoke(this, input);
                 return input;
@@ -144,12 +144,12 @@ namespace FFBardMusicPlayer.Controls
 
         private void SiteLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start(Program.urlBase);
+            Process.Start(Program.UrlBase);
         }
 
         private void DiscordLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start($"{Program.urlBase}discord/");
+            Process.Start($"{Program.UrlBase}discord/");
         }
 
         private void AboutLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -203,15 +203,15 @@ namespace FFBardMusicPlayer.Controls
 
     public class MidiInput
     {
-        public string name = string.Empty;
-        public int id = 0;
+        public string Name = string.Empty;
+        public int Id = 0;
 
         public MidiInput(string n, int i)
         {
-            name = n;
-            id   = i;
+            Name = n;
+            Id   = i;
         }
 
-        public override string ToString() => name;
+        public override string ToString() => Name;
     }
 }

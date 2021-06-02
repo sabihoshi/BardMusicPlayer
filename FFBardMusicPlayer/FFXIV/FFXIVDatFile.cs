@@ -14,14 +14,14 @@ namespace FFBardMusicPlayer
     public class FFXIVDatFile
     {
         public EventHandler OnFileLoad;
-        private FileSystemWatcher fileWatcher = new FileSystemWatcher();
+        private readonly FileSystemWatcher fileWatcher = new FileSystemWatcher();
         private MemoryStream memStream = new MemoryStream();
-        protected DatHeader header = new DatHeader();
+        protected DatHeader Header = new DatHeader();
 
         protected class DatHeader
         {
-            public int fileSize;
-            public int dataSize;
+            public int FileSize;
+            public int DataSize;
         };
 
         public FFXIVDatFile() { fileWatcher.Changed += OnDatFileChange; }
@@ -125,12 +125,12 @@ namespace FFBardMusicPlayer
         protected virtual bool ParseDat(BinaryReader stream)
         {
             stream.BaseStream.Seek(0x04, SeekOrigin.Begin);
-            header = new DatHeader
+            Header = new DatHeader
             {
-                fileSize = XorTools.ReadXorInt32(stream),
-                dataSize = XorTools.ReadXorInt32(stream) + 16
+                FileSize = XorTools.ReadXorInt32(stream),
+                DataSize = XorTools.ReadXorInt32(stream) + 16
             };
-            return stream.BaseStream.Length - header.fileSize == 32;
+            return stream.BaseStream.Length - Header.FileSize == 32;
         }
     }
 }

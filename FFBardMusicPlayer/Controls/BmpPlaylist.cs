@@ -13,17 +13,17 @@ namespace FFBardMusicPlayer.Controls
     {
         public class BmpPlaylistRequestAddEvent : EventArgs
         {
-            public string filePath { get; set; }
+            public string FilePath { get; set; }
 
-            public int track { get; set; }
+            public int Track { get; set; }
 
-            public int dropIndex { get; set; }
+            public int DropIndex { get; set; }
 
             public BmpPlaylistRequestAddEvent(string filePath, int track, int dropIndex)
             {
-                this.filePath  = filePath;
-                this.track     = track;
-                this.dropIndex = dropIndex;
+                this.FilePath  = filePath;
+                this.Track     = track;
+                this.DropIndex = dropIndex;
             }
         }
 

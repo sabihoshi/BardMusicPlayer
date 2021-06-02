@@ -11,22 +11,22 @@ using FFBardMusicCommon;
 
 namespace FFBardMusicPlayer
 {
-    internal class Plugin_MMsong
+    internal class PluginMMsong
     {
         internal static MidiFile Load(string filePath)
         {
             try
             {
-                var mmSong = JsonExtensions.DeserializeFromFileCompressed<MMSong>(filePath);
+                var mmSong = JsonExtensions.DeserializeFromFileCompressed<MmSong>(filePath);
 
-                if (mmSong.schemaVersion < 1 && mmSong.schemaVersion > 3)
+                if (mmSong.SchemaVersion < 1 && mmSong.SchemaVersion > 3)
                 {
                     throw new FileFormatException("Error: This mmsong file format is not understood.");
                 }
                 // For now, just play the first available song.
                 // if (mmSong.songs.Count != 1) throw new FileFormatException("Error: BMP currently only supports mmsong files with 1 song in them.");
 
-                var song = mmSong.songs[0];
+                var song = mmSong.Songs[0];
 
                 var sequence = new MidiFile();
                 sequence.Chunks.Add(new TrackChunk());
@@ -36,12 +36,12 @@ namespace FFBardMusicPlayer
                     tempoMapManager.SetTempo(0, Tempo.FromBeatsPerMinute(100));
                 }
 
-                foreach (var bard in song.bards)
+                foreach (var bard in song.Bards)
                 {
                     var notes = new List<Note>();
                     var failure = false;
 
-                    switch (bard.instrument)
+                    switch (bard.Instrument)
                     {
                         case Instrument.Cymbal:
                         case Instrument.Trumpet:
@@ -58,7 +58,7 @@ namespace FFBardMusicPlayer
                         case Instrument.ElectricGuitarOverdriven:
                         case Instrument.ElectricGuitarPowerChords:
                         case Instrument.ElectricGuitarSpecial:
-                            bard.sequence = bard.sequence.ToDictionary(
+                            bard.Sequence = bard.Sequence.ToDictionary(
                                 x => x.Key + 2,
                                 x => x.Value);
                             break;
@@ -66,11 +66,11 @@ namespace FFBardMusicPlayer
                             break;
                     }
 
-                    if (bard.sequence.Count % 2 == 0)
+                    if (bard.Sequence.Count % 2 == 0)
                     {
                         long lastTime = 0;
                         var lastNote = 254;
-                        foreach (var sEvent in bard.sequence.Where(sEvent => !failure))
+                        foreach (var sEvent in bard.Sequence.Where(sEvent => !failure))
                         {
                             if (lastNote == 254)
                             {
@@ -116,7 +116,7 @@ namespace FFBardMusicPlayer
                         throw new FileFormatException("Error: This mmsong file is corrupted");
                     }
 
-                    var currentChunk = new TrackChunk(new SequenceTrackNameEvent(bard.instrument.ToString()));
+                    var currentChunk = new TrackChunk(new SequenceTrackNameEvent(bard.Instrument.ToString()));
                     currentChunk.AddNotes(notes);
                     notes = null;
                     sequence.Chunks.Add(currentChunk);
@@ -159,24 +159,24 @@ namespace FFBardMusicPlayer
             }
         }
 
-        private class MMSong
+        private class MmSong
         {
-            public List<Song> songs { get; set; } = new List<Song>();
+            public List<Song> Songs { get; set; } = new List<Song>();
 
-            public int schemaVersion { get; set; }
+            public int SchemaVersion { get; set; }
 
             public class Song
             {
-                public string title { get; set; }
+                public string Title { get; set; }
 
-                public List<Bard> bards { get; set; } = new List<Bard>();
+                public List<Bard> Bards { get; set; } = new List<Bard>();
             }
 
             public class Bard
             {
-                public Instrument instrument { get; set; }
+                public Instrument Instrument { get; set; }
 
-                public Dictionary<long, int> sequence { get; set; } = new Dictionary<long, int>();
+                public Dictionary<long, int> Sequence { get; set; } = new Dictionary<long, int>();
             }
         }
     }

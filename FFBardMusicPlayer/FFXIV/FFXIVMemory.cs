@@ -13,14 +13,14 @@ namespace FFBardMusicPlayer
 {
     public class FFXIVMemory
     {
-        public CurrentPlayerResult currentPlayer;
-        public PartyResult party;
-        public ActorResult actors;
-        public PerformanceResult performance;
-        public bool performanceReady;
+        public CurrentPlayerResult CurrentPlayer;
+        public PartyResult Party;
+        public ActorResult Actors;
+        public PerformanceResult Performance;
+        public bool PerformanceReady;
         private string characterId;
 
-        public string CharacterID
+        public string CharacterId
         {
             get => characterId;
             set
@@ -56,10 +56,10 @@ namespace FFBardMusicPlayer
             }
         }
 
-        private int _previousArrayIndex = 0;
-        private int _previousOffset = 0;
-        private Stack<ChatLogItem> logItems = new Stack<ChatLogItem>();
-        private List<ChatLogItem> completeLog = new List<ChatLogItem>();
+        private int previousArrayIndex = 0;
+        private int previousOffset = 0;
+        private readonly Stack<ChatLogItem> logItems = new Stack<ChatLogItem>();
+        private readonly List<ChatLogItem> completeLog = new List<ChatLogItem>();
 
         public event EventHandler OnProcessSeek;
 
@@ -100,13 +100,13 @@ namespace FFBardMusicPlayer
 
             logItems.Clear();
             completeLog.Clear();
-            _previousArrayIndex = 0;
-            _previousOffset     = 0;
+            previousArrayIndex = 0;
+            previousOffset     = 0;
 
-            currentPlayer = new CurrentPlayerResult();
-            party         = new PartyResult();
-            actors        = new ActorResult();
-            performance   = new PerformanceResult();
+            CurrentPlayer = new CurrentPlayerResult();
+            Party         = new PartyResult();
+            Actors        = new ActorResult();
+            Performance   = new PerformanceResult();
         }
 
         public void SetProcess(Process process)
@@ -239,10 +239,10 @@ namespace FFBardMusicPlayer
                 var id = Reader.GetCharacterId();
                 if (!string.IsNullOrEmpty(id))
                 {
-                    if (string.IsNullOrEmpty(CharacterID) ||
-                        !string.IsNullOrEmpty(CharacterID) && !CharacterID.Equals(id))
+                    if (string.IsNullOrEmpty(CharacterId) ||
+                        !string.IsNullOrEmpty(CharacterId) && !CharacterId.Equals(id))
                     {
-                        CharacterID = id;
+                        CharacterId = id;
                     }
                 }
             }
@@ -250,9 +250,9 @@ namespace FFBardMusicPlayer
             if (Reader.CanGetPlayerInfo())
             {
                 var res = Reader.GetCurrentPlayer();
-                if (res.CurrentPlayer.Job != currentPlayer.CurrentPlayer.Job)
+                if (res.CurrentPlayer.Job != CurrentPlayer.CurrentPlayer.Job)
                 {
-                    if (currentPlayer.CurrentPlayer.Job == Sharlayan.Core.Enums.Actor.Job.Unknown)
+                    if (CurrentPlayer.CurrentPlayer.Job == Sharlayan.Core.Enums.Actor.Job.Unknown)
                     {
                         // Logged in
                         OnCurrentPlayerLogin?.Invoke(this, res);
@@ -261,17 +261,17 @@ namespace FFBardMusicPlayer
                     else if (res.CurrentPlayer.Job == Sharlayan.Core.Enums.Actor.Job.Unknown)
                     {
                         // Logged out
-                        OnCurrentPlayerLogout?.Invoke(this, currentPlayer);
+                        OnCurrentPlayerLogout?.Invoke(this, CurrentPlayer);
                         isLoggedIn = false;
                         Reset();
                     }
                     else
                     {
-                        OnCurrentPlayerJobChange?.Invoke(this, currentPlayer);
+                        OnCurrentPlayerJobChange?.Invoke(this, CurrentPlayer);
                     }
                 }
 
-                currentPlayer = res;
+                CurrentPlayer = res;
             }
 
             if (!isLoggedIn)
@@ -286,15 +286,15 @@ namespace FFBardMusicPlayer
                     party2.RemovedPartyMembers.Count > 0)
                 {
                     // Something changed
-                    party = party2;
+                    Party = party2;
                     OnPartyChanged?.Invoke(this, party2);
                 }
 
-                var pcount = party.PartyMembers.Count;
+                var pcount = Party.PartyMembers.Count;
                 var pcount2 = party2.PartyMembers.Count;
-                if (!(party is PartyResult) || party is PartyResult && pcount != pcount2)
+                if (!(Party is PartyResult) || Party is PartyResult && pcount != pcount2)
                 {
-                    party = party2;
+                    Party = party2;
                     OnPartyChanged?.Invoke(this, party2);
                 }
             }
@@ -303,12 +303,12 @@ namespace FFBardMusicPlayer
             {
                 var changedIds = new List<uint>();
                 var perf = Reader.GetPerformance();
-                if (!perf.Performances.IsEmpty && !performance.Performances.IsEmpty)
+                if (!perf.Performances.IsEmpty && !Performance.Performances.IsEmpty)
                 {
                     foreach (var pp in perf.Performances)
                     {
-                        if (performance.Performances.ContainsKey(pp.Key) &&
-                            pp.Value.Status != performance.Performances[pp.Key].Status)
+                        if (Performance.Performances.ContainsKey(pp.Key) &&
+                            pp.Value.Status != Performance.Performances[pp.Key].Status)
                         {
                             changedIds.Add(pp.Key);
                         }
@@ -336,22 +336,22 @@ namespace FFBardMusicPlayer
                 }
 
                 //Update
-                performance = perf;
+                Performance = perf;
 
                 var r = perf.Performances[0].IsReady();
-                if (r != performanceReady)
+                if (r != PerformanceReady)
                 {
-                    performanceReady = r;
-                    OnPerformanceReadyChanged?.Invoke(this, performanceReady);
+                    PerformanceReady = r;
+                    OnPerformanceReadyChanged?.Invoke(this, PerformanceReady);
                 }
             }
 
             logItems.Clear();
             if (Reader.CanGetChatLog())
             {
-                var readResult = Reader.GetChatLog(_previousArrayIndex, _previousOffset);
-                _previousArrayIndex = readResult.PreviousArrayIndex;
-                _previousOffset     = readResult.PreviousOffset;
+                var readResult = Reader.GetChatLog(previousArrayIndex, previousOffset);
+                previousArrayIndex = readResult.PreviousArrayIndex;
+                previousOffset     = readResult.PreviousOffset;
                 foreach (var item in readResult.ChatLogItems)
                 {
                     logItems.Push(item);
@@ -363,17 +363,17 @@ namespace FFBardMusicPlayer
             if (Reader.CanGetActors())
             {
                 var jobsum0 = 0;
-                if (actors != null)
+                if (Actors != null)
                 {
-                    jobsum0 = actors.CurrentPCs.Sum(e => (int) e.Value.Job);
+                    jobsum0 = Actors.CurrentPCs.Sum(e => (int) e.Value.Job);
                 }
 
                 var actorRes = Reader.GetActors();
-                if (actors != null)
+                if (Actors != null)
                 {
-                    if (actorRes.CurrentPCs.Count != actors.CurrentPCs.Count)
+                    if (actorRes.CurrentPCs.Count != Actors.CurrentPCs.Count)
                     {
-                        actors = actorRes;
+                        Actors = actorRes;
                         OnPcChanged?.Invoke(this,
                             actorRes.CurrentPCs.ToDictionary(k => k.Key, k => k.Value as ActorItemBase));
                     }
@@ -382,14 +382,14 @@ namespace FFBardMusicPlayer
 
                     if (jobsum0 != jobsum1)
                     {
-                        actors = actorRes;
+                        Actors = actorRes;
                         OnPcChanged?.Invoke(this,
                             actorRes.CurrentPCs.ToDictionary(k => k.Key, k => k.Value as ActorItemBase));
                     }
                 }
                 else
                 {
-                    actors = actorRes;
+                    Actors = actorRes;
                     OnPcChanged?.Invoke(this,
                         actorRes.CurrentPCs.ToDictionary(k => k.Key, k => k.Value as ActorItemBase));
                 }

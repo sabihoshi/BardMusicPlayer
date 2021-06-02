@@ -43,10 +43,10 @@ namespace FFBardMusicPlayer
         private static extern IntPtr GetForegroundWindow();
 
         [DllImport("user32.dll", SetLastError = true)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+        public static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+        private static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
@@ -55,27 +55,27 @@ namespace FFBardMusicPlayer
         private static extern IntPtr GetMessageExtraInfo();
 
         [DllImport("user32.dll", SetLastError = true)]
-        private static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+        private static extern uint SendInput(uint nInputs, Input[] pInputs, int cbSize);
 
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern uint MapVirtualKey(uint uCode, uint uMapType);
 
-        private struct INPUT
+        private struct Input
         {
-            public int type;
-            public InputUnion un;
+            public int Type;
+            public InputUnion Un;
         }
 
         [StructLayout(LayoutKind.Explicit)]
         private struct InputUnion
         {
-            [FieldOffset(0)] public MOUSEINPUT mi;
-            [FieldOffset(0)] public KEYBDINPUT ki;
-            [FieldOffset(0)] public HARDWAREINPUT hi;
+            [FieldOffset(0)] public Mouseinput mi;
+            [FieldOffset(0)] public Keybdinput ki;
+            [FieldOffset(0)] public readonly Hardwareinput hi;
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct MOUSEINPUT
+        public struct Mouseinput
         {
             public int dx;
             public int dy;
@@ -86,7 +86,7 @@ namespace FFBardMusicPlayer
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct KEYBDINPUT
+        public struct Keybdinput
         {
             public ushort wVk;
             public ushort wScan;
@@ -96,7 +96,7 @@ namespace FFBardMusicPlayer
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct HARDWAREINPUT
+        public struct Hardwareinput
         {
             public uint uMsg;
             public ushort wParamL;
@@ -105,13 +105,13 @@ namespace FFBardMusicPlayer
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool GetClientRect(HandleRef hWnd, out RECT lpRect);
+        private static extern bool GetClientRect(HandleRef hWnd, out Rect lpRect);
 
         [DllImport("user32.dll")]
-        private static extern bool ClientToScreen(HandleRef hWnd, ref POINT lpPoint);
+        private static extern bool ClientToScreen(HandleRef hWnd, ref Point lpPoint);
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct RECT
+        public struct Rect
         {
             public int Left;
             public int Top;
@@ -124,12 +124,12 @@ namespace FFBardMusicPlayer
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct POINT
+        public struct Point
         {
             public int X;
             public int Y;
 
-            public POINT(int x, int y)
+            public Point(int x, int y)
             {
                 X = x;
                 Y = y;
@@ -140,10 +140,10 @@ namespace FFBardMusicPlayer
 
         #endregion
 
-        public List<FFXIVKeybindDat.Keybind> lastPerformanceKeys = new List<FFXIVKeybindDat.Keybind>();
+        public List<FFXIVKeybindDat.Keybind> LastPerformanceKeys = new List<FFXIVKeybindDat.Keybind>();
         private IntPtr mainWindowHandle;
-        private static MessageProc proc;
-        private IntPtr _hookID = IntPtr.Zero;
+        private static MessageProc _proc;
+        private IntPtr hookId = IntPtr.Zero;
         public EventHandler<Keys> OnKeyPressed;
         private Process referenceProcess;
 
@@ -158,7 +158,7 @@ namespace FFBardMusicPlayer
                 return false;
             }
 
-            if (_hookID != IntPtr.Zero)
+            if (hookId != IntPtr.Zero)
             {
                 Unhook();
             }
@@ -168,9 +168,9 @@ namespace FFBardMusicPlayer
 
             if (useCallback)
             {
-                proc    = new MessageProc(HookCallback);
-                _hookID = SetWindowsHookEx(WH_KEYBOARD_LL, proc, IntPtr.Zero, 0);
-                if (_hookID != IntPtr.Zero)
+                _proc    = new MessageProc(HookCallback);
+                hookId = SetWindowsHookEx(WH_KEYBOARD_LL, _proc, IntPtr.Zero, 0);
+                if (hookId != IntPtr.Zero)
                 {
                     return true;
                 }
@@ -185,11 +185,11 @@ namespace FFBardMusicPlayer
 
         public void Unhook()
         {
-            if (_hookID != IntPtr.Zero)
+            if (hookId != IntPtr.Zero)
             {
-                UnhookWindowsHookEx(_hookID);
+                UnhookWindowsHookEx(hookId);
                 referenceProcess = null;
-                _hookID          = IntPtr.Zero;
+                hookId          = IntPtr.Zero;
             }
         }
 
@@ -348,22 +348,22 @@ namespace FFBardMusicPlayer
             }
         }
 
-        public void SendKeyInput(List<KEYBDINPUT> KeybdInput)
+        public void SendKeyInput(List<Keybdinput> keybdInput)
         {
-            var keyList = new List<INPUT>();
-            foreach (var input in KeybdInput)
+            var keyList = new List<Input>();
+            foreach (var input in keybdInput)
             {
-                keyList.Add(new INPUT
+                keyList.Add(new Input
                 {
-                    type = 1,
-                    un = new InputUnion
+                    Type = 1,
+                    Un = new InputUnion
                     {
                         ki = input
                     }
                 });
             }
 
-            SendInput((uint) keyList.Count, keyList.ToArray(), Marshal.SizeOf(typeof(INPUT)));
+            SendInput((uint) keyList.Count, keyList.ToArray(), Marshal.SizeOf(typeof(Input)));
         }
 
         public void SendAsyncChar(char charInput)
@@ -378,17 +378,17 @@ namespace FFBardMusicPlayer
                 SetForegroundWindow(mainWindowHandle);
             }
 
-            var keyList = new List<INPUT>();
+            var keyList = new List<Input>();
             foreach (short c in input)
             {
                 if (c > 10)
                 {
-                    var keyDown = new INPUT
+                    var keyDown = new Input
                     {
-                        type = 1,
-                        un = new InputUnion
+                        Type = 1,
+                        Un = new InputUnion
                         {
-                            ki = new KEYBDINPUT
+                            ki = new Keybdinput
                             {
                                 wVk     = 0,
                                 wScan   = (ushort) c,
@@ -398,12 +398,12 @@ namespace FFBardMusicPlayer
                     };
                     keyList.Add(keyDown);
 
-                    var keyUp = new INPUT
+                    var keyUp = new Input
                     {
-                        type = 1,
-                        un = new InputUnion
+                        Type = 1,
+                        Un = new InputUnion
                         {
-                            ki = new KEYBDINPUT
+                            ki = new Keybdinput
                             {
                                 wVk     = 0,
                                 wScan   = (ushort) c,
@@ -415,7 +415,7 @@ namespace FFBardMusicPlayer
                 }
             }
 
-            SendInput((uint) keyList.Count, keyList.ToArray(), Marshal.SizeOf(typeof(INPUT)));
+            SendInput((uint) keyList.Count, keyList.ToArray(), Marshal.SizeOf(typeof(Input)));
         }
 
         public void SendAsyncKeybind(FFXIVKeybindDat.Keybind keybind)
@@ -448,9 +448,9 @@ namespace FFBardMusicPlayer
 
             SendAsyncKey(key, true, true, false);
 
-            if (!lastPerformanceKeys.Contains(keybind))
+            if (!LastPerformanceKeys.Contains(keybind))
             {
-                lastPerformanceKeys.Add(keybind);
+                LastPerformanceKeys.Add(keybind);
             }
         }
 
@@ -469,28 +469,28 @@ namespace FFBardMusicPlayer
 
             SendAsyncKey(key, true, false, true);
 
-            if (lastPerformanceKeys.Contains(keybind))
+            if (LastPerformanceKeys.Contains(keybind))
             {
-                lastPerformanceKeys.Remove(keybind);
+                LastPerformanceKeys.Remove(keybind);
             }
         }
 
         public void ClearLastPerformanceKeybinds()
         {
-            foreach (var keybind in lastPerformanceKeys.ToArray())
+            foreach (var keybind in LastPerformanceKeys.ToArray())
             {
                 SendSyncKey(keybind.GetKey(), true, false, true);
             }
 
-            lastPerformanceKeys.Clear();
+            LastPerformanceKeys.Clear();
         }
 
         public bool SendUiMouseClick(FFXIVAddonDat addon, uint uiWidget, int x, int y)
         {
-            if (addon[uiWidget].id == uiWidget)
+            if (addon[uiWidget].Id == uiWidget)
             {
                 var clientRect = GetClientRect();
-                var point = addon[uiWidget].GetXYPoint(clientRect.Width(), clientRect.Height());
+                var point = addon[uiWidget].GetXyPoint(clientRect.Width(), clientRect.Height());
                 SendMouseClick(point.X + x, point.Y + y);
                 return true;
             }
@@ -500,18 +500,18 @@ namespace FFBardMusicPlayer
 
         public void SendMouseClick(int x, int y)
         {
-            var point = new POINT(x, y);
+            var point = new Point(x, y);
             if (GetScreenFromClientPoint(ref point))
             {
-                Cursor.Position = new Point(point.X, point.Y);
-                var mouseDown = new List<INPUT>
+                Cursor.Position = new System.Drawing.Point(point.X, point.Y);
+                var mouseDown = new List<Input>
                 {
-                    new INPUT
+                    new Input
                     {
-                        type = 0,
-                        un = new InputUnion
+                        Type = 0,
+                        Un = new InputUnion
                         {
-                            mi = new MOUSEINPUT
+                            mi = new Mouseinput
                             {
                                 dx      = point.X,
                                 dy      = point.Y,
@@ -520,16 +520,16 @@ namespace FFBardMusicPlayer
                         }
                     }
                 };
-                SendInput((uint) mouseDown.Count, mouseDown.ToArray(), Marshal.SizeOf(typeof(INPUT)));
+                SendInput((uint) mouseDown.Count, mouseDown.ToArray(), Marshal.SizeOf(typeof(Input)));
 
-                var mouseUp = new List<INPUT>
+                var mouseUp = new List<Input>
                 {
-                    new INPUT
+                    new Input
                     {
-                        type = 0,
-                        un = new InputUnion
+                        Type = 0,
+                        Un = new InputUnion
                         {
-                            mi = new MOUSEINPUT
+                            mi = new Mouseinput
                             {
                                 dx      = point.X + 1,
                                 dy      = point.Y + 1,
@@ -538,13 +538,13 @@ namespace FFBardMusicPlayer
                         }
                     }
                 };
-                SendInput((uint) mouseUp.Count, mouseUp.ToArray(), Marshal.SizeOf(typeof(INPUT)));
+                SendInput((uint) mouseUp.Count, mouseUp.ToArray(), Marshal.SizeOf(typeof(Input)));
             }
             //	SendMessage(mainWindowHandle, WM_LBUTTONDOWN, (IntPtr) 0, (IntPtr) ((y << 16) | (x & 0xFFFF)));
             //	SendMessage(mainWindowHandle, WM_LBUTTONUP, (IntPtr) 0, (IntPtr) (((y + 1) << 16) | ((x + 1) & 0xFFFF)));
         }
 
-        public RECT GetClientRect()
+        public Rect GetClientRect()
         {
             if (mainWindowHandle != null)
             {
@@ -554,10 +554,10 @@ namespace FFBardMusicPlayer
                 }
             }
 
-            return new RECT();
+            return new Rect();
         }
 
-        public bool GetScreenFromClientPoint(ref POINT point)
+        public bool GetScreenFromClientPoint(ref Point point)
         {
             if (mainWindowHandle != null)
             {
@@ -578,7 +578,7 @@ namespace FFBardMusicPlayer
                 }
             }
 
-            return CallNextHookEx(_hookID, nCode, wParam, lParam);
+            return CallNextHookEx(hookId, nCode, wParam, lParam);
         }
     }
 }

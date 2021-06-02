@@ -14,9 +14,9 @@ namespace FFBardMusicPlayer.Controls
 {
     public partial class BmpLocalPerformer : UserControl
     {
-        private FFXIVKeybindDat hotkeys = new FFXIVKeybindDat();
-        private FFXIVHotbarDat hotbar = new FFXIVHotbarDat();
-        private FFXIVHook hook = new FFXIVHook();
+        private readonly FFXIVKeybindDat hotkeys = new FFXIVKeybindDat();
+        private readonly FFXIVHotbarDat hotbar = new FFXIVHotbarDat();
+        private readonly FFXIVHook hook = new FFXIVHook();
         private Instrument chosenInstrument = Instrument.Piano;
 
         public Instrument ChosenInstrument
@@ -55,9 +55,9 @@ namespace FFBardMusicPlayer.Controls
             }
         }
 
-        public EventHandler onUpdate;
+        public EventHandler OnUpdate;
         private bool openDelay;
-        public bool hostProcess = false;
+        public bool HostProcess = false;
 
         public int TrackNum
         {
@@ -75,8 +75,8 @@ namespace FFBardMusicPlayer.Controls
 
         private bool WantsHold => Properties.Settings.Default.HoldNotes;
 
-        public uint performanceId = 0;
-        public uint actorId = 0;
+        public uint PerformanceId = 0;
+        public uint ActorId = 0;
         private bool performanceUp = false;
 
         public bool PerformanceUp
@@ -97,7 +97,7 @@ namespace FFBardMusicPlayer.Controls
                 InstrumentName.Enabled = value;
                 CharacterName.Enabled  = value;
                 Keyboard.Enabled       = value;
-                if (!hostProcess)
+                if (!HostProcess)
                 {
                     CharacterName.BackColor = value ? Color.Transparent : Color.FromArgb(235, 120, 120);
                 }
@@ -119,10 +119,10 @@ namespace FFBardMusicPlayer.Controls
 
             if (mp != null)
             {
-                hook.Hook(mp.process, false);
-                hotkeys.LoadKeybindDat(mp.characterId);
-                hotbar.LoadHotbarDat(mp.characterId);
-                CharacterName.Text = mp.characterName;
+                hook.Hook(mp.Process, false);
+                hotkeys.LoadKeybindDat(mp.CharacterId);
+                hotbar.LoadHotbarDat(mp.CharacterId);
+                CharacterName.Text = mp.CharacterName;
             }
 
             Scroller.OnScroll += delegate(object o, int scroll) { sequencer.Seek(scroll); };
@@ -138,15 +138,15 @@ namespace FFBardMusicPlayer.Controls
 
             var noteEvent = new NoteEvent
             {
-                note     = builder.Data1,
-                origNote = builder.Data1,
-                trackNum = sequencer.GetTrackNum(args.MidiTrack),
-                track    = args.MidiTrack
+                Note     = builder.Data1,
+                OrigNote = builder.Data1,
+                TrackNum = sequencer.GetTrackNum(args.MidiTrack),
+                Track    = args.MidiTrack
             };
 
-            if (sequencer.GetTrackNum(noteEvent.track) == TrackNum)
+            if (sequencer.GetTrackNum(noteEvent.Track) == TrackNum)
             {
-                noteEvent.note = NoteHelper.ApplyOctaveShift(noteEvent.note, OctaveNum);
+                noteEvent.Note = NoteHelper.ApplyOctaveShift(noteEvent.Note, OctaveNum);
 
                 var cmd = args.Message.Command;
                 var vel = builder.Data2;
@@ -174,7 +174,7 @@ namespace FFBardMusicPlayer.Controls
                 return;
             }
 
-            if (hotkeys.GetKeybindFromNoteByte(note.note) is FFXIVKeybindDat.Keybind keybind)
+            if (hotkeys.GetKeybindFromNoteByte(note.Note) is FFXIVKeybindDat.Keybind keybind)
             {
                 if (WantsHold)
                 {
@@ -194,7 +194,7 @@ namespace FFBardMusicPlayer.Controls
                 return;
             }
 
-            if (hotkeys.GetKeybindFromNoteByte(note.note) is FFXIVKeybindDat.Keybind keybind)
+            if (hotkeys.GetKeybindFromNoteByte(note.Note) is FFXIVKeybindDat.Keybind keybind)
             {
                 if (WantsHold)
                 {
@@ -270,7 +270,7 @@ namespace FFBardMusicPlayer.Controls
                 ChosenInstrument = bmpSeq.GetTrackPreferredInstrument(track);
             }
 
-            BackColor = hostProcess 
+            BackColor = HostProcess 
                 ? Color.FromArgb(235, 235, 120) 
                 : Color.Transparent;
         }
@@ -278,7 +278,7 @@ namespace FFBardMusicPlayer.Controls
         public void OpenInstrument()
         {
             // Exert the effort to check memory i guess
-            if (hostProcess)
+            if (HostProcess)
             {
                 if (Sharlayan.MemoryHandler.Instance.IsAttached
                     && Sharlayan.Reader.CanGetPerformance()
@@ -328,7 +328,7 @@ namespace FFBardMusicPlayer.Controls
 
         public void CloseInstrument()
         {
-            if (hostProcess)
+            if (HostProcess)
             {
                 if (Sharlayan.MemoryHandler.Instance.IsAttached
                     && Sharlayan.Reader.CanGetPerformance()
@@ -356,7 +356,7 @@ namespace FFBardMusicPlayer.Controls
 
         public void ToggleMute()
         {
-            if (hostProcess)
+            if (HostProcess)
                 return;
 
             if (hook.Process != null)

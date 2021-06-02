@@ -73,7 +73,7 @@ namespace FFBardMusicPlayer.FFXIV.MyDocumentsResolver
         /// The per-user Temporary Burn Folder.
         /// Defaults to &quot;%LOCALAPPDATA%\Microsoft\Windows\Burn\Burn&quot;.
         /// </summary>
-        internal static KnownFolder CDBurning => GetInstance(KnownFolderType.CDBurning);
+        internal static KnownFolder CdBurning => GetInstance(KnownFolderType.CdBurning);
 
         /// <summary>
         /// The common Administrative Tools folder.
@@ -453,7 +453,7 @@ namespace FFBardMusicPlayer.FFXIV.MyDocumentsResolver
         /// The common Recorded TV library. Introduced in Windows 7.
         /// Defaults to &quot;%PUBLIC%\RecordedTV.library-ms&quot;.
         /// </summary>
-        internal static KnownFolder RecordedTVLibrary => GetInstance(KnownFolderType.RecordedTVLibrary);
+        internal static KnownFolder RecordedTvLibrary => GetInstance(KnownFolderType.RecordedTvLibrary);
 
         /// <summary>
         /// The fixed Resources folder.

@@ -15,14 +15,14 @@ namespace FFBardMusicPlayer
 
         public class HotbarSection
         {
-            public byte action = 0; // Higher level? 0D for 60-70 spells
-            public byte flag = 0;
-            public byte unk1 = 0;
-            public byte unk2 = 0;
-            public byte job = 0;
-            public byte hotbar = 0;
-            public byte slot = 0;
-            public byte type = 0;
+            internal byte Action = 0; // Higher level? 0D for 60-70 spells
+            internal byte Flag = 0;
+            internal byte Unk1 = 0;
+            internal byte Unk2 = 0;
+            internal byte Job = 0;
+            internal byte Hotbar = 0;
+            internal byte Slot = 0;
+            internal byte Type = 0;
         };
 
         public class HotbarSlots : Dictionary<int, HotbarJobSlot>
@@ -31,13 +31,13 @@ namespace FFBardMusicPlayer
 
         public class HotbarSlot : HotbarSection
         {
-            public int Hotbar => hotbar + 1;
+            public new int HotbarOutput => base.Hotbar + 1;
 
-            public int Slot
+            public int SlotOutput
             {
                 get
                 {
-                    var fslot = slot + 1;
+                    var fslot = base.Slot + 1;
 
                     var ss = fslot % 10;
                     if (fslot > 10)
@@ -49,7 +49,7 @@ namespace FFBardMusicPlayer
                 }
             }
 
-            public override string ToString() => $"HOTBAR_{Hotbar}_{Slot:X}";
+            public override string ToString() => $"HOTBAR_{HotbarOutput}_{SlotOutput:X}";
         }
 
         public class HotbarJobSlots : Dictionary<int, HotbarSlot>
@@ -58,20 +58,20 @@ namespace FFBardMusicPlayer
 
         public class HotbarJobSlot
         {
-            public HotbarJobSlots jobSlots = new HotbarJobSlots();
+            public HotbarJobSlots JobSlots = new HotbarJobSlots();
 
             public HotbarSlot this[int i]
             {
                 get
                 {
-                    if (!jobSlots.ContainsKey(i))
+                    if (!JobSlots.ContainsKey(i))
                     {
-                        jobSlots[i] = new HotbarSlot();
+                        JobSlots[i] = new HotbarSlot();
                     }
 
-                    return jobSlots[i];
+                    return JobSlots[i];
                 }
-                set => jobSlots[i] = value;
+                set => JobSlots[i] = value;
             }
         }
 
@@ -81,64 +81,64 @@ namespace FFBardMusicPlayer
 
         public class HotbarRow
         {
-            public HotbarSlots slots = new HotbarSlots();
+            public HotbarSlots Slots = new HotbarSlots();
 
             public HotbarJobSlot this[int i]
             {
                 get
                 {
-                    if (!slots.ContainsKey(i))
+                    if (!Slots.ContainsKey(i))
                     {
-                        slots[i] = new HotbarJobSlot();
+                        Slots[i] = new HotbarJobSlot();
                     }
 
-                    return slots[i];
+                    return Slots[i];
                 }
-                set => slots[i] = value;
+                set => Slots[i] = value;
             }
         }
 
         public class HotbarData
         {
-            public HotbarRows rows = new HotbarRows();
+            public HotbarRows Rows = new HotbarRows();
 
             public HotbarRow this[int i]
             {
                 get
                 {
-                    if (!rows.ContainsKey(i))
+                    if (!Rows.ContainsKey(i))
                     {
-                        rows[i] = new HotbarRow();
+                        Rows[i] = new HotbarRow();
                     }
 
-                    return rows[i];
+                    return Rows[i];
                 }
-                set => rows[i] = value;
+                set => Rows[i] = value;
             }
 
-            public void Clear() { rows.Clear(); }
+            public void Clear() { Rows.Clear(); }
         }
 
         #endregion
 
-        private HotbarData hotbarData = new HotbarData();
+        private readonly HotbarData hotbarData = new HotbarData();
 
         public void LoadHotbarDat(string charId)
         {
-            var fileToLoad = $"{Program.programOptions.DatPrefix}HOTBAR.DAT";
+            var fileToLoad = $"{Program.ProgramOptions.DatPrefix}HOTBAR.DAT";
             LoadDatId(charId, fileToLoad);
         }
 
         public List<HotbarSlot> GetSlotsFromType(int type)
         {
             var slots = new List<HotbarSlot>();
-            foreach (var row in hotbarData.rows.Values)
+            foreach (var row in hotbarData.Rows.Values)
             {
-                foreach (var jobSlot in row.slots.Values)
+                foreach (var jobSlot in row.Slots.Values)
                 {
-                    foreach (var slot in jobSlot.jobSlots.Values)
+                    foreach (var slot in jobSlot.JobSlots.Values)
                     {
-                        if (slot.type == type)
+                        if (slot.Type == type)
                         {
                             slots.Add(slot);
                         }
@@ -151,10 +151,10 @@ namespace FFBardMusicPlayer
 
         public string GetHotbarSlotKeyMap(int hnum, int snum, int jnum)
         {
-            if (hotbarData.rows.ContainsKey(hnum))
+            if (hotbarData.Rows.ContainsKey(hnum))
             {
                 var row = hotbarData[hnum];
-                if (row.slots.ContainsKey(snum))
+                if (row.Slots.ContainsKey(snum))
                 {
                     var slot = row[snum][jnum];
                     return slot.ToString();
@@ -169,7 +169,7 @@ namespace FFBardMusicPlayer
             var slots = GetSlotsFromType(0x1D);
             foreach (var slot in slots)
             {
-                if (slot.action == (int) ins)
+                if (slot.Action == (int) ins)
                 {
                     return slot.ToString();
                 }
@@ -184,17 +184,17 @@ namespace FFBardMusicPlayer
             if (base.ParseDat(stream))
             {
                 stream.BaseStream.Seek(0x10, SeekOrigin.Begin);
-                while (stream.BaseStream.Position < header.dataSize)
+                while (stream.BaseStream.Position < Header.DataSize)
                 {
                     var ac = ParseSection(stream);
-                    if (ac.job <= 0x23)
+                    if (ac.Job <= 0x23)
                     {
-                        if (ac.type == 0x1D)
+                        if (ac.Type == 0x1D)
                         {
                             //Console.WriteLine(string.Format("{0} ({1}): {2} {3}", ac.ToString(), ac.job, ac.action, ac.type));
                         }
 
-                        hotbarData[ac.hotbar][ac.slot][ac.job] = ac;
+                        hotbarData[((HotbarSection) ac).Hotbar][((HotbarSection) ac).Slot][ac.Job] = ac;
                     }
                 }
             }
@@ -207,14 +207,14 @@ namespace FFBardMusicPlayer
             byte xor = 0x31;
             var ac = new HotbarSlot
             {
-                action = XorTools.ReadXorByte(stream, xor),
-                flag   = XorTools.ReadXorByte(stream, xor),
-                unk1   = XorTools.ReadXorByte(stream, xor),
-                unk2   = XorTools.ReadXorByte(stream, xor),
-                job    = XorTools.ReadXorByte(stream, xor),
-                hotbar = XorTools.ReadXorByte(stream, xor),
-                slot   = XorTools.ReadXorByte(stream, xor),
-                type   = XorTools.ReadXorByte(stream, xor)
+                Action = XorTools.ReadXorByte(stream, xor),
+                Flag   = XorTools.ReadXorByte(stream, xor),
+                Unk1   = XorTools.ReadXorByte(stream, xor),
+                Unk2   = XorTools.ReadXorByte(stream, xor),
+                Job    = XorTools.ReadXorByte(stream, xor),
+                Hotbar = XorTools.ReadXorByte(stream, xor),
+                Slot   = XorTools.ReadXorByte(stream, xor),
+                Type   = XorTools.ReadXorByte(stream, xor)
             };
             return ac;
         }

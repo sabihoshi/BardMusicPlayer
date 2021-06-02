@@ -10,9 +10,9 @@ namespace FFBardMusicPlayer
 {
     public partial class BmpUpdate : Form
     {
-        public UpdateVersion version = new UpdateVersion();
+        public UpdateVersion Version = new UpdateVersion();
         private float currentVersion;
-        private BackgroundWorker worker = new BackgroundWorker();
+        private readonly BackgroundWorker worker = new BackgroundWorker();
 
         public BmpUpdate()
         {
@@ -58,11 +58,11 @@ namespace FFBardMusicPlayer
 
         private bool DownloadToProgramFile(string filename, string outFilename)
         {
-            var signatureJson = new Uri(Program.urlBase + filename);
+            var signatureJson = new Uri(Program.UrlBase + filename);
             var res2 = LoadFile(signatureJson, out var jsonText);
             if (res2.StatusCode == HttpStatusCode.OK)
             {
-                var file = Path.Combine(Program.appBase, outFilename);
+                var file = Path.Combine(Program.AppBase, outFilename);
                 using (var writer = new StreamWriter(file))
                 {
                     writer.Write(jsonText);
@@ -77,19 +77,19 @@ namespace FFBardMusicPlayer
         {
             currentVersion = UpdateVersion.Version;
 
-            var updateJson = $"{Program.urlBase}update?v={UpdateVersion.Version}";
+            var updateJson = $"{Program.UrlBase}update?v={UpdateVersion.Version}";
             Console.WriteLine($"Updatejson: {updateJson}");
 
-            version = JsonSerializer.DeserializeFromString<UpdateVersion>(updateJson.GetJsonFromUrl());
+            Version = JsonSerializer.DeserializeFromString<UpdateVersion>(updateJson.GetJsonFromUrl());
 
-            if (version == null)
+            if (Version == null)
             {
                 return;
             }
 
-            DialogResult = version.updateVersion > UpdateVersion.Version ? DialogResult.Yes : DialogResult.No;
+            DialogResult = Version.NewVersion > UpdateVersion.Version ? DialogResult.Yes : DialogResult.No;
 
-            if (UpdateVersion.Version > version.updateVersion)
+            if (UpdateVersion.Version > Version.NewVersion)
             {
                 DialogResult = DialogResult.Ignore;
             }
@@ -100,9 +100,9 @@ namespace FFBardMusicPlayer
                 // If new version is above current sig version
                 // Or if they don't exist
 
-                var sigExist = File.Exists(Path.Combine(Program.appBase, "signatures.json"));
-                var strExist = File.Exists(Path.Combine(Program.appBase, "structures.json"));
-                if (version.sigVersion > Properties.Settings.Default.SigVersion || version.sigVersion == -1 ||
+                var sigExist = File.Exists(Path.Combine(Program.AppBase, "signatures.json"));
+                var strExist = File.Exists(Path.Combine(Program.AppBase, "structures.json"));
+                if (Version.SigVersion > Properties.Settings.Default.SigVersion || Version.SigVersion == -1 ||
                     !(sigExist && strExist))
                 {
                     Console.WriteLine("Downloading signatures");
@@ -119,13 +119,13 @@ namespace FFBardMusicPlayer
                         Console.WriteLine("Downloaded structures");
                     }
 
-                    Properties.Settings.Default.SigVersion = version.sigVersion;
-                    Console.WriteLine($"ver1: {version.sigVersion} ver2: {Properties.Settings.Default.SigVersion}");
+                    Properties.Settings.Default.SigVersion = Version.SigVersion;
+                    Console.WriteLine($"ver1: {Version.SigVersion} ver2: {Properties.Settings.Default.SigVersion}");
                     Properties.Settings.Default.Save();
 
                     // New signature update
                     // Reset forced stuff so people don't get stuck on that junk
-                    if (version.sigVersion > 0)
+                    if (Version.SigVersion > 0)
                     {
                         Properties.Settings.Default.ForcedOpen = false;
                     }
@@ -139,25 +139,25 @@ namespace FFBardMusicPlayer
     public class UpdateVersion
     {
         // If update, fill these in
-        public float updateVersion { get; set; } = 0f;
+        public float NewVersion { get; set; } = 0f;
 
-        public string updateText { get; set; } = "";
+        public string UpdateText { get; set; } = "";
 
-        public string updateTitle { get; set; } = "";
+        public string UpdateTitle { get; set; } = "";
 
-        public string updateLog { get; set; } = "";
+        public string UpdateLog { get; set; } = "";
 
-        public string appName { get; set; } = "Bard Music Player";
+        public string AppName { get; set; } = "Bard Music Player";
 #if DEBUG
-        public string appVersion { get; set; } = "Beta";
+        public string AppVersion { get; set; } = "Beta";
 #else
 		public string appVersion { get; set; } = string.Empty;
 #endif
-        public string creatorName { get; set; } = string.Empty;
+        public string CreatorName { get; set; } = string.Empty;
 
-        public string creatorWorld { get; set; } = string.Empty;
+        public string CreatorWorld { get; set; } = string.Empty;
 
-        public int sigVersion { get; set; } = -1;
+        public int SigVersion { get; set; } = -1;
 
         public static float Version
         {
@@ -170,20 +170,20 @@ namespace FFBardMusicPlayer
 
         public override string ToString()
         {
-            var str = $"{appName} {Version}";
-            if (!string.IsNullOrEmpty(appVersion))
+            var str = $"{AppName} {Version}";
+            if (!string.IsNullOrEmpty(AppVersion))
             {
-                str = $"{str} [{appVersion}]";
+                str = $"{str} [{AppVersion}]";
             }
 
-            if (!string.IsNullOrEmpty(creatorName))
+            if (!string.IsNullOrEmpty(CreatorName))
             {
-                str = $"{str} by {creatorName}";
+                str = $"{str} by {CreatorName}";
             }
 
-            if (!string.IsNullOrEmpty(creatorWorld))
+            if (!string.IsNullOrEmpty(CreatorWorld))
             {
-                str = $"{str} ({creatorWorld})";
+                str = $"{str} ({CreatorWorld})";
             }
 
             return str;

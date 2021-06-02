@@ -10,9 +10,9 @@ namespace FFBardMusicPlayer
 {
     internal class Program
     {
-        public static string urlBase = "https://bardmusicplayer.com/";
+        public static string UrlBase = "https://bardmusicplayer.com/";
 #if DEBUG
-        public static string appBase = Application.StartupPath;
+        public static string AppBase = Application.StartupPath;
 #else
         public static string appBase = Application.CommonAppDataPath;
 #endif
@@ -46,13 +46,13 @@ namespace FFBardMusicPlayer
             public string DatPrefix { get; set; }
         }
 
-        public static Options programOptions = new Options();
+        public static Options ProgramOptions = new Options();
 
         [STAThread]
         private static void Main(string[] args)
         {
             // Parse args
-            Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(options => { programOptions = options; });
+            Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(options => { ProgramOptions = options; });
 
             Application.EnableVisualStyles();
 
@@ -65,7 +65,7 @@ namespace FFBardMusicPlayer
                 Console.OutputEncoding = System.Text.Encoding.UTF8;
             }
 
-            Sharlayan.Reader.JsonPath = appBase;
+            Sharlayan.Reader.JsonPath = AppBase;
 
             /*
             BmpPluginHelper helper = BmpPluginHelper.LoadPlugins();

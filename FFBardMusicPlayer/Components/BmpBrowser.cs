@@ -15,7 +15,7 @@ namespace FFBardMusicPlayer.Components
 
         public class MidiFileName
         {
-            private string fileName = string.Empty;
+            private readonly string fileName = string.Empty;
 
             public string FileName => fileName;
 
@@ -74,7 +74,7 @@ namespace FFBardMusicPlayer.Components
 
         public class MidiFile
         {
-            private MidiFileName fileName = new MidiFileName();
+            private readonly MidiFileName fileName = new MidiFileName();
 
             public MidiFileName FileName => fileName;
 
@@ -97,7 +97,7 @@ namespace FFBardMusicPlayer.Components
         {
         }
 
-        private MidiList midis = new MidiList();
+        private readonly MidiList midis = new MidiList();
 
         public MidiList List => midis;
 
@@ -112,7 +112,7 @@ namespace FFBardMusicPlayer.Components
         #endregion
 
         public EventHandler<BmpMidiEntry> OnMidiFileSelect;
-        private FileSystemWatcher fileWatcher = new FileSystemWatcher();
+        private readonly FileSystemWatcher fileWatcher = new FileSystemWatcher();
 
         public BmpBrowser()
         {

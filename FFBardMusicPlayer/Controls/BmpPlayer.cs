@@ -10,7 +10,7 @@ namespace FFBardMusicPlayer.Controls
     public partial class BmpPlayer : UserControl
     {
         // Player manager and manipulator
-        private BmpSequencer player = new BmpSequencer();
+        private readonly BmpSequencer player = new BmpSequencer();
         public EventHandler<Track> OnMidiTrackLoad;
         public EventHandler<bool> OnMidiStatusChange;
         public EventHandler<int> OnMidiProgressChange;
@@ -18,10 +18,10 @@ namespace FFBardMusicPlayer.Controls
 
         public class NoteEvent
         {
-            public Track track;
-            public int trackNum;
-            public int note;
-            public int origNote;
+            public Track Track;
+            public int TrackNum;
+            public int Note;
+            public int OrigNote;
         };
 
         public EventHandler<NoteEvent> OnMidiNote;
@@ -142,13 +142,13 @@ namespace FFBardMusicPlayer.Controls
         public Instrument PreferredInstrument =>
             player.LoadedTrack == null ? 0 : player.GetTrackPreferredInstrument(player.LoadedTrack);
 
-        public int TotalNoteCount => player.notesPlayedCount.Values.Sum();
+        public int TotalNoteCount => player.NotesPlayedCount.Values.Sum();
 
         public int CurrentNoteCount =>
-            player.LoadedTrack == null ? 0 : player.notesPlayedCount[player.LoadedTrack];
+            player.LoadedTrack == null ? 0 : player.NotesPlayedCount[player.LoadedTrack];
 
         private bool trackHoldPlaying;
-        private Dictionary<Track, int> trackNumLut = new Dictionary<Track, int>();
+        private readonly Dictionary<Track, int> trackNumLut = new Dictionary<Track, int>();
 
         public BmpPlayer()
         {
@@ -237,10 +237,10 @@ namespace FFBardMusicPlayer.Controls
         {
             OnMidiNote?.Invoke(o, new NoteEvent
             {
-                track    = e.MidiTrack,
-                trackNum = GetTrackLutNum(e.MidiTrack),
-                note     = ApplyOctaveShift(e.Message.Data1),
-                origNote = e.Message.Data1
+                Track    = e.MidiTrack,
+                TrackNum = GetTrackLutNum(e.MidiTrack),
+                Note     = ApplyOctaveShift(e.Message.Data1),
+                OrigNote = e.Message.Data1
             });
         }
 
@@ -248,10 +248,10 @@ namespace FFBardMusicPlayer.Controls
         {
             OffMidiNote?.Invoke(o, new NoteEvent
             {
-                track    = e.MidiTrack,
-                trackNum = GetTrackLutNum(e.MidiTrack),
-                note     = ApplyOctaveShift(e.Message.Data1),
-                origNote = e.Message.Data1
+                Track    = e.MidiTrack,
+                TrackNum = GetTrackLutNum(e.MidiTrack),
+                Note     = ApplyOctaveShift(e.Message.Data1),
+                OrigNote = e.Message.Data1
             });
         }
 
